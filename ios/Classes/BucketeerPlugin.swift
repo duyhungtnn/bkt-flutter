@@ -30,7 +30,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
       }
       let debugging = arguments?["debugging"] as? Bool ?? false
 
-      var config = Config(sdkKey: apiKey, apiURL: endpoint, tag: featureTag)
+      var config = BKTConfig(sdkKey: apiKey, apiURL: endpoint, tag: featureTag)
       config.logLevel = debugging ? .debug : .none
       config.getEvaluationsPollingInterval = arguments?["pollingEvaluationIntervalMillis"] as? TimeInterval ?? 120_000
       config.registerEventsPollingInterval = arguments?["logSendingIntervalMillis"] as? TimeInterval ?? 60_000
