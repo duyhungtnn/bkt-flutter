@@ -1,0 +1,21 @@
+name: bucketeer_example
+description: A sample project for using the Bucketeer.
+
+publish_to: 'none'
+
+version: 1.1.0+1
+
+environment:
+  sdk: '>=2.14.0 <3.0.0'
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bucketeer:
+    path: ../
+  ua_client_hints: ^1.1.3
+  shared_preferences: ^2.0.6
+
+flutter:
+  uses-material-design: true
