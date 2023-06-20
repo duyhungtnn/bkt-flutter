@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class Result<T> {
-  const Result._(this._result);
+class BKTResult<T> {
+  const BKTResult._(this._result);
 
-  const Result.success({T? data}) : this._(data);
+  const BKTResult.success({T? data}) : this._(data);
 
-  Result.failure(String message) : this._(Failure(message));
+  BKTResult.failure(String message) : this._(Failure(message));
 
   final Object? _result;
 
@@ -38,7 +38,7 @@ class Result<T> {
   int get hashCode => runtimeType.hashCode ^ _result.hashCode;
 
   @override
-  bool operator ==(Object other) => other is Result && other._result == _result;
+  bool operator ==(Object other) => other is BKTResult && other._result == _result;
 }
 
 @immutable

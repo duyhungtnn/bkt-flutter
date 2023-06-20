@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
-import 'package:flutter_bucketeer/bucketeer_user.dart';
-import 'package:flutter_bucketeer/evaluation.dart' as bucketeer;
-import 'package:flutter_bucketeer/result.dart';
+import 'package:flutter_bucketeer/src/call_methods.dart';
+import 'package:flutter_bucketeer/src/evaluation.dart' as bucketeer;
+
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -12,14 +12,15 @@ void main() {
 
   setUp(() async {
     channel.setMockMethodCallHandler((methodCall) async {
-      switch (methodCall.method) {
-        case 'initialize':
-        case 'start':
-        case 'stop':
-        case 'setUser':
-        case 'track':
+      var callMethod = CallMethods.values.firstWhere((element) => element.name == methodCall.method) ?? CallMethods.unknown;
+      switch (callMethod) {
+        case CallMethods.initialize:
+        case CallMethods.start:
+        case CallMethods.stop:
+        case CallMethods.updateUserAttributes:
+        case CallMethods.track:
           return {'status': true};
-        case 'getUser':
+        case CallMethods.currentUser:
           return {
             'status': true,
             'response': {
@@ -27,15 +28,15 @@ void main() {
               'data': {'appVersion': '9.9.9', 'platform': 'iOS'}
             }
           };
-        case 'getStringVariation':
+        case CallMethods.stringVariation:
           return {'status': true, 'response': 'datadata'};
-        case 'getIntVariation':
+        case CallMethods.intVariation:
           return {'status': true, 'response': 1234};
-        case 'getDoubleVariation':
+        case CallMethods.doubleVariation:
           return {'status': true, 'response': 55.2};
-        case 'getBoolVariation':
+        case CallMethods.boolVariation:
           return {'status': true, 'response': true};
-        case 'getEvaluation':
+        case CallMethods.evaluationDetails:
           return {
             'status': true,
             'response': {
@@ -48,6 +49,27 @@ void main() {
               'reason': 3,
             }
           };
+        case CallMethods.jsonVariation:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.fetchEvaluations:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.flush:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.addEvaluationUpdateListener:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.removeEvaluationUpdateListener:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.clearEvaluationUpdateListeners:
+          // TODO: Handle this case.
+          break;
+        case CallMethods.unknown:
+          // TODO: Handle this case.
+          break;
       }
     });
   });
@@ -60,33 +82,35 @@ void main() {
     expectLater(
       Bucketeer.instance.initialize(
         apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
-        endpoint: 'demo.bucketeer.jp',
+        apiEndpoint: 'demo.bucketeer.jp',
         featureTag: 'Flutter',
         debugging: true,
-        logSendingIntervalMillis: 3000,
-        logSendingMaxBatchQueueCount: 3,
-        pollingEvaluationIntervalMillis: 3000,
+        eventsFlushInterval: 10000,
+        eventsMaxQueueSize: 10000,
+        pollingInterval: 10000,
+        backgroundPollingInterval: 10000,
+        appVersion: '1.0.0',
       ),
-      completion(equals(Result.success())),
+      completion(equals(const BKTResult.success())),
     );
 
     expectLater(
       Bucketeer.instance.start(),
       completion(
-        equals(Result.success()),
+        equals(const BKTResult.success()),
       ),
     );
 
     expectLater(
       Bucketeer.instance.stop(),
-      completion(equals(Result.success())),
+      completion(equals(const BKTResult.success())),
     );
 
     expectLater(
-      Bucketeer.instance.getUser(),
+      Bucketeer.instance.currentUser(),
       completion(
         equals(
-          Result<BucketeerUser>.success(
+          const BKTResult<BucketeerUser>.success(
             data: BucketeerUser(
                 id: 'userId', data: {'appVersion': '9.9.9', 'platform': 'iOS'}),
           ),
@@ -95,35 +119,35 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.getStringVariation('feature-id'),
+      Bucketeer.instance.stringVariation('feature-id'),
       completion(
-        equals(Result.success(data: 'datadata')),
+        equals(const BKTResult.success(data: 'datadata')),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.getIntVariation('feature-id'),
+      Bucketeer.instance.intVariation('feature-id'),
       completion(
-        equals(Result.success(data: 1234)),
+        equals(const BKTResult.success(data: 1234)),
       ),
     );
 
-    expectLater(Bucketeer.instance.getDoubleVariation('feature-id'),
-        completion(equals(Result.success(data: 55.2))));
+    expectLater(Bucketeer.instance.doubleVariation('feature-id'),
+        completion(equals(const BKTResult.success(data: 55.2))));
 
     expectLater(
-      Bucketeer.instance.getBoolVariation('feature-id'),
+      Bucketeer.instance.boolVariation('feature-id'),
       completion(
-        equals(Result.success(data: true)),
+        equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.getEvaluation('featureId'),
+      Bucketeer.instance.evaluationDetails('featureId'),
       completion(
         equals(
-          Result.success(
-              data: bucketeer.Evaluation(
+          const BKTResult.success(
+              data: bucketeer.BKTEvaluation(
             id: 'id123',
             featureId: 'featureId123',
             featureVersion: 123,
@@ -139,16 +163,16 @@ void main() {
     expectLater(
       Bucketeer.instance.track('goal-id'),
       completion(
-        equals(Result.success()),
+        equals(const BKTResult.success()),
       ),
     );
 
-    final success = Result.success(data: 'Success');
+    const success = BKTResult.success(data: 'Success');
     expect(success.isSuccess, equals(true));
     expect(success.isFailure, equals(false));
     expect(success.asSuccess.data, equals('Success'));
 
-    final failure = Result.failure('Failed');
+    final failure = BKTResult.failure('Failed');
     expect(failure.isFailure, equals(true));
     expect(failure.isSuccess, equals(false));
     expect(failure.asFailure.message, equals('Failed'));

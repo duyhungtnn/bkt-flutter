@@ -68,43 +68,6 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             }
             
             break
-        case .updateUserAttributes:
-            guard let userAttributes = call.arguments as? [String: String] else {
-                fail(result: result, message: "Required userAttributes value.")
-                return
-            }
-            BKTClient.shared.updateUserAttributes(attributes: userAttributes)
-            success(result: result)
-            
-            break
-        case .currentUser:
-            guard BKTClient.shared.currentUser() != nil else {
-                fail(result: result, message: "Failed to fetch the user.")
-                return
-            }
-            success(result: result, response: ["id": "id", "data": [:]])
-            break
-        case .evaluationDetails:
-            guard let featureId = arguments?["featureId"] as? String else {
-                fail(result: result, message: "Required featureId value.")
-                return
-            }
-            guard let response = BKTClient.shared.evaluationDetails(featureId: featureId) else {
-                fail(result: result, message: "Failed to fetch the evaluation.")
-                return
-            }
-            success(
-                result: result,
-                response: [
-                    "id": response.id,
-                    "featureId": response.featureId,
-                    "featureVersion": response.featureVersion,
-                    "userId": response.userId,
-                    "variationId": response.variationId,
-                    "variationValue": response.variationValue,
-                    "reason": response.reason,
-                ])
-            break
         case .stringVariation:
             guard let featureId = arguments?["featureId"] as? String else {
                 fail(result: result, message: "Required featureId value.")
@@ -153,6 +116,22 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             let defaultValue = arguments?["defaultValue"] as? Dictionary<String, AnyHashable> ?? [:]
             let response = BKTClient.shared.jsonVariation(featureId: featureId, defaultValue: defaultValue)
             success(result: result, response: response)
+        case .currentUser:
+            guard BKTClient.shared.currentUser() != nil else {
+                fail(result: result, message: "Failed to fetch the user.")
+                return
+            }
+            success(result: result, response: ["id": "id", "data": [:]])
+            break
+        case .updateUserAttributes:
+            guard let userAttributes = call.arguments as? [String: String] else {
+                fail(result: result, message: "Required userAttributes value.")
+                return
+            }
+            BKTClient.shared.updateUserAttributes(attributes: userAttributes)
+            success(result: result)
+            
+            break
         case .fetchEvaluations:
             let timeoutMillis = arguments?["timeoutMillis"] as? Int64 ?? 30_0000
             BKTClient.shared.fetchEvaluations(timeoutMillis: timeoutMillis) { [weak self] err in
@@ -171,6 +150,27 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
                     self?.success(result: result)
                 }
             }
+        case .evaluationDetails:
+            guard let featureId = arguments?["featureId"] as? String else {
+                fail(result: result, message: "Required featureId value.")
+                return
+            }
+            guard let response = BKTClient.shared.evaluationDetails(featureId: featureId) else {
+                fail(result: result, message: "Failed to fetch the evaluation.")
+                return
+            }
+            success(
+                result: result,
+                response: [
+                    "id": response.id,
+                    "featureId": response.featureId,
+                    "featureVersion": response.featureVersion,
+                    "userId": response.userId,
+                    "variationId": response.variationId,
+                    "variationValue": response.variationValue,
+                    "reason": response.reason,
+                ])
+            break
         case .addEvaluationUpdateListener:
             result(FlutterMethodNotImplemented)
         case .removeEvaluationUpdateListener:

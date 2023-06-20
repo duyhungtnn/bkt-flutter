@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class Evaluation {
-  const Evaluation({
+class BKTEvaluation {
+  const BKTEvaluation({
     required this.id,
     required this.featureId,
     required this.featureVersion,
@@ -22,7 +22,7 @@ class Evaluation {
 
   @override
   bool operator ==(Object other) =>
-      other is Evaluation &&
+      other is BKTEvaluation &&
       runtimeType == other.runtimeType &&
       id == other.id &&
       featureId == other.featureId &&
