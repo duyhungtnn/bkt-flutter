@@ -100,9 +100,11 @@ class Bucketeer {
   }) async {
     return _resultGuard<Map<String, dynamic>>(
         await _invokeMethod(CallMethods.jsonVariation.name, argument: {
-      'featureId': featureId,
-      'defaultValue': defaultValue,
-    }));
+          'featureId': featureId,
+          'defaultValue': defaultValue,
+        }), onDataChange: (response) {
+      return response;
+    });
   }
 
   Future<BKTResult<void>> track(
@@ -134,11 +136,12 @@ class Bucketeer {
     Map<String, String> userMap = const {},
   }) async {
     return _resultGuard(
-      await _invokeMethod(CallMethods.updateUserAttributes.name, argument: userMap),
+      await _invokeMethod(CallMethods.updateUserAttributes.name,
+          argument: userMap),
     );
   }
 
-  Future<BKTResult<void>> fetchEvaluations(Int64 timeoutMillis) async {
+  Future<BKTResult<void>> fetchEvaluations(int timeoutMillis) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.fetchEvaluations.name, argument: {
         'timeoutMillis': timeoutMillis,
@@ -207,7 +210,7 @@ class Bucketeer {
     Map<String, dynamic> argument = const {},
   }) async {
     return Map<String, dynamic>.from(
-      await _channel.invokeMethod(method, argument),
+      await _channel.invokeMapMethod(method, argument) ?? {},
     );
   }
 }

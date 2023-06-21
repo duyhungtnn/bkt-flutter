@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
 import 'package:flutter_bucketeer/src/call_methods.dart';
@@ -12,13 +13,18 @@ void main() {
 
   setUp(() async {
     channel.setMockMethodCallHandler((methodCall) async {
-      var callMethod = CallMethods.values.firstWhere((element) => element.name == methodCall.method) ?? CallMethods.unknown;
+      var callMethod = CallMethods.values.firstWhere(
+          (element) => element.name == methodCall.method,
+          orElse: () => CallMethods.unknown);
+
       switch (callMethod) {
         case CallMethods.initialize:
         case CallMethods.start:
         case CallMethods.stop:
         case CallMethods.updateUserAttributes:
         case CallMethods.track:
+        case CallMethods.flush:
+        case CallMethods.fetchEvaluations:
           return {'status': true};
         case CallMethods.currentUser:
           return {
@@ -50,25 +56,22 @@ void main() {
             }
           };
         case CallMethods.jsonVariation:
-          // TODO: Handle this case.
-          break;
-        case CallMethods.fetchEvaluations:
-          // TODO: Handle this case.
-          break;
-        case CallMethods.flush:
-          // TODO: Handle this case.
-          break;
+          return {
+            'status': true,
+            'response': {
+              'id': 'id123',
+              'featureId': 'featureId123',
+              'featureVersion': 123,
+              'enable': true,
+            }
+          };
         case CallMethods.addEvaluationUpdateListener:
-          // TODO: Handle this case.
           break;
         case CallMethods.removeEvaluationUpdateListener:
-          // TODO: Handle this case.
           break;
         case CallMethods.clearEvaluationUpdateListeners:
-          // TODO: Handle this case.
           break;
         case CallMethods.unknown:
-          // TODO: Handle this case.
           break;
       }
     });
@@ -125,6 +128,21 @@ void main() {
       ),
     );
 
+    // Current equal operator of BKTResult is not supported runtime type `Map`
+    // Compare 2 map if dart is not easy
+    // https://stackoverflow.com/questions/61765518/how-to-check-two-maps-are-equal-in-dart
+    // We will not compare 2 BKTResult, we will compare the final output
+    expect(
+      (await Bucketeer.instance.jsonVariation('feature-id')).asSuccess.data,
+      BKTResult<Map<String, dynamic>>.success(
+          data: Map<String, dynamic>.from({
+        'id': 'id123',
+        'featureId': 'featureId123',
+        'featureVersion': 123,
+        'enable': true,
+      })).asSuccess.data,
+    );
+
     expectLater(
       Bucketeer.instance.intVariation('feature-id'),
       completion(
@@ -167,6 +185,19 @@ void main() {
       ),
     );
 
+    expectLater(
+      Bucketeer.instance.flush(),
+      completion(
+        equals(const BKTResult.success()),
+      ),
+    );
+
+    expectLater(
+      Bucketeer.instance.fetchEvaluations(10000),
+      completion(
+        equals(const BKTResult.success()),
+      ),
+    );
     const success = BKTResult.success(data: 'Success');
     expect(success.isSuccess, equals(true));
     expect(success.isFailure, equals(false));
