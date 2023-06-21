@@ -4,6 +4,8 @@ import 'package:flutter_bucketeer/bucketeer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ua_client_hints/ua_client_hints.dart';
 
+import 'constant.dart';
+
 const keyUserId = 'key_user_id';
 
 Future<Map<String, String>> userMap() async {
@@ -58,8 +60,8 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
       await Bucketeer.instance
         ..initialize(
             apiKey:
-            '****************************************************************',
-            apiEndpoint: '*********.bucketeer.jp',
+            Constants.API_KEY,
+            apiEndpoint: Constants.API_ENDPOINT,
             featureTag: 'Flutter',
             userId: userId!,
             debugging: true,
@@ -168,8 +170,8 @@ class _MyHomePageState extends State<MyHomePage> {
     await Bucketeer.instance
       ..initialize(
           apiKey:
-          '****************************************************************',
-          apiEndpoint: '*********.bucketeer.jp',
+          Constants.API_KEY,
+          apiEndpoint: Constants.API_ENDPOINT,
           featureTag: 'Flutter',
           userId: userId,
           debugging: true,

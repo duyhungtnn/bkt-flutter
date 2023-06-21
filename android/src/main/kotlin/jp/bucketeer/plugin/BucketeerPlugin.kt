@@ -1,8 +1,7 @@
 package jp.bucketeer.plugin
 
 import android.content.Context
-import io.bucketeer.sdk.android.BKTClient.Companion.getInstance
-import io.bucketeer.sdk.android.BKTClient.Companion.initialize
+import io.bucketeer.sdk.android.BKTClient
 import io.bucketeer.sdk.android.BKTConfig
 import io.bucketeer.sdk.android.BKTException
 import io.bucketeer.sdk.android.BKTUser
@@ -17,27 +16,6 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.util.concurrent.CompletableFuture
-
-internal enum class CallMethods {
-  Initialize,
-  StringVariation,
-  IntVariation,
-  DoubleVariation,
-  BoolVariation,
-  JsonVariation,
-  Track,
-  CurrentUser,
-  UpdateUserAttributes,
-  FetchEvaluations,
-  Flush,
-  EvaluationDetails,
-  AddEvaluationUpdateListener,
-  RemoveEvaluationUpdateListener,
-  ClearEvaluationUpdateListeners,
-  Unknown
-}
-
 
 /**
  * BucketeerPlugin
@@ -63,21 +41,23 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     try {
-      when (CallMethods.values().firstOrNull { call.method.lowercase() == it.name.lowercase() } ?: CallMethods.Unknown) {
+      val method = CallMethods.values().firstOrNull { call.method.lowercase() == it.name.lowercase() } ?: CallMethods.Unknown
+      when (method) {
         CallMethods.Initialize -> {
-          val debugging = safeCast(call.argument("debugging"), Boolean::class.java)
-          val userId = safeCast(call.argument("userId"), String::class.java)
-          val apiKey = safeCast(call.argument("apiKey"), String::class.java)
-          val apiEndpoint = safeCast(call.argument("apiEndpoint"), String::class.java)
-          val featureTag = safeCast(call.argument("featureTag"), String::class.java)
+          val debugging = (call.argument("debugging") as? Boolean) ?: false
+          val userId = call.argument("userId") as? String
+          val apiKey = call.argument("apiKey") as? String
+          val apiEndpoint = call.argument("apiEndpoint") as? String
+          val featureTag = call.argument("featureTag") as? String
           val eventsFlushInterval =
-            safeCast(call.argument("eventsFlushInterval"), Long::class.java)
+            call.argument("eventsFlushInterval") as? Long
           val eventsMaxQueueSize =
-            safeCast(call.argument("eventsMaxQueueSize"), Int::class.java)
+            call.argument("eventsMaxQueueSize") as? Int
           val pollingInterval =
-            safeCast(call.argument("pollingInterval"), Long::class.java)
+            call.argument("pollingInterval") as? Long
           val backgroundPollingInterval =
-            safeCast(call.argument("backgroundPollingInterval"), Long::class.java)
+            call.argument("backgroundPollingInterval") as? Long
+          val appVersion = call.argument("appVersion") as? String
           if (apiKey.isNullOrEmpty()) {
             return fail(result, "Missing apiKey")
           }
@@ -90,39 +70,48 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
           if (userId.isNullOrEmpty()) {
             return fail(result, "Missing userId")
           }
-          val config: BKTConfig = BKTConfig.builder()
-            .apiKey(apiKey)
-            .apiEndpoint(apiEndpoint)
-            .featureTag(featureTag).let {
-              if (eventsFlushInterval != null && eventsFlushInterval > 0) {
-                return@let it.eventsFlushInterval(eventsFlushInterval)
+          if (appVersion.isNullOrEmpty()) {
+            return fail(result, "Missing appVersion")
+          }
+          try {
+            val config: BKTConfig = BKTConfig.builder()
+              .apiKey(apiKey)
+              .apiEndpoint(apiEndpoint)
+              .featureTag(featureTag).let {
+                if (eventsFlushInterval != null && eventsFlushInterval > 0) {
+                  return@let it.eventsFlushInterval(eventsFlushInterval)
+                }
+                return@let it
+              }.let {
+                if (eventsMaxQueueSize != null && eventsMaxQueueSize > 0) {
+                  return@let it.eventsMaxQueueSize(eventsMaxQueueSize)
+                }
+                return@let it
+              }.let {
+                if (pollingInterval != null && pollingInterval > 0) {
+                  return@let it.pollingInterval(pollingInterval)
+                }
+                return@let it
+              }.let {
+                if (backgroundPollingInterval != null && backgroundPollingInterval > 0) {
+                  return@let it.pollingInterval(backgroundPollingInterval)
+                }
+                return@let it
               }
-              return@let it
-            }.let {
-              if (eventsMaxQueueSize != null && eventsMaxQueueSize > 0) {
-                return@let it.eventsMaxQueueSize(eventsMaxQueueSize)
-              }
-              return@let it
-            }.let {
-              if (pollingInterval != null && pollingInterval > 0) {
-                return@let it.pollingInterval(pollingInterval)
-              }
-              return@let it
-            }.let {
-              if (backgroundPollingInterval != null && backgroundPollingInterval > 0) {
-                return@let it.pollingInterval(backgroundPollingInterval)
-              }
-              return@let it
-            }
-            .build()
-          val user: BKTUser = BKTUser.builder().id(userId).build()
-          initialize(applicationContext!!, config, user, 5000)
-          success(result)
+              .appVersion(appVersion)
+              .build()
+            val user: BKTUser = BKTUser.builder().id(userId).build()
+            BKTClient.destroy()
+            BKTClient.initialize(applicationContext!!, config, user, 5000)
+            success(result, true)
+          } catch (ex: Exception) {
+            fail(result, ex.message)
+          }
         }
 
         CallMethods.CurrentUser -> {
           assertInitialize()
-          val user = getInstance().currentUser()
+          val user = BKTClient.getInstance().currentUser()
           val map: MutableMap<String, Any> = HashMap()
           map["id"] = user.id
           map["data"] = user.attributes
@@ -132,10 +121,11 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         CallMethods.EvaluationDetails -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val evaluation = getInstance().evaluationDetails(featureId)
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val evaluation = BKTClient.getInstance().evaluationDetails(featureId)
           if (evaluation == null) {
-            fail(result, "Failed to fetch the evaluation.")
+            return fail(result, "Failed to fetch the evaluation.")
           } else {
             val map: MutableMap<String, Any> = HashMap()
             map["id"] = evaluation.id
@@ -152,68 +142,79 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         CallMethods.StringVariation -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val defaultValue = safeCast(args["defaultValue"], String::class.java)!!
-          val response = getInstance().stringVariation(featureId, defaultValue)
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val defaultValue = args["defaultValue"] as? String
+            ?: return fail(result, "Missing defaultValue")
+          val response = BKTClient.getInstance().stringVariation(featureId, defaultValue)
           success(result, response)
         }
 
         CallMethods.IntVariation -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val defaultValue = safeCast(args["defaultValue"], Int::class.java)!!
-          val response = getInstance().intVariation(featureId, defaultValue)
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val defaultValue = args["defaultValue"] as? Int
+            ?: return fail(result, "Missing defaultValue")
+          val response = BKTClient.getInstance().intVariation(featureId, defaultValue)
           success(result, response)
         }
 
         CallMethods.DoubleVariation -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val defaultValue = safeCast(args["defaultValue"], Double::class.java)!!
-          val response = getInstance().doubleVariation(featureId, defaultValue)
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val defaultValue = args["defaultValue"] as? Double
+            ?: return fail(result, "Missing defaultValue")
+          val response = BKTClient.getInstance().doubleVariation(featureId, defaultValue)
           success(result, response)
         }
 
         CallMethods.BoolVariation -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val defaultValue = safeCast(args["defaultValue"], Boolean::class.java)!!
-          val response = getInstance().booleanVariation(featureId, defaultValue)
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val defaultValue = args["defaultValue"] as? Boolean
+            ?: return fail(result, "Missing defaultValue")
+          val response = BKTClient.getInstance().booleanVariation(featureId, defaultValue)
           success(result, response)
         }
 
         CallMethods.Track -> {
           assertInitialize()
           val args = call.arguments<Map<String, Any>>()!!
-          val goalId = safeCast(args["goalId"], String::class.java)!!
-          val value = safeCast(args["value"], Double::class.java)!!
-          getInstance().track(goalId, value)
-          success(result)
+          val goalId = args["goalId"] as? String
+            ?: return fail(result, "Missing goalId")
+          val value = args["value"] as? Double
+            ?: return fail(result, "Missing goal value")
+          BKTClient.getInstance().track(goalId, value)
+          success(result, true)
         }
 
         CallMethods.JsonVariation -> {
           val args = call.arguments<Map<String, Any>>()!!
-          val featureId = safeCast(args["featureId"], String::class.java)!!
-          val defaultValue = safeCast(args["defaultValue"], Map::class.java) ?: mutableMapOf<String, String>()
-          val response = getInstance().jsonVariation(featureId, JSONObject(defaultValue))
+          val featureId = args["featureId"] as? String
+            ?: return fail(result, "Missing featureId")
+          val defaultValue = args["defaultValue"] as? Map<String, String > ?: mapOf()
+          val response = BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))
           success(result, response)
         }
         CallMethods.UpdateUserAttributes -> {
           val args = call.arguments<Map<String, String>>()!!
-          getInstance().updateUserAttributes(args)
+          BKTClient.getInstance().updateUserAttributes(args)
         }
         CallMethods.FetchEvaluations -> {
           val args = call.arguments<Map<String, Any>>()!!
-          val timeoutMillis = safeCast(args["timeoutMillis"], Long::class.java)!!
+          val timeoutMillis = args["timeoutMillis"] as? Long
           MainScope().launch {
             val err = withContext(Dispatchers.IO) {
-              getInstance().fetchEvaluations(timeoutMillis).get()
+              return@withContext BKTClient.getInstance().fetchEvaluations(timeoutMillis).get()
             }
             if (err != null) {
-              success(result, err.message)
+              fail(result, err.message)
             } else {
               success(result, true)
             }
@@ -222,7 +223,7 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         CallMethods.Flush -> {
           MainScope().launch {
             val err = withContext(Dispatchers.IO) {
-              getInstance().flush().get()
+              return@withContext BKTClient.getInstance().flush().get()
             }
             if (err != null) {
               success(result, err.message)
@@ -251,13 +252,9 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
     }
   }
 
-  private fun <T> safeCast(o: Any?, clazz: Class<T>?): T? {
-    return if (clazz != null && clazz.isInstance(o)) clazz.cast(o) else null
-  }
-
   @Throws(IllegalStateException::class)
   private fun assertInitialize() {
-    getInstance()
+    BKTClient.getInstance()
   }
 
   private fun success(result: MethodChannel.Result?, response: Any? = null) {
@@ -273,4 +270,23 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
     map["errorMessage"] = message
     result?.success(map)
   }
+}
+
+internal enum class CallMethods {
+  Initialize,
+  StringVariation,
+  IntVariation,
+  DoubleVariation,
+  BoolVariation,
+  JsonVariation,
+  Track,
+  CurrentUser,
+  UpdateUserAttributes,
+  FetchEvaluations,
+  Flush,
+  EvaluationDetails,
+  AddEvaluationUpdateListener,
+  RemoveEvaluationUpdateListener,
+  ClearEvaluationUpdateListeners,
+  Unknown
 }
