@@ -19,8 +19,6 @@ void main() {
 
       switch (callMethod) {
         case CallMethods.initialize:
-        case CallMethods.start:
-        case CallMethods.stop:
         case CallMethods.updateUserAttributes:
         case CallMethods.track:
         case CallMethods.flush:
@@ -95,18 +93,6 @@ void main() {
         backgroundPollingInterval: 10000,
         appVersion: '1.0.0',
       ),
-      completion(equals(const BKTResult.success())),
-    );
-
-    expectLater(
-      Bucketeer.instance.start(),
-      completion(
-        equals(const BKTResult.success()),
-      ),
-    );
-
-    expectLater(
-      Bucketeer.instance.stop(),
       completion(equals(const BKTResult.success())),
     );
 

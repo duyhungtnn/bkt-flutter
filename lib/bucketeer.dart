@@ -174,18 +174,6 @@ class Bucketeer {
     });
   }
 
-  Future<BKTResult<void>> start() async {
-    // Only run on Android
-    if (Platform.isIOS) return Future.value(const BKTResult.success());
-    return _resultGuard(await _invokeMethod('start'));
-  }
-
-  Future<BKTResult<void>> stop() async {
-    // Only run on Android
-    if (Platform.isIOS) return Future.value(const BKTResult.success());
-    return _resultGuard(await _invokeMethod('stop'));
-  }
-
   BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
       {T Function(Map<String, dynamic>)? onDataChange}) {
     if (result['status']) {

@@ -15,6 +15,4 @@ enum CallMethods {
   removeEvaluationUpdateListener,
   clearEvaluationUpdateListeners,
   unknown,
-  start,
-  stop,
 }
