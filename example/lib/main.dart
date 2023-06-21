@@ -45,16 +45,6 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      Bucketeer.instance.start();
-    } else if (state == AppLifecycleState.paused) {
-      Bucketeer.instance.stop();
-    }
-  }
-
-  @override
   void initState() {
     super.initState();
     Future(() async {
