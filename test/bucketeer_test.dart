@@ -87,6 +87,7 @@ void main() {
         apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
         apiEndpoint: 'demo.bucketeer.jp',
         featureTag: 'Flutter',
+        userId: '2023',
         debugging: true,
         eventsFlushInterval: 10000,
         eventsMaxQueueSize: 10000,

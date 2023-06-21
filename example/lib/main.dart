@@ -28,17 +28,6 @@ class MyApp extends StatefulWidget {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Bucketeer.instance
-    ..initialize(
-      apiKey:
-          '****************************************************************',
-      endpoint: '*********.bucketeer.jp',
-      featureTag: 'Flutter',
-      debugging: true,
-      logSendingIntervalMillis: 3000,
-      logSendingMaxBatchQueueCount: 3,
-      pollingEvaluationIntervalMillis: 3000,
-    );
   runApp(MyApp());
 }
 
@@ -75,9 +64,22 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
       if (userId == null) {
         await prefs.setString(
             keyUserId, 'demo-userId-${DateTime.now().millisecondsSinceEpoch}');
-      } else {
-        await Bucketeer.instance.setUser(userId, userMap: await userMap());
       }
+      await Bucketeer.instance
+        ..initialize(
+            apiKey:
+            '****************************************************************',
+            apiEndpoint: '*********.bucketeer.jp',
+            featureTag: 'Flutter',
+            userId: userId!,
+            debugging: true,
+            eventsFlushInterval: 30000,
+            eventsMaxQueueSize: 4,
+            pollingInterval: 30000,
+            backgroundPollingInterval: 60000,
+            appVersion: "1.0.0"
+        );
+      await Bucketeer.instance.updateUserAttributes(userId, userMap: await userMap());
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -105,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getStringVariation(String featureId) async {
     final result = await Bucketeer.instance
-        .getStringVariation(featureId, defaultValue: 'default value');
+        .stringVariation(featureId, defaultValue: 'default value');
     result.ifSuccess((data) {
       print('getStringVariation: ${data}');
       showSnackbar(
@@ -115,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getIntVariation(String featureId) async {
     final result =
-        await Bucketeer.instance.getIntVariation(featureId, defaultValue: 0);
+        await Bucketeer.instance.intVariation(featureId, defaultValue: 0);
     result.ifSuccess((data) {
       print('getIntVariation: $data');
       showSnackbar(
@@ -125,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getDoubleVariation(String featureId) async {
     final result = await Bucketeer.instance
-        .getDoubleVariation(featureId, defaultValue: 0.0);
+        .doubleVariation(featureId, defaultValue: 0.0);
     result.ifSuccess((data) {
       print('getDoubleVariation: $data');
       showSnackbar(
@@ -135,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getBoolVariation(String featureId) async {
     final result = await Bucketeer.instance
-        .getBoolVariation(featureId, defaultValue: false);
+        .boolVariation(featureId, defaultValue: false);
     result.ifSuccess((data) {
       print('getBoolVariation: $data');
       showSnackbar(
@@ -144,7 +146,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getEvaluation(String featureId) async {
-    final result = await Bucketeer.instance.getEvaluation(featureId);
+    final result = await Bucketeer.instance.evaluationDetails(featureId);
     result.ifSuccess((evaluation) {
       print('Successful the evaluation');
       showSnackbar(
@@ -172,19 +174,33 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _switchUser(String userId) async {
-    final result =
-        await Bucketeer.instance.setUser(userId, userMap: await userMap());
+    // note: please initialize the Bucketeer again when switching the user
+    await Bucketeer.instance
+      ..initialize(
+          apiKey:
+          '****************************************************************',
+          apiEndpoint: '*********.bucketeer.jp',
+          featureTag: 'Flutter',
+          userId: userId,
+          debugging: true,
+          eventsFlushInterval: 30000,
+          eventsMaxQueueSize: 4,
+          pollingInterval: 30000,
+          backgroundPollingInterval: 60000,
+          appVersion: "1.0.0"
+      );
+    var result = await Bucketeer.instance.updateUserAttributes(userId, userMap: await userMap());
     result.ifSuccess((_) {
-      print('Successful the setUser');
+      print('Successful the switchUser');
       showSnackbar(
           context: context,
           title: 'setUser',
-          message: 'Successful the setUser.');
+          message: 'Successful the switchUser.');
     });
   }
 
   Future<void> _getCurrentUser() async {
-    final result = await Bucketeer.instance.getUser();
+    final result = await Bucketeer.instance.currentUser();
     result.ifSuccess((user) {
       print('Successful the getUser');
       showSnackbar(
