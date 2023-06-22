@@ -43,33 +43,29 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             let eventsMaxQueueSize = arguments?["eventsMaxQueueSize"] as? Int ?? Constant.DEFAULT_MAX_QUEUE_SIZE
             let pollingInterval = arguments?["pollingInterval"] as? Int64 ?? Constant.DEFAULT_POLLING_INTERVAL_MILLIS
             let backgroundPollingInterval = arguments?["backgroundPollingInterval"] as? Int64 ?? Constant.DEFAULT_BACKGROUND_POLLING_INTERVAL_MILLIS
-            BKTClient.destroy()
-            let seconds = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in
-                do {
-                    let bkConfig = try BKTConfig.init(
-                        apiKey: apiKey,
-                        apiEndpoint: apiEndpoint,
-                        featureTag: featureTag,
-                        eventsFlushInterval: eventsFlushInterval,
-                        eventsMaxQueueSize: eventsMaxQueueSize,
-                        pollingInterval: pollingInterval,
-                        backgroundPollingInterval: backgroundPollingInterval,
-                        appVersion: appVersion,
-                        logger: debugging ? BucketeerPluginLogger() : nil
-                    )
-                    let user = try BKTUser.init(id: userId, attributes: [:])
-                    
-                    BKTClient.initialize(config: bkConfig, user: user)
-                    self?.success(result: result, response: true)
-                } catch BKTError.illegalArgument(let message) {
-                    // For Example I care only about .timeout
-                    self?.fail(result: result, message: message)
-                } catch {
-                    debugPrint("BKTClient.initialize failed with error: \(error)")
-                    self?.fail(result: result, message: error.localizedDescription)
-                    
-                }
+            do {
+                let bkConfig = try BKTConfig.init(
+                    apiKey: apiKey,
+                    apiEndpoint: apiEndpoint,
+                    featureTag: featureTag,
+                    eventsFlushInterval: eventsFlushInterval,
+                    eventsMaxQueueSize: eventsMaxQueueSize,
+                    pollingInterval: pollingInterval,
+                    backgroundPollingInterval: backgroundPollingInterval,
+                    appVersion: appVersion,
+                    logger: debugging ? BucketeerPluginLogger() : nil
+                )
+                let user = try BKTUser.init(id: userId, attributes: [:])
+                
+                BKTClient.initialize(config: bkConfig, user: user)
+                success(result: result, response: true)
+            } catch BKTError.illegalArgument(let message) {
+                // For Example I care only about .timeout
+                fail(result: result, message: message)
+            } catch {
+                debugPrint("BKTClient.initialize failed with error: \(error)")
+                fail(result: result, message: error.localizedDescription)
+                
             }
             break
         case .stringVariation:
@@ -111,7 +107,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             }
             let value = arguments?["value"] as? Double ?? 0.0
             BKTClient.shared.track(goalId: goalId, value: value)
-            success(result: result)
+            success(result: result, response: true)
         case .jsonVariation:
             guard let featureId = arguments?["featureId"] as? String else {
                 fail(result: result, message: "Required featureId value.")
@@ -121,11 +117,11 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             let response = BKTClient.shared.jsonVariation(featureId: featureId, defaultValue: defaultValue)
             success(result: result, response: response)
         case .currentUser:
-            guard BKTClient.shared.currentUser() != nil else {
+            guard let user = BKTClient.shared.currentUser() else {
                 fail(result: result, message: "Failed to fetch the user.")
                 return
             }
-            success(result: result, response: ["id": "id", "data": [:]])
+            success(result: result, response: ["id": user.id, "data": user.attr])
             break
         case .updateUserAttributes:
             guard let userAttributes = call.arguments as? [String: String] else {
@@ -133,7 +129,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
                 return
             }
             BKTClient.shared.updateUserAttributes(attributes: userAttributes)
-            success(result: result)
+            success(result: result, response: true)
             
             break
         case .fetchEvaluations:

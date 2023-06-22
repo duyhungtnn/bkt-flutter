@@ -30,6 +30,8 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
+  
+  pod 'Bucketeer', :git => 'https://github.com/bucketeer-io/ios-client-sdk.git', :commit => 'c62bc8ec0d76d175b182023ac9a390f1cb891074'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end

@@ -64,10 +64,10 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
             featureTag: 'Flutter',
             userId: userId!,
             debugging: true,
-            eventsFlushInterval: 60000,
-            eventsMaxQueueSize: 4,
-            pollingInterval: 60000,
-            backgroundPollingInterval: 1200000,
+            eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
+            eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
+            pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
+            backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
             appVersion: "1.0.0"
         );
       await Bucketeer.instance.updateUserAttributes(userId, userMap: await userMap());
@@ -175,14 +175,14 @@ class _MyHomePageState extends State<MyHomePage> {
           featureTag: 'Flutter',
           userId: userId,
           debugging: true,
-          eventsFlushInterval: 30000,
-          eventsMaxQueueSize: 4,
-          pollingInterval: 30000,
-          backgroundPollingInterval: 60000,
+          eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
+          eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
+          pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
+          backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
           appVersion: "1.0.0"
       );
     var result = await Bucketeer.instance.updateUserAttributes(userId, userMap: await userMap());
-    result.ifSuccess((_) {
+    result.ifSuccess((rs) {
       print('Successful the switchUser');
       showSnackbar(
           context: context,
