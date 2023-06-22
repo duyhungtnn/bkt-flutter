@@ -15,6 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -133,7 +135,7 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
             map["userId"] = evaluation.userId
             map["variationId"] = evaluation.variationId
             map["variationValue"] = evaluation.variationValue
-            map["reason"] = evaluation.reason
+            map["reason"] = evaluation.reason.name
             success(result, map)
           }
         }
@@ -194,12 +196,17 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         }
 
         CallMethods.JsonVariation -> {
-          val args = call.arguments<Map<String, Any>>()!!
-          val featureId = args["featureId"] as? String
-            ?: return fail(result, "Missing featureId")
-          val defaultValue = args["defaultValue"] as? Map<String, String > ?: mapOf()
-          val response = BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))
-          success(result, response)
+          try {
+            val args = call.arguments<Map<String, Any>>()!!
+            val featureId = args["featureId"] as? String
+              ?: return fail(result, "Missing featureId")
+            val defaultValue = args["defaultValue"] as? Map<String, String > ?: mapOf()
+            val response = BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))
+            var rawJson = response.toMap()
+            success(result, rawJson)
+          } catch (ex: Exception) {
+            fail(result, message = ex.message ?: "get JsonVariation fail")
+          }
         }
         CallMethods.UpdateUserAttributes -> {
           val args = call.arguments<Map<String, String>>()!!
@@ -293,4 +300,34 @@ internal enum class CallMethods {
   ClearEvaluationUpdateListeners,
   Destroy,
   Unknown
+}
+
+@Throws(JSONException::class)
+fun JSONObject.toMap(): Map<String, Any> {
+  val map = mutableMapOf<String, Any>()
+  val keysItr: Iterator<String> = this.keys()
+  while (keysItr.hasNext()) {
+    val key = keysItr.next()
+    var value: Any = this.get(key)
+    when (value) {
+      is JSONArray -> value = value.toList()
+      is JSONObject -> value = value.toMap()
+    }
+    map[key] = value
+  }
+  return map
+}
+
+@Throws(JSONException::class)
+fun JSONArray.toList(): List<Any> {
+  val list = mutableListOf<Any>()
+  for (i in 0 until this.length()) {
+    var value: Any = this[i]
+    when (value) {
+      is JSONArray -> value = value.toList()
+      is JSONObject -> value = value.toMap()
+    }
+    list.add(value)
+  }
+  return list
 }

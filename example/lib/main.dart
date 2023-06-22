@@ -52,17 +52,18 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
     Future(() async {
       // Generate UserId for Demo
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString(keyUserId);
+      var userId = prefs.getString(keyUserId);
       if (userId == null) {
+        userId = 'demo-userId-${DateTime.now().millisecondsSinceEpoch}';
         await prefs.setString(
-            keyUserId, 'demo-userId-${DateTime.now().millisecondsSinceEpoch}');
+            keyUserId, userId);
       }
       await Bucketeer.instance.initialize(
             apiKey:
             Constants.API_KEY,
             apiEndpoint: Constants.API_ENDPOINT,
-            featureTag: 'Flutter',
-            userId: userId!,
+            featureTag: 'flutter',
+            userId: userId,
             debugging: true,
             eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
             eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
@@ -91,10 +92,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final flagController = TextEditingController(text: 'bucketeer-feature-flag');
+  final flagController = TextEditingController(text: Constants.DEFAULT_FEATURE_TAG);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
   final userIdController =
-      TextEditingController(text: 'bucketeer-flutter-user-id');
+      TextEditingController(text: Constants.DEFAULT_USERID);
 
   Future<void> _getStringVariation(String featureId) async {
     final result = await Bucketeer.instance
@@ -136,6 +137,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _getJSONVariation(String featureId) async {
+    final result = await Bucketeer.instance
+        .jsonVariation("feature-ios-e2e-json", defaultValue: {});
+    result.ifSuccess((data) {
+      print('getJSONVariation: $data');
+      showSnackbar(
+          context: context, title: 'getJSONVariation', message: '$data');
+    });
+  }
+
   Future<void> _getEvaluation(String featureId) async {
     final result = await Bucketeer.instance.evaluationDetails(featureId);
     result.ifSuccess((evaluation) {
@@ -172,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
           apiKey:
           Constants.API_KEY,
           apiEndpoint: Constants.API_ENDPOINT,
-          featureTag: 'Flutter',
+          featureTag: Constants.DEFAULT_FEATURE_TAG,
           userId: userId,
           debugging: true,
           eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
@@ -257,7 +268,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             return _getBoolVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET evalution'),
+                          child: Text('GET json params'),
+                          onPressed: () async {
+                            return _getJSONVariation(flagController.text);
+                          }),
+                      TextButton(
+                          child: Text('GET evaluation'),
                           onPressed: () async {
                             return _getEvaluation(flagController.text);
                           }),

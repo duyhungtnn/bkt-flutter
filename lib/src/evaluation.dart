@@ -18,7 +18,7 @@ class BKTEvaluation {
   final String userId;
   final String variationId;
   final String variationValue;
-  final int reason;
+  final String reason;
 
   @override
   bool operator ==(Object other) =>

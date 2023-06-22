@@ -168,7 +168,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
                     "userId": response.userId,
                     "variationId": response.variationId,
                     "variationValue": response.variationValue,
-                    "reason": response.reason,
+                    "reason": response.reason.rawValue,
                 ])
             break
         case .addEvaluationUpdateListener:
