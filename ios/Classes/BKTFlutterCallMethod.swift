@@ -16,5 +16,6 @@ public enum BKTFlutterCallMethod: String, Codable, Hashable {
     case addEvaluationUpdateListener = "addEvaluationUpdateListener"
     case removeEvaluationUpdateListener = "removeEvaluationUpdateListener"
     case clearEvaluationUpdateListeners = "clearEvaluationUpdateListeners"
+    case destroy = "destroy"
     case unknown = "unknown"
 }

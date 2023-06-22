@@ -33,19 +33,20 @@ class Bucketeer {
     int? backgroundPollingInterval,
     String? appVersion,
   }) async {
+    var rs = await _invokeMethod(CallMethods.initialize.name, argument: {
+      'apiKey': apiKey,
+      'apiEndpoint': apiEndpoint,
+      'featureTag': featureTag,
+      'userId': userId,
+      'debugging': debugging,
+      'eventsFlushInterval': eventsFlushInterval,
+      'eventsMaxQueueSize': eventsMaxQueueSize,
+      'pollingInterval': pollingInterval,
+      'backgroundPollingInterval': backgroundPollingInterval,
+      'appVersion': appVersion,
+    });
     return _resultGuard(
-      await _invokeMethod(CallMethods.initialize.name, argument: {
-        'apiKey': apiKey,
-        'apiEndpoint': apiEndpoint,
-        'featureTag': featureTag,
-        'userId': userId,
-        'debugging': debugging,
-        'eventsFlushInterval': eventsFlushInterval,
-        'eventsMaxQueueSize': eventsMaxQueueSize,
-        'pollingInterval': pollingInterval,
-        'backgroundPollingInterval': backgroundPollingInterval,
-        'appVersion': appVersion,
-      }),
+        rs
     );
   }
 
@@ -153,7 +154,18 @@ class Bucketeer {
 
   Future<BKTResult<void>> flush() async {
     return _resultGuard(
-      await _invokeMethod('flush'),
+      await _invokeMethod(CallMethods.flush.name),
+    );
+  }
+
+  Future<BKTResult<void>> destroy() async {
+    return _resultGuard(
+      await _invokeMethod(CallMethods.destroy.name).then((value) async {
+        // Wait 50ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
+        return await Future.delayed(const Duration(milliseconds: 100), () {
+          return value;
+        });
+      })
     );
   }
 

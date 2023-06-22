@@ -9,6 +9,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
         let instance = BucketeerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
+
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         
@@ -32,41 +33,44 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
                 fail(result: result, message: "Required userId value.")
                 return
             }
-            let userAttributes = call.arguments as? [String: String]
-            
+            guard let appVersion = arguments?["appVersion"] as? String else {
+                fail(result: result, message: "Required appVersion value.")
+                return
+            }
             
             let debugging = arguments?["debugging"] as? Bool ?? false
-            
             let eventsFlushInterval = arguments?["eventsFlushInterval"] as? Int64 ?? Constant.DEFAULT_FLUSH_INTERVAL_MILLIS
             let eventsMaxQueueSize = arguments?["eventsMaxQueueSize"] as? Int ?? Constant.DEFAULT_MAX_QUEUE_SIZE
             let pollingInterval = arguments?["pollingInterval"] as? Int64 ?? Constant.DEFAULT_POLLING_INTERVAL_MILLIS
             let backgroundPollingInterval = arguments?["backgroundPollingInterval"] as? Int64 ?? Constant.DEFAULT_BACKGROUND_POLLING_INTERVAL_MILLIS
-            let appVersion = arguments?["appVersion"] as? String ?? "1.0.0"
-            
-            do {
-                let bkConfig = try BKTConfig.init(
-                    apiKey: apiKey,
-                    apiEndpoint: apiEndpoint,
-                    featureTag: featureTag,
-                    eventsFlushInterval: eventsFlushInterval,
-                    eventsMaxQueueSize: eventsMaxQueueSize,
-                    pollingInterval: pollingInterval,
-                    backgroundPollingInterval: backgroundPollingInterval,
-                    appVersion: appVersion,
-                    logger: debugging ? BucketeerPluginLogger() : nil
-                )
-                let user = try BKTUser.init(id: userId, attributes: userAttributes ?? [:])
-                BKTClient.initialize(config: bkConfig, user: user)
-                success(result: result)
-            } catch BKTError.illegalArgument(let message) {
-                // For Example I care only about .timeout
-                fail(result: result, message: message)
-            } catch {
-                debugPrint("BKTClient.initialize failed with error: \(error)")
-                fail(result: result, message: error.localizedDescription)
-                
+            BKTClient.destroy()
+            let seconds = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in
+                do {
+                    let bkConfig = try BKTConfig.init(
+                        apiKey: apiKey,
+                        apiEndpoint: apiEndpoint,
+                        featureTag: featureTag,
+                        eventsFlushInterval: eventsFlushInterval,
+                        eventsMaxQueueSize: eventsMaxQueueSize,
+                        pollingInterval: pollingInterval,
+                        backgroundPollingInterval: backgroundPollingInterval,
+                        appVersion: appVersion,
+                        logger: debugging ? BucketeerPluginLogger() : nil
+                    )
+                    let user = try BKTUser.init(id: userId, attributes: [:])
+                    
+                    BKTClient.initialize(config: bkConfig, user: user)
+                    self?.success(result: result, response: true)
+                } catch BKTError.illegalArgument(let message) {
+                    // For Example I care only about .timeout
+                    self?.fail(result: result, message: message)
+                } catch {
+                    debugPrint("BKTClient.initialize failed with error: \(error)")
+                    self?.fail(result: result, message: error.localizedDescription)
+                    
+                }
             }
-            
             break
         case .stringVariation:
             guard let featureId = arguments?["featureId"] as? String else {
@@ -147,7 +151,7 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
                     let errorMessage = bktError.message()
                     self?.fail(result: result, message: errorMessage)
                 } else {
-                    self?.success(result: result)
+                    self?.success(result: result, response: true)
                 }
             }
         case .evaluationDetails:
@@ -177,6 +181,9 @@ public class BucketeerPlugin: NSObject, FlutterPlugin {
             result(FlutterMethodNotImplemented)
         case .clearEvaluationUpdateListeners:
             result(FlutterMethodNotImplemented)
+        case .destroy:
+            BKTClient.destroy()
+            success(result: result, response: true)
         default:
             result(FlutterMethodNotImplemented)
         }

@@ -101,7 +101,6 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
               .appVersion(appVersion)
               .build()
             val user: BKTUser = BKTUser.builder().id(userId).build()
-            BKTClient.destroy()
             BKTClient.initialize(applicationContext!!, config, user, 5000)
             success(result, true)
           } catch (ex: Exception) {
@@ -241,6 +240,10 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         CallMethods.ClearEvaluationUpdateListeners -> {
           result.notImplemented()
         }
+        CallMethods.Destroy -> {
+          BKTClient.destroy()
+          success(result, true)
+        }
         CallMethods.Unknown -> {
           result.notImplemented()
         }
@@ -288,5 +291,6 @@ internal enum class CallMethods {
   AddEvaluationUpdateListener,
   RemoveEvaluationUpdateListener,
   ClearEvaluationUpdateListeners,
+  Destroy,
   Unknown
 }

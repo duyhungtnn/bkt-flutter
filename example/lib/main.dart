@@ -57,18 +57,17 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
         await prefs.setString(
             keyUserId, 'demo-userId-${DateTime.now().millisecondsSinceEpoch}');
       }
-      await Bucketeer.instance
-        ..initialize(
+      await Bucketeer.instance.initialize(
             apiKey:
             Constants.API_KEY,
             apiEndpoint: Constants.API_ENDPOINT,
             featureTag: 'Flutter',
             userId: userId!,
             debugging: true,
-            eventsFlushInterval: 30000,
+            eventsFlushInterval: 60000,
             eventsMaxQueueSize: 4,
-            pollingInterval: 30000,
-            backgroundPollingInterval: 60000,
+            pollingInterval: 60000,
+            backgroundPollingInterval: 1200000,
             appVersion: "1.0.0"
         );
       await Bucketeer.instance.updateUserAttributes(userId, userMap: await userMap());
@@ -167,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _switchUser(String userId) async {
     // note: please initialize the Bucketeer again when switching the user
+    await Bucketeer.instance.destroy();
     await Bucketeer.instance
       ..initialize(
           apiKey:
