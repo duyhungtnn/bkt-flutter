@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <option name="additionalArgs" value="--dart-define=API_KEY=68f36f74aed68a63c6a0de5cf2de2f343c3714c0d1be4083f8fa679a39644a7c --dart-define=API_ENDPOINT=https://api-dev.bucketeer.jp" />
     <option name="filePath" value="$PROJECT_DIR$/example/lib/main.dart" />
     <method v="2" />
   </configuration>

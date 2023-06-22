@@ -1,7 +1,8 @@
 abstract class Constants {
-  // Change API_KEY & ENDPOINT here
-  static const API_KEY = "68f36f74aed68a63c6a0de5cf2de2f343c3714c0d1be4083f8fa679a39644a7c";
-  static const API_ENDPOINT = "https://api-dev.bucketeer.jp";
+  // Configuring apps with compilation environment declarations
+  // https://dart.dev/guides/environment-declarations
+  static const API_KEY = String.fromEnvironment("API_KEY", defaultValue: "*********");
+  static const API_ENDPOINT = String.fromEnvironment("API_ENDPOINT", defaultValue:"*********.bucketeer.jp");
 
   static const DEFAULT_EVENTS_FLUSH_INTERVAL =  60000;
   static const DEFAULT_EVENT_MAX_QUEUE_SIZE = 4;

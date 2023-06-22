@@ -23,7 +23,8 @@ void main() {
         case CallMethods.track:
         case CallMethods.flush:
         case CallMethods.fetchEvaluations:
-          return {'status': true};
+        case CallMethods.destroy:
+          return {'status': true, 'response': true};
         case CallMethods.currentUser:
           return {
             'status': true,
@@ -93,7 +94,9 @@ void main() {
         backgroundPollingInterval: 10000,
         appVersion: '1.0.0',
       ),
-      completion(equals(const BKTResult.success())),
+      completion(
+        equals(const BKTResult.success(data: true)),
+      ),
     );
 
     expectLater(
@@ -168,21 +171,28 @@ void main() {
     expectLater(
       Bucketeer.instance.track('goal-id'),
       completion(
-        equals(const BKTResult.success()),
+        equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
       Bucketeer.instance.flush(),
       completion(
-        equals(const BKTResult.success()),
+        equals(const BKTResult.success(data: true)),
+      ),
+    );
+
+    expectLater(
+      Bucketeer.instance.flush(),
+      completion(
+        equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
       Bucketeer.instance.fetchEvaluations(10000),
       completion(
-        equals(const BKTResult.success()),
+        equals(const BKTResult.success(data: true)),
       ),
     );
     const success = BKTResult.success(data: 'Success');
