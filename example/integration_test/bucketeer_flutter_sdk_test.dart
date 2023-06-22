@@ -192,7 +192,7 @@ void main() async {
     });
 
     testWidgets('testEvaluationUpdateFlow', (WidgetTester _) async {
-      expectLater(
+      await expectLater(
         Bucketeer.instance
             .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
         completion(
@@ -200,7 +200,7 @@ void main() async {
         ),
       );
 
-      expectLater(
+      await expectLater(
         Bucketeer.instance.updateUserAttributes(USER_ID,
             userMap: {'app_version': OLD_APP_VERSION}),
         completion(
@@ -208,14 +208,14 @@ void main() async {
         ),
       );
 
-      expectLater(
+      await expectLater(
         Bucketeer.instance.fetchEvaluations(30000),
         completion(
           equals(const BKTResult.success(data: true)),
         ),
       );
 
-      expectLater(
+      await expectLater(
         Bucketeer.instance
             .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
         completion(
@@ -223,6 +223,16 @@ void main() async {
         ),
       );
     });
+
+
+    // testWidgets('testSwitchUser', (WidgetTester _) async {
+    //   var result = await Bucketeer.instance.track(GOAL_ID, value: GOAL_VALUE);
+    //   expect(result, const BKTResult.success(data: true));
+    //
+    //   await Future.delayed(Duration(milliseconds: 100));
+    //   var flushResult = await Bucketeer.instance.flush();
+    //   expect(flushResult, const BKTResult.success(data: true));
+    // });
   }
 
   group('Bucketeer', () {
