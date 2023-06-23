@@ -159,7 +159,7 @@ class Bucketeer {
   Future<BKTResult<bool>> destroy() async {
     return _resultGuard(
       await _invokeMethod(CallMethods.destroy.name).then((value) async {
-        // Wait 50ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
+        // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
         return await Future.delayed(const Duration(milliseconds: 100), () {
           return value;
         });
