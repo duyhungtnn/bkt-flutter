@@ -225,14 +225,41 @@ void main() async {
     });
 
 
-    // testWidgets('testSwitchUser', (WidgetTester _) async {
-    //   var result = await Bucketeer.instance.track(GOAL_ID, value: GOAL_VALUE);
-    //   expect(result, const BKTResult.success(data: true));
-    //
-    //   await Future.delayed(Duration(milliseconds: 100));
-    //   var flushResult = await Bucketeer.instance.flush();
-    //   expect(flushResult, const BKTResult.success(data: true));
-    // });
+    testWidgets('testSwitchUser', (WidgetTester _) async {
+      var result = await Bucketeer.instance.destroy();
+      expect(result.isSuccess, true);
+      expect(result, const BKTResult.success(data: true),
+          reason: "destroy() should success");
+      var instanceResult = await Bucketeer.instance.initialize(
+          apiKey: Constants.API_KEY,
+          apiEndpoint: Constants.API_ENDPOINT,
+          featureTag: FEATURE_TAG,
+          userId: "test_id",
+          debugging: DEBUGGING,
+          eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
+          eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
+          pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
+          backgroundPollingInterval:
+          Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
+          appVersion: APP_VERSION);
+      expect(instanceResult.isSuccess, true, reason: "initialize() should success");
+
+      var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
+          userMap: {'app_version': APP_VERSION});
+      expect(updateUserInfoRs.isSuccess, true,
+          reason: "updateUserAttributes() should success");
+
+      var currentUser = await Bucketeer.instance.currentUser();
+      expect(currentUser.asSuccess.data.id, "test_id",
+          reason: "user_id should be `test_id`");
+      expect(currentUser.asSuccess.data.data, {'app_version': APP_VERSION},
+          reason: "user_data should match");
+
+      var fetchEvaluationsResult =
+      await Bucketeer.instance.fetchEvaluations(30000);
+      expect(fetchEvaluationsResult.isSuccess, true,
+          reason: "fetchEvaluations() should success");
+    });
   }
 
   group('Bucketeer', () {
