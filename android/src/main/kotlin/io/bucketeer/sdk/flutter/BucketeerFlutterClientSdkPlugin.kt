@@ -1,4 +1,4 @@
-package jp.bucketeer.plugin
+package io.bucketeer.sdk.flutter
 
 import android.content.Context
 import io.bucketeer.sdk.android.BKTClient
@@ -22,7 +22,7 @@ import org.json.JSONObject
 /**
  * BucketeerPlugin
  */
-class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
+class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   private var applicationContext: Context? = null
   private var methodChannel: MethodChannel? = null
   override fun onAttachedToEngine(binding: FlutterPluginBinding) {

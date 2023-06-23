@@ -2,11 +2,11 @@ import Flutter
 import UIKit
 import Bucketeer
 
-public class BucketeerPlugin: NSObject, FlutterPlugin {
+public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "jp.bucketeer.plugin/flutter", binaryMessenger: registrar.messenger())
-        let instance = BucketeerPlugin()
+        let instance = BucketeerFlutterClientSdkPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
     }
     
