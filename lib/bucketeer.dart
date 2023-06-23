@@ -19,7 +19,7 @@ class Bucketeer {
   static const Bucketeer instance = Bucketeer._();
 
   static const MethodChannel _channel =
-      MethodChannel('jp.bucketeer.plugin/flutter');
+      MethodChannel('io.bucketeer.sdk.plugin.flutter');
 
   Future<BKTResult<void>> initialize({
     required String apiKey,

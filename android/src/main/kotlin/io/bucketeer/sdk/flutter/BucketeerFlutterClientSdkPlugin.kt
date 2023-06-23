@@ -31,7 +31,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
 
   private fun onAttachedToEngine(applicationContext: Context, messenger: BinaryMessenger) {
     this.applicationContext = applicationContext
-    methodChannel = MethodChannel(messenger, "jp.bucketeer.plugin/flutter")
+    methodChannel = MethodChannel(messenger, "io.bucketeer.sdk.plugin.flutter")
     methodChannel!!.setMethodCallHandler(this)
   }
 

@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('jp.bucketeer.plugin/flutter');
+  const channel = MethodChannel('io.bucketeer.sdk.plugin.flutter');
 
   setUp(() async {
     channel.setMockMethodCallHandler((methodCall) async {
