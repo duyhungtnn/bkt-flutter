@@ -4,8 +4,6 @@ export 'src/evaluation.dart';
 export 'src/bucketeer_user.dart';
 export 'src/result.dart';
 
-import 'dart:ffi';
-import 'dart:io';
 import 'package:flutter/services.dart';
 import 'src/bucketeer_user.dart';
 import 'src/call_methods.dart';
