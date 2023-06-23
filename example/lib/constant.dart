@@ -10,7 +10,3 @@ abstract class Constants {
   static const DEFAULT_POLLING_INTERVAL = 60000;
   static const DEFAULT_BACKGROUND_POLLING_INTERVAL = 1200000;
 }
-
-/*
---dart-define=API_KEY=68f36f74aed68a63c6a0de5cf2de2f343c3714c0d1be4083f8fa679a39644a7c --dart-define=API_ENDPOINT=https://api-dev.bucketeer.jp
- */
