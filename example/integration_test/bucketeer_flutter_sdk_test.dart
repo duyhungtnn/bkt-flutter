@@ -34,39 +34,8 @@ void main() async {
 
   const String GOAL_ID = "goal-ios-e2e-1";
   const double GOAL_VALUE = 1.0;
-  // const String FEATURE_TAG = "flutter";
-  // const String USER_ID = 'bucketeer-flutter-user-id-1';
-  // const String FEATURE_ID_BOOLEAN = "feature-flutter-e2e-boolean";
-  // const String FEATURE_ID_STRING = "feature-flutter-e2e-string";
-  // const String FEATURE_ID_INT = "feature-flutter-e2e-int";
-  // const String FEATURE_ID_DOUBLE = "feature-flutter-e2e-double";
-  // const String FEATURE_ID_JSON = "feature-flutter-e2e-json";
-  // const String GOAL_ID = "goal-flutter-e2e-1";
-  // const double GOAL_VALUE = 1.0;
 
   void runAllTests() {
-    /*
-    enum CallMethods {
-    initialize,
-    stringVariation,
-    intVariation,
-    doubleVariation,
-    boolVariation,
-    jsonVariation,
-    track,
-    currentUser,
-    updateUserAttributes,
-    fetchEvaluations,
-    flush,
-    evaluationDetails,
-    addEvaluationUpdateListener,
-    removeEvaluationUpdateListener,
-    clearEvaluationUpdateListeners,
-    destroy,
-    unknown,
-  }
-*/
-
     testWidgets('testStringVariation', (WidgetTester _) async {
       expectLater(
         Bucketeer.instance
