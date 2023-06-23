@@ -251,6 +251,11 @@ void main() async {
           appVersion: APP_VERSION);
       expect(result.isSuccess, true, reason: "initialize() should success");
 
+      var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
+          userMap: {'app_version': APP_VERSION});
+      expect(updateUserInfoRs.isSuccess, true,
+          reason: "updateUserAttributes() should success");
+
       var fetchEvaluationsResult =
           await Bucketeer.instance.fetchEvaluations(30000);
       expect(fetchEvaluationsResult.isSuccess, true,

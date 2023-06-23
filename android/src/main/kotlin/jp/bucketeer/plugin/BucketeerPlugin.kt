@@ -211,6 +211,7 @@ class BucketeerPlugin : MethodCallHandler, FlutterPlugin {
         CallMethods.UpdateUserAttributes -> {
           val args = call.arguments<Map<String, String>>()!!
           BKTClient.getInstance().updateUserAttributes(args)
+          success(result, true)
         }
         CallMethods.FetchEvaluations -> {
           val args = call.arguments<Map<String, Any>>()!!

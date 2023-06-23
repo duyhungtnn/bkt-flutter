@@ -51,7 +51,7 @@ void main() {
               'userId': 'userId123',
               'variationId': 'variationId123',
               'variationValue': 'variationValue123',
-              'reason': 3,
+              'reason': 'DEFAULT',
             }
           };
         case CallMethods.jsonVariation:
@@ -162,9 +162,16 @@ void main() {
             userId: 'userId123',
             variationId: 'variationId123',
             variationValue: 'variationValue123',
-            reason: 3,
+            reason: "DEFAULT",
           )),
         ),
+      ),
+    );
+
+    expectLater(
+      Bucketeer.instance.updateUserAttributes('user-id', userMap: {'app_version' : '1.0.0'}),
+      completion(
+        equals(const BKTResult.success(data: true)),
       ),
     );
 

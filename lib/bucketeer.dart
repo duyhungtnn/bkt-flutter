@@ -134,7 +134,7 @@ class Bucketeer {
     );
   }
 
-  Future<BKTResult<void>> updateUserAttributes(
+  Future<BKTResult<bool>> updateUserAttributes(
     String userId, {
     Map<String, String> userMap = const {},
   }) async {
