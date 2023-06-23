@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getJSONVariation(String featureId) async {
     final result = await Bucketeer.instance
-        .jsonVariation("feature-ios-e2e-json", defaultValue: {});
+        .jsonVariation(featureId, defaultValue: {});
     result.ifSuccess((data) {
       print('getJSONVariation: $data');
       showSnackbar(
