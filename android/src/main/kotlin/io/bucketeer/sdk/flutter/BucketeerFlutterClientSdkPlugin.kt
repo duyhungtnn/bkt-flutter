@@ -127,7 +127,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       ?: return fail(result, "Missing featureId")
     val evaluation = BKTClient.getInstance().evaluationDetails(featureId)
     if (evaluation == null) {
-      fail(result, "Failed to fetch the evaluation.")
+      fail(result, "Feature flag not found.")
     } else {
       val map: MutableMap<String, Any> = HashMap()
       map["id"] = evaluation.id
@@ -210,7 +210,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       val rawJson = response.toMap()
       success(result, rawJson)
     } catch (ex: Exception) {
-      fail(result, message = ex.message ?: "get JsonVariation fail")
+      fail(result, message = ex.message ?: "Failed to get JSON variation.")
     }
   }
 

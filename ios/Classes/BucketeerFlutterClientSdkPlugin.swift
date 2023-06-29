@@ -12,23 +12,23 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func initialize(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let apiKey = arguments?["apiKey"] as? String else {
-            fail(result: result, message: "Required apiKey value.")
+            fail(result: result, message: "Missing apiKey")
             return
         }
         guard let apiEndpoint = arguments?["apiEndpoint"] as? String else {
-            fail(result: result, message: "Required endpoint value.")
+            fail(result: result, message: "Missing endpoint")
             return
         }
         guard let featureTag = arguments?["featureTag"] as? String else {
-            fail(result: result, message: "Required featureTag value.")
+            fail(result: result, message: "Missing featureTag")
             return
         }
         guard let userId = arguments?["userId"] as? String else {
-            fail(result: result, message: "Required userId value.")
+            fail(result: result, message: "Missing userId")
             return
         }
         guard let appVersion = arguments?["appVersion"] as? String else {
-            fail(result: result, message: "Required appVersion value.")
+            fail(result: result, message: "Missing appVersion")
             return
         }
         
@@ -62,7 +62,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func stringVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         let defaultValue = arguments?["defaultValue"] as? String ?? ""
@@ -72,7 +72,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func intVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         let defaultValue = arguments?["defaultValue"] as? Int ?? 0
@@ -82,7 +82,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func doubleVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         let defaultValue = arguments?["defaultValue"] as? Double ?? 0.0
@@ -92,7 +92,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func boolVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         let defaultValue = arguments?["defaultValue"] as? Bool ?? false
@@ -102,7 +102,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func track(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let goalId = arguments?["goalId"] as? String else {
-            fail(result: result, message: "Required goalId value.")
+            fail(result: result, message: "Missing goalId")
             return
         }
         let value = arguments?["value"] as? Double ?? 0.0
@@ -112,7 +112,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func jsonVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         let defaultValue = arguments?["defaultValue"] as? Dictionary<String, AnyHashable> ?? [:]
@@ -130,7 +130,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func updateUserAttributes(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let userAttributes = arguments as? [String: String] else {
-            fail(result: result, message: "Required userAttributes value.")
+            fail(result: result, message: "Missing userAttributes")
             return
         }
         BKTClient.shared.updateUserAttributes(attributes: userAttributes)
@@ -161,11 +161,11 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func evaluationDetails(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Required featureId value.")
+            fail(result: result, message: "Missing featureId")
             return
         }
         guard let response = BKTClient.shared.evaluationDetails(featureId: featureId) else {
-            fail(result: result, message: "Failed to fetch the evaluation.")
+            fail(result: result, message: "Feature flag not found.")
             return
         }
         success(
