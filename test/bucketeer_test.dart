@@ -197,7 +197,7 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.fetchEvaluations(10000),
+      Bucketeer.instance.fetchEvaluations(timeoutMillis: 10000),
       completion(
         equals(const BKTResult.success(data: true)),
       ),

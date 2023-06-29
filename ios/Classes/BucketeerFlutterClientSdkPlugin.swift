@@ -37,6 +37,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         let eventsMaxQueueSize = arguments?["eventsMaxQueueSize"] as? Int ?? Constant.DEFAULT_MAX_QUEUE_SIZE
         let pollingInterval = arguments?["pollingInterval"] as? Int64 ?? Constant.DEFAULT_POLLING_INTERVAL_MILLIS
         let backgroundPollingInterval = arguments?["backgroundPollingInterval"] as? Int64 ?? Constant.DEFAULT_BACKGROUND_POLLING_INTERVAL_MILLIS
+        let timeoutMillis = arguments?["timeoutMillis"] as? Int64 ?? 5000
         do {
             let bkConfig = try BKTConfig.init(
                 apiKey: apiKey,
@@ -51,7 +52,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             )
             let user = try BKTUser.init(id: userId, attributes: [:])
             
-            BKTClient.initialize(config: bkConfig, user: user)
+            BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis)
             success(result: result, response: true)
         } catch {
             debugPrint("BKTClient.initialize failed with error: \(error)")
@@ -137,7 +138,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     }
     
     private func fetchEvaluations(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
-        let timeoutMillis = arguments?["timeoutMillis"] as? Int64 ?? 30_0000
+        let timeoutMillis = arguments?["timeoutMillis"] as? Int64
         BKTClient.shared.fetchEvaluations(timeoutMillis: timeoutMillis) { [weak self] err in
             if let err {
                 self?.fail(result: result, message: err.localizedDescription)

@@ -43,9 +43,7 @@ class Bucketeer {
       'backgroundPollingInterval': backgroundPollingInterval,
       'appVersion': appVersion,
     });
-    return _resultGuard(
-        rs
-    );
+    return _resultGuard(rs);
   }
 
   Future<BKTResult<String>> stringVariation(
@@ -142,7 +140,7 @@ class Bucketeer {
     );
   }
 
-  Future<BKTResult<void>> fetchEvaluations(int? timeoutMillis) async {
+  Future<BKTResult<void>> fetchEvaluations({int? timeoutMillis}) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.fetchEvaluations.name, argument: {
         'timeoutMillis': timeoutMillis,
@@ -158,13 +156,13 @@ class Bucketeer {
 
   Future<BKTResult<bool>> destroy() async {
     return _resultGuard(
-      await _invokeMethod(CallMethods.destroy.name).then((value) async {
-        // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
-        return await Future.delayed(const Duration(milliseconds: 100), () {
-          return value;
-        });
-      })
-    );
+        await _invokeMethod(CallMethods.destroy.name).then((value) async {
+      // // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
+      // return await Future.delayed(const Duration(milliseconds: 100), () {
+      //   return value;
+      // });
+      return value;
+    }));
   }
 
   Future<BKTResult<BKTEvaluation>> evaluationDetails(String featureId) async {

@@ -176,7 +176,7 @@ void main() async {
       );
 
       await expectLater(
-        Bucketeer.instance.fetchEvaluations(30000),
+        Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000),
         completion(
           equals(const BKTResult.success(data: true)),
         ),
@@ -223,7 +223,7 @@ void main() async {
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
-      await Bucketeer.instance.fetchEvaluations(30000);
+      await Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
@@ -251,7 +251,7 @@ void main() async {
           reason: "updateUserAttributes() should success");
 
       var fetchEvaluationsResult =
-          await Bucketeer.instance.fetchEvaluations(30000);
+          await Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });

@@ -147,6 +147,17 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  Future<void> _fetchEvaluation() async {
+    final result = await Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000);
+    result.ifSuccess((evaluation) {
+      print('Successful the fetchEvaluations');
+      showSnackbar(
+          context: context,
+          title: 'FetchEvaluations)',
+          message: 'Successful');
+    });
+  }
+
   Future<void> _getEvaluation(String featureId) async {
     final result = await Bucketeer.instance.evaluationDetails(featureId);
     result.ifSuccess((evaluation) {
@@ -203,6 +214,11 @@ class _MyHomePageState extends State<MyHomePage> {
     result.ifFailure((message) {
       print('Fail to update user info ${message}');
     });
+
+    // Manual call fetchEvaluation,
+    // It may not necessary because it will be call by the SDK
+    // when initialize in the first time
+    await _fetchEvaluation();
   }
 
   Future<void> _getCurrentUser() async {
