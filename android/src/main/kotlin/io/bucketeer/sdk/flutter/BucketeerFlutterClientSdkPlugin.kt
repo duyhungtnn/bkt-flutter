@@ -42,7 +42,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun initialize(call: MethodCall, result: MethodChannel.Result) {
-    val debugging = (call.argument("debugging") as? Boolean) ?: false
+    //val debugging = (call.argument("debugging") as? Boolean) ?: false
     val userId = call.argument("userId") as? String
     val apiKey = call.argument("apiKey") as? String
     val apiEndpoint = call.argument("apiEndpoint") as? String
@@ -55,6 +55,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       call.argument("pollingInterval") as? Long
     val backgroundPollingInterval =
       call.argument("backgroundPollingInterval") as? Long
+    val timeoutMillis = call.argument("timeoutMillis") as? Long
     val appVersion = call.argument("appVersion") as? String
     if (apiKey.isNullOrEmpty()) {
       return fail(result, "Missing apiKey")
@@ -99,14 +100,18 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         .appVersion(appVersion)
         .build()
       val user: BKTUser = BKTUser.builder().id(userId).build()
-      BKTClient.initialize(applicationContext!!, config, user, 5000)
+      if (timeoutMillis != null) {
+        BKTClient.initialize(applicationContext!!, config, user, timeoutMillis)
+      } else {
+        BKTClient.initialize(applicationContext!!, config, user)
+      }
       success(result, true)
     } catch (ex: Exception) {
       fail(result, ex.message)
     }
   }
 
-  private fun currentUser(call: MethodCall, result: MethodChannel.Result) {
+  private fun currentUser(result: MethodChannel.Result) {
     assertInitialize()
     val user = BKTClient.getInstance().currentUser()
     val map: MutableMap<String, Any> = HashMap()
@@ -186,8 +191,11 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     val goalId = args["goalId"] as? String
       ?: return fail(result, "Missing goalId")
     val value = args["value"] as? Double
-      ?: return fail(result, "Missing goal value")
-    BKTClient.getInstance().track(goalId, value)
+    if (value != null) {
+      BKTClient.getInstance().track(goalId, value)
+    } else {
+      BKTClient.getInstance().track(goalId)
+    }
     success(result, true)
   }
 
@@ -196,7 +204,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       val args = call.arguments<Map<String, Any>>()!!
       val featureId = args["featureId"] as? String
         ?: return fail(result, "Missing featureId")
-      val defaultValue = args["defaultValue"] as? Map<String, String> ?: mapOf()
+      val defaultValue = args["defaultValue"] as? Map<*, *> ?: mapOf<Any, Any>()
       val response =
         BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))
       val rawJson = response.toMap()
@@ -227,7 +235,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     }
   }
 
-  private fun flush(call: MethodCall, result: MethodChannel.Result) {
+  private fun flush(result: MethodChannel.Result) {
     MainScope().launch {
       val err = withContext(Dispatchers.IO) {
         return@withContext BKTClient.getInstance().flush().get()
@@ -249,7 +257,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
 
         CallMethods.CurrentUser -> {
-          currentUser(call, result)
+          currentUser(result)
         }
 
         CallMethods.EvaluationDetails -> {
@@ -277,7 +285,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
 
         CallMethods.JsonVariation -> {
-         jsonVariation(call, result)
+          jsonVariation(call, result)
         }
 
         CallMethods.UpdateUserAttributes -> {
@@ -289,7 +297,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
 
         CallMethods.Flush -> {
-          flush(call, result)
+          flush(result)
         }
 
         CallMethods.AddEvaluationUpdateListener -> {

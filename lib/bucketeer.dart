@@ -142,7 +142,7 @@ class Bucketeer {
     );
   }
 
-  Future<BKTResult<void>> fetchEvaluations(int timeoutMillis) async {
+  Future<BKTResult<void>> fetchEvaluations(int? timeoutMillis) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.fetchEvaluations.name, argument: {
         'timeoutMillis': timeoutMillis,
