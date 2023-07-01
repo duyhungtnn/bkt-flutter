@@ -8,6 +8,7 @@ import io.bucketeer.sdk.android.BKTUser
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -23,16 +24,29 @@ import org.json.JSONObject
  * BucketeerPlugin
  */
 class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
+
+  companion object {
+    const val METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
+    const val EVALUATION_UPDATE_EVENT_CHANNEL_NAME =
+      "$METHOD_CHANNEL_NAME::evaluation.update.listener"
+  }
+
   private var applicationContext: Context? = null
   private var methodChannel: MethodChannel? = null
+  private var evaluationUpdateEventChannel: EventChannel? = null
+  private var evaluationUpdateListener = BucketeerPluginEvaluationUpdateListener()
   override fun onAttachedToEngine(binding: FlutterPluginBinding) {
     onAttachedToEngine(binding.applicationContext, binding.binaryMessenger)
   }
 
   private fun onAttachedToEngine(applicationContext: Context, messenger: BinaryMessenger) {
     this.applicationContext = applicationContext
-    methodChannel = MethodChannel(messenger, "io.bucketeer.sdk.plugin.flutter")
+    methodChannel = MethodChannel(messenger, METHOD_CHANNEL_NAME)
     methodChannel!!.setMethodCallHandler(this)
+    evaluationUpdateEventChannel =
+      EventChannel(messenger, EVALUATION_UPDATE_EVENT_CHANNEL_NAME).apply {
+        setStreamHandler(evaluationUpdateListener)
+      }
   }
 
   override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
@@ -42,7 +56,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun initialize(call: MethodCall, result: MethodChannel.Result) {
-    //val debugging = (call.argument("debugging") as? Boolean) ?: false
+    val debugging = (call.argument("debugging") as? Boolean) ?: false
     val userId = call.argument("userId") as? String
     val apiKey = call.argument("apiKey") as? String
     val apiEndpoint = call.argument("apiEndpoint") as? String
@@ -97,6 +111,11 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
             return@let it.pollingInterval(backgroundPollingInterval)
           }
           return@let it
+        }.let {
+          if (debugging) {
+            return@let it.logger(BucketeerPluginLogger())
+          }
+          return@let it
         }
         .appVersion(appVersion)
         .build()
@@ -109,6 +128,10 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       } else {
         BKTClient.initialize(applicationContext!!, config, user)
       }
+      // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+      BKTClient.getInstance().addEvaluationUpdateListener(
+        evaluationUpdateListener
+      )
       success(result, true)
     } catch (ex: Exception) {
       fail(result, ex.message)
@@ -304,15 +327,13 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           flush(result)
         }
 
-        CallMethods.AddEvaluationUpdateListener -> {
-          result.notImplemented()
-        }
-
-        CallMethods.RemoveEvaluationUpdateListener -> {
-          result.notImplemented()
-        }
-
+        CallMethods.AddEvaluationUpdateListener,
+        CallMethods.RemoveEvaluationUpdateListener,
         CallMethods.ClearEvaluationUpdateListeners -> {
+          // note: we will forward all `evaluation update` event to Flutter using
+          // event_channel : https://api.flutter.dev/flutter/services/EventChannel-class.html
+          // so there is no native code for implement here
+          // We will create an default listener for Flutter. See > BucketeerPluginEvaluationUpdateListener.kt
           result.notImplemented()
         }
 
