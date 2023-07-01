@@ -4,10 +4,18 @@ import Bucketeer
 
 public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
+    private static let METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
+    private static let EVALUATION_UPDATE_EVENT_CHANNEL_NAME = "\(METHOD_CHANNEL_NAME)::evaluation.update.listener"
+    
+    let evaluationListener = BucketeerPluginEvaluationUpdateListener()
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "io.bucketeer.sdk.plugin.flutter", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger())
         let instance = BucketeerFlutterClientSdkPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
+        let eventChannel = FlutterEventChannel(name: EVALUATION_UPDATE_EVENT_CHANNEL_NAME,
+                                                      binaryMessenger: registrar.messenger())
+        eventChannel.setStreamHandler(instance.evaluationListener)
     }
     
     private func initialize(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
@@ -67,7 +75,8 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             } else {
                 BKTClient.initialize(config: bkConfig, user: user)
             }
-            
+            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+            BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
             success(result: result, response: true)
         } catch {
             debugPrint("BKTClient.initialize failed with error: \(error)")
@@ -256,15 +265,15 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         case .evaluationDetails:
             evaluationDetails(arguments, result)
             
-        case .addEvaluationUpdateListener:
+        case .addEvaluationUpdateListener, .removeEvaluationUpdateListener, .clearEvaluationUpdateListeners:
+            // note: will handle in Flutter only. We don't implement native code for these methods
+            // see: BucketeerPluginEvaluationUpdateListener.swift
             result(FlutterMethodNotImplemented)
-        case .removeEvaluationUpdateListener:
-            result(FlutterMethodNotImplemented)
-        case .clearEvaluationUpdateListeners:
-            result(FlutterMethodNotImplemented)
+            
         case .destroy:
             BKTClient.destroy()
             success(result: result, response: true)
+            
         default:
             result(FlutterMethodNotImplemented)
         }
