@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
 import 'package:flutter_bucketeer/src/call_methods.dart';
@@ -16,7 +15,6 @@ void main() {
       var callMethod = CallMethods.values.firstWhere(
           (element) => element.name == methodCall.method,
           orElse: () => CallMethods.unknown);
-
       switch (callMethod) {
         case CallMethods.initialize:
         case CallMethods.updateUserAttributes:
@@ -83,17 +81,17 @@ void main() {
   test('Bucketeer Tests', () async {
     expectLater(
       Bucketeer.instance.initialize(
-        apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
-        apiEndpoint: 'demo.bucketeer.jp',
-        featureTag: 'Flutter',
-        userId: '2023',
-        debugging: true,
-        eventsFlushInterval: 10000,
-        eventsMaxQueueSize: 10000,
-        pollingInterval: 10000,
-        backgroundPollingInterval: 10000,
-        appVersion: '1.0.0',
-      ),
+          apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
+          apiEndpoint: 'demo.bucketeer.jp',
+          featureTag: 'Flutter',
+          userId: '2023',
+          debugging: true,
+          eventsFlushInterval: 10000,
+          eventsMaxQueueSize: 10000,
+          pollingInterval: 10000,
+          backgroundPollingInterval: 10000,
+          appVersion: '1.0.0',
+          userAttributes: {'app_version': '1.0.0'}),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
@@ -112,7 +110,7 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.stringVariation('feature-id'),
+      Bucketeer.instance.stringVariation('feature-id', defaultValue: ''),
       completion(
         equals(const BKTResult.success(data: 'datadata')),
       ),
@@ -123,7 +121,9 @@ void main() {
     // https://stackoverflow.com/questions/61765518/how-to-check-two-maps-are-equal-in-dart
     // We will not compare 2 BKTResult, we will compare the final output
     expect(
-      (await Bucketeer.instance.jsonVariation('feature-id')).asSuccess.data,
+      (await Bucketeer.instance.jsonVariation('feature-id', defaultValue: {}))
+          .asSuccess
+          .data,
       BKTResult<Map<String, dynamic>>.success(
           data: Map<String, dynamic>.from({
         'id': 'id123',
@@ -134,17 +134,18 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.intVariation('feature-id'),
+      Bucketeer.instance.intVariation('feature-id', defaultValue: 0),
       completion(
         equals(const BKTResult.success(data: 1234)),
       ),
     );
 
-    expectLater(Bucketeer.instance.doubleVariation('feature-id'),
+    expectLater(
+        Bucketeer.instance.doubleVariation('feature-id', defaultValue: 0.0),
         completion(equals(const BKTResult.success(data: 55.2))));
 
     expectLater(
-      Bucketeer.instance.boolVariation('feature-id'),
+      Bucketeer.instance.boolVariation('feature-id', defaultValue: false),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
@@ -169,7 +170,8 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.updateUserAttributes('user-id', userMap: {'app_version' : '1.0.0'}),
+      Bucketeer.instance.updateUserAttributes('user-id',
+          userAttributes: {'app_version': '1.0.0'}),
       completion(
         equals(const BKTResult.success(data: true)),
       ),

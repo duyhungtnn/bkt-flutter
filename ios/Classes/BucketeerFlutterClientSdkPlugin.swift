@@ -59,7 +59,8 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             }
             
             let bkConfig = try builder.build()
-            let user = try BKTUser.init(id: userId, attributes: [:])
+            let userAttributes = arguments?["userAttributes"] as? [String: String] ?? [:]
+            let user = try BKTUser.init(id: userId, attributes: userAttributes)
             
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
                 BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis)

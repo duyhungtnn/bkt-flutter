@@ -169,7 +169,7 @@ void main() async {
 
       await expectLater(
         Bucketeer.instance.updateUserAttributes(USER_ID,
-            userMap: {'app_version': OLD_APP_VERSION}),
+            userAttributes: {'app_version': OLD_APP_VERSION}),
         completion(
           equals(const BKTResult.success(data: true)),
         ),
@@ -212,7 +212,7 @@ void main() async {
       expect(instanceResult.isSuccess, true, reason: "initialize() should success");
 
       var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
-          userMap: {'app_version': APP_VERSION});
+          userAttributes: {'app_version': APP_VERSION});
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 
@@ -246,7 +246,7 @@ void main() async {
       expect(result.isSuccess, true, reason: "initialize() should success");
 
       var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
-          userMap: {'app_version': APP_VERSION});
+          userAttributes: {'app_version': APP_VERSION});
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 

@@ -57,6 +57,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       call.argument("backgroundPollingInterval") as? Long
     val timeoutMillis = call.argument("timeoutMillis") as? Long
     val appVersion = call.argument("appVersion") as? String
+    val userAttributes = call.argument("userAttributes") as? Map<String, String> ?: mapOf()
     if (apiKey.isNullOrEmpty()) {
       return fail(result, "apiKey is required")
     }
@@ -99,7 +100,10 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
         .appVersion(appVersion)
         .build()
-      val user: BKTUser = BKTUser.builder().id(userId).build()
+      val user: BKTUser = BKTUser.builder()
+        .id(userId)
+        .customAttributes(userAttributes)
+        .build()
       if (timeoutMillis != null) {
         BKTClient.initialize(applicationContext!!, config, user, timeoutMillis)
       } else {

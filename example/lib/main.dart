@@ -71,7 +71,7 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
             backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
             appVersion: "1.0.0"
         );
-      await Bucketeer.instance.updateUserAttributes(userId, userMap:{'app_version': "1.2.3"});
+      await Bucketeer.instance.updateUserAttributes(userId, userAttributes:{'app_version': "1.2.3"});
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -203,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
           appVersion: "1.0.0"
       );
-    var result = await Bucketeer.instance.updateUserAttributes(userId, userMap: {'app_version': "1.2.3"});
+    var result = await Bucketeer.instance.updateUserAttributes(userId, userAttributes: {'app_version': "1.2.3"});
     result.ifSuccess((rs) {
       print('Successful the switchUser');
       showSnackbar(

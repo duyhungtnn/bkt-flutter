@@ -24,12 +24,14 @@ class Bucketeer {
     required String apiEndpoint,
     required String featureTag,
     required String userId,
+    required String appVersion,
     bool debugging = false,
     int? eventsFlushInterval,
     int? eventsMaxQueueSize,
     int? pollingInterval,
     int? backgroundPollingInterval,
-    String? appVersion,
+    int? timeoutMillis,
+    Map<String, String>? userAttributes,
   }) async {
     var rs = await _invokeMethod(CallMethods.initialize.name, argument: {
       'apiKey': apiKey,
@@ -42,13 +44,15 @@ class Bucketeer {
       'pollingInterval': pollingInterval,
       'backgroundPollingInterval': backgroundPollingInterval,
       'appVersion': appVersion,
+      'timeoutMillis': timeoutMillis,
+      'userAttributes': userAttributes,
     });
     return _resultGuard(rs);
   }
 
   Future<BKTResult<String>> stringVariation(
     String featureId, {
-    String defaultValue = '',
+    required String defaultValue,
   }) async {
     return _resultGuard<String>(
       await _invokeMethod(CallMethods.stringVariation.name, argument: {
@@ -60,7 +64,7 @@ class Bucketeer {
 
   Future<BKTResult<int>> intVariation(
     String featureId, {
-    int defaultValue = 0,
+    required int defaultValue,
   }) async {
     return _resultGuard<int>(
       await _invokeMethod(CallMethods.intVariation.name, argument: {
@@ -72,7 +76,7 @@ class Bucketeer {
 
   Future<BKTResult<double>> doubleVariation(
     String featureId, {
-    double defaultValue = 0.0,
+    required double defaultValue,
   }) async {
     return _resultGuard<double>(
       await _invokeMethod(CallMethods.doubleVariation.name, argument: {
@@ -84,7 +88,7 @@ class Bucketeer {
 
   Future<BKTResult<bool>> boolVariation(
     String featureId, {
-    bool defaultValue = false,
+    required bool defaultValue,
   }) async {
     return _resultGuard<bool>(
         await _invokeMethod(CallMethods.boolVariation.name, argument: {
@@ -95,7 +99,7 @@ class Bucketeer {
 
   Future<BKTResult<Map<String, dynamic>>> jsonVariation(
     String featureId, {
-    Map<String, dynamic> defaultValue = const {},
+    required Map<String, dynamic> defaultValue,
   }) async {
     return _resultGuard<Map<String, dynamic>>(
         await _invokeMethod(CallMethods.jsonVariation.name, argument: {
@@ -108,7 +112,7 @@ class Bucketeer {
 
   Future<BKTResult<void>> track(
     String goalId, {
-    double value = 0.0,
+     double? value,
   }) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.track.name, argument: {
@@ -132,11 +136,11 @@ class Bucketeer {
 
   Future<BKTResult<bool>> updateUserAttributes(
     String userId, {
-    Map<String, String> userMap = const {},
+    required Map<String, String> userAttributes,
   }) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.updateUserAttributes.name,
-          argument: userMap),
+          argument: userAttributes),
     );
   }
 
@@ -161,7 +165,7 @@ class Bucketeer {
       return await Future.delayed(const Duration(milliseconds: 100), () {
         return value;
       });
-      return value;
+      // return value;
     }));
   }
 
