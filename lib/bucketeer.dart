@@ -3,11 +3,15 @@ library bucketeer;
 export 'src/evaluation.dart';
 export 'src/bucketeer_user.dart';
 export 'src/result.dart';
+export 'src/evaluation_update_listener.dart';
 
 import 'package:flutter/services.dart';
 import 'src/bucketeer_user.dart';
 import 'src/call_methods.dart';
+import 'src/constant.dart';
 import 'src/evaluation.dart';
+import 'src/evaluation_update_listener.dart';
+import 'src/evaluation_update_listener_dispatcher.dart';
 import 'src/result.dart';
 
 /// Bucketeer Flutter SDK
@@ -17,7 +21,10 @@ class Bucketeer {
   static const Bucketeer instance = Bucketeer._();
 
   static const MethodChannel _channel =
-      MethodChannel('io.bucketeer.sdk.plugin.flutter');
+      MethodChannel(Constant.methodChannelName);
+
+  static final EvaluationUpdateListenerDispatcher _dispatcher =
+      EvaluationUpdateListenerDispatcher();
 
   Future<BKTResult<void>> initialize({
     required String apiKey,
@@ -112,7 +119,7 @@ class Bucketeer {
 
   Future<BKTResult<void>> track(
     String goalId, {
-     double? value,
+    double? value,
   }) async {
     return _resultGuard(
       await _invokeMethod(CallMethods.track.name, argument: {
@@ -184,6 +191,18 @@ class Bucketeer {
         reason: response['reason'],
       );
     });
+  }
+
+  String addEvaluationUpdateListener(EvaluationUpdateListener listener) {
+    return _dispatcher.addEvaluationUpdateListener(listener);
+  }
+
+  void removeEvaluationUpdateListener(String key) {
+    _dispatcher.removeEvaluationUpdateListener(key);
+  }
+
+  void clearEvaluationUpdateListeners() {
+    _dispatcher.clearEvaluationUpdateListeners();
   }
 
   BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
