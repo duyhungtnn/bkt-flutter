@@ -58,19 +58,19 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     val timeoutMillis = call.argument("timeoutMillis") as? Long
     val appVersion = call.argument("appVersion") as? String
     if (apiKey.isNullOrEmpty()) {
-      return fail(result, "Missing apiKey")
+      return fail(result, "apiKey is required")
     }
     if (apiEndpoint.isNullOrEmpty()) {
-      return fail(result, "Missing apiEndpoint")
+      return fail(result, "apiEndpoint is required")
     }
     if (featureTag.isNullOrEmpty()) {
-      return fail(result, "Missing featureTag")
+      return fail(result, "featureTag is required")
     }
     if (userId.isNullOrEmpty()) {
-      return fail(result, "Missing userId")
+      return fail(result, "userId is required")
     }
     if (appVersion.isNullOrEmpty()) {
-      return fail(result, "Missing appVersion")
+      return fail(result, "appVersion is required")
     }
     try {
       val config: BKTConfig = BKTConfig.builder()
@@ -124,7 +124,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
-      ?: return fail(result, "Missing featureId")
+      ?: return fail(result, "featureId is required")
     val evaluation = BKTClient.getInstance().evaluationDetails(featureId)
     if (evaluation == null) {
       fail(result, "Feature flag not found.")
@@ -145,9 +145,9 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
-      ?: return fail(result, "Missing featureId")
+      ?: return fail(result, "featureId is required")
     val defaultValue = args["defaultValue"] as? String
-      ?: return fail(result, "Missing defaultValue")
+      ?: return fail(result, "defaultValue is required")
     val response = BKTClient.getInstance().stringVariation(featureId, defaultValue)
     success(result, response)
   }
@@ -156,9 +156,9 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
-      ?: return fail(result, "Missing featureId")
+      ?: return fail(result, "featureId is required")
     val defaultValue = args["defaultValue"] as? Int
-      ?: return fail(result, "Missing defaultValue")
+      ?: return fail(result, "defaultValue is required")
     val response = BKTClient.getInstance().intVariation(featureId, defaultValue)
     success(result, response)
   }
@@ -167,9 +167,9 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
-      ?: return fail(result, "Missing featureId")
+      ?: return fail(result, "featureId is required")
     val defaultValue = args["defaultValue"] as? Double
-      ?: return fail(result, "Missing defaultValue")
+      ?: return fail(result, "defaultValue is required")
     val response = BKTClient.getInstance().doubleVariation(featureId, defaultValue)
     success(result, response)
   }
@@ -178,9 +178,9 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
-      ?: return fail(result, "Missing featureId")
+      ?: return fail(result, "featureId is required")
     val defaultValue = args["defaultValue"] as? Boolean
-      ?: return fail(result, "Missing defaultValue")
+      ?: return fail(result, "defaultValue is required")
     val response = BKTClient.getInstance().booleanVariation(featureId, defaultValue)
     success(result, response)
   }
@@ -189,7 +189,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val goalId = args["goalId"] as? String
-      ?: return fail(result, "Missing goalId")
+      ?: return fail(result, "goalId is required")
     val value = args["value"] as? Double
     if (value != null) {
       BKTClient.getInstance().track(goalId, value)
@@ -203,7 +203,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     try {
       val args = call.arguments<Map<String, Any>>()!!
       val featureId = args["featureId"] as? String
-        ?: return fail(result, "Missing featureId")
+        ?: return fail(result, "featureId is required")
       val defaultValue = args["defaultValue"] as? Map<*, *> ?: mapOf<Any, Any>()
       val response =
         BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))

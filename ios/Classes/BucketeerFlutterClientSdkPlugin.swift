@@ -12,47 +12,61 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func initialize(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let apiKey = arguments?["apiKey"] as? String else {
-            fail(result: result, message: "Missing apiKey")
+            fail(result: result, message: "apiKey is required")
             return
         }
         guard let apiEndpoint = arguments?["apiEndpoint"] as? String else {
-            fail(result: result, message: "Missing endpoint")
+            fail(result: result, message: "apiEndpoint is required")
             return
         }
         guard let featureTag = arguments?["featureTag"] as? String else {
-            fail(result: result, message: "Missing featureTag")
+            fail(result: result, message: "featureTag is required")
             return
         }
         guard let userId = arguments?["userId"] as? String else {
-            fail(result: result, message: "Missing userId")
+            fail(result: result, message: "userId is required")
             return
         }
         guard let appVersion = arguments?["appVersion"] as? String else {
-            fail(result: result, message: "Missing appVersion")
+            fail(result: result, message: "appVersion is required")
             return
         }
         
-        let debugging = arguments?["debugging"] as? Bool ?? false
-        let eventsFlushInterval = arguments?["eventsFlushInterval"] as? Int64 ?? Constant.DEFAULT_FLUSH_INTERVAL_MILLIS
-        let eventsMaxQueueSize = arguments?["eventsMaxQueueSize"] as? Int ?? Constant.DEFAULT_MAX_QUEUE_SIZE
-        let pollingInterval = arguments?["pollingInterval"] as? Int64 ?? Constant.DEFAULT_POLLING_INTERVAL_MILLIS
-        let backgroundPollingInterval = arguments?["backgroundPollingInterval"] as? Int64 ?? Constant.DEFAULT_BACKGROUND_POLLING_INTERVAL_MILLIS
-        let timeoutMillis = arguments?["timeoutMillis"] as? Int64 ?? 5000
         do {
-            let bkConfig = try BKTConfig.init(
-                apiKey: apiKey,
-                apiEndpoint: apiEndpoint,
-                featureTag: featureTag,
-                eventsFlushInterval: eventsFlushInterval,
-                eventsMaxQueueSize: eventsMaxQueueSize,
-                pollingInterval: pollingInterval,
-                backgroundPollingInterval: backgroundPollingInterval,
-                appVersion: appVersion,
-                logger: debugging ? BucketeerPluginLogger() : nil
-            )
+            var builder = BKTConfig.Builder(apiKey: apiKey)
+                .with(apiEndpoint: apiEndpoint)
+                .with(featureTag: featureTag)
+                .with(appVersion: appVersion)
+                
+            if let eventsFlushInterval = arguments?["eventsFlushInterval"] as? Int64 {
+                builder = builder.with(eventsFlushInterval: eventsFlushInterval)
+            }
+            
+            if let eventsMaxQueueSize = arguments?["eventsMaxQueueSize"] as? Int {
+                builder = builder.with(eventsMaxQueueSize: eventsMaxQueueSize)
+            }
+            
+            if let pollingInterval = arguments?["pollingInterval"] as? Int64 {
+                builder = builder.with(pollingInterval: pollingInterval)
+            }
+            
+            if let backgroundPollingInterval = arguments?["backgroundPollingInterval"] as? Int64 {
+                builder = builder.with(backgroundPollingInterval: backgroundPollingInterval)
+            }
+            
+            if arguments?["debugging"] is Bool {
+                builder = builder.with(logger: BucketeerPluginLogger())
+            }
+            
+            let bkConfig = try builder.build()
             let user = try BKTUser.init(id: userId, attributes: [:])
             
-            BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis)
+            if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
+                BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis)
+            } else {
+                BKTClient.initialize(config: bkConfig, user: user)
+            }
+            
             success(result: result, response: true)
         } catch {
             debugPrint("BKTClient.initialize failed with error: \(error)")
@@ -62,60 +76,78 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func stringVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
-        let defaultValue = arguments?["defaultValue"] as? String ?? ""
+        guard let defaultValue = arguments?["defaultValue"] as? String else {
+            fail(result: result, message: "defaultValue is required")
+            return
+        }
         let response = BKTClient.shared.stringVariation(featureId: featureId, defaultValue: defaultValue)
         success(result: result, response: response)
     }
     
     private func intVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
-        let defaultValue = arguments?["defaultValue"] as? Int ?? 0
+        guard let defaultValue = arguments?["defaultValue"] as? Int else {
+            fail(result: result, message: "defaultValue is required")
+            return
+        }
         let response = BKTClient.shared.intVariation(featureId: featureId, defaultValue: defaultValue)
         success(result: result, response: response)
     }
     
     private func doubleVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
-        let defaultValue = arguments?["defaultValue"] as? Double ?? 0.0
+        guard let defaultValue = arguments?["defaultValue"] as? Double else {
+            fail(result: result, message: "defaultValue is required")
+            return
+        }
         let response = BKTClient.shared.doubleVariation(featureId: featureId, defaultValue: defaultValue)
         success(result: result, response: response)
     }
     
     private func boolVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
-        let defaultValue = arguments?["defaultValue"] as? Bool ?? false
+        guard let defaultValue = arguments?["defaultValue"] as? Bool else {
+            fail(result: result, message: "defaultValue is required")
+            return
+        }
         let response = BKTClient.shared.boolVariation(featureId: featureId, defaultValue: defaultValue)
         success(result: result, response: response)
     }
     
     private func track(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let goalId = arguments?["goalId"] as? String else {
-            fail(result: result, message: "Missing goalId")
+            fail(result: result, message: "goalId is required")
             return
         }
-        let value = arguments?["value"] as? Double ?? 0.0
-        BKTClient.shared.track(goalId: goalId, value: value)
+        if let value = arguments?["value"] as? Double {
+            BKTClient.shared.track(goalId: goalId, value: value)
+        } else {
+            BKTClient.shared.track(goalId: goalId)
+        }
         success(result: result, response: true)
     }
     
     private func jsonVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
-        let defaultValue = arguments?["defaultValue"] as? Dictionary<String, AnyHashable> ?? [:]
+        guard let defaultValue = arguments?["defaultValue"] as? Dictionary<String, AnyHashable> else {
+            fail(result: result, message: "defaultValue is required")
+            return
+        }
         let response = BKTClient.shared.jsonVariation(featureId: featureId, defaultValue: defaultValue)
         success(result: result, response: response)
     }
@@ -130,7 +162,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func updateUserAttributes(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let userAttributes = arguments as? [String: String] else {
-            fail(result: result, message: "Missing userAttributes")
+            fail(result: result, message: "userAttributes is required")
             return
         }
         BKTClient.shared.updateUserAttributes(attributes: userAttributes)
@@ -161,7 +193,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     
     private func evaluationDetails(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
         guard let featureId = arguments?["featureId"] as? String else {
-            fail(result: result, message: "Missing featureId")
+            fail(result: result, message: "featureId is required")
             return
         }
         guard let response = BKTClient.shared.evaluationDetails(featureId: featureId) else {
