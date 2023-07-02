@@ -22,9 +22,11 @@ class Bucketeer {
 
   static const MethodChannel _channel =
       MethodChannel(Constants.methodChannelName);
-  static const EventChannel _eventChannel = EventChannel(Constants.eventChannelName);
+  static const EventChannel _eventChannel =
+      EventChannel(Constants.eventChannelName);
   static final EvaluationUpdateListenerDispatcher _dispatcher =
-      EvaluationUpdateListenerDispatcher(_eventChannel.receiveBroadcastStream());
+      EvaluationUpdateListenerDispatcher(
+          _eventChannel.receiveBroadcastStream());
 
   Future<BKTResult<void>> initialize({
     required String apiKey,
@@ -168,7 +170,10 @@ class Bucketeer {
   Future<BKTResult<bool>> destroy() async {
     return _resultGuard(
         await _invokeMethod(CallMethods.destroy.name).then((value) async {
+      // Remove all listener for the current client
+      clearEvaluationUpdateListeners();
       // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
+
       return await Future.delayed(const Duration(milliseconds: 100), () {
         return value;
       });
