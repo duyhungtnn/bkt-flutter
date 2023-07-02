@@ -62,7 +62,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 builder = builder.with(backgroundPollingInterval: backgroundPollingInterval)
             }
             
-            if arguments?["debugging"] is Bool {
+            if let debugging = arguments?["debugging"] as? Bool, debugging {
                 builder = builder.with(logger: BucketeerPluginLogger())
             }
             
