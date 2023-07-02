@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
 import 'package:flutter_bucketeer/src/call_methods.dart';
+import 'package:flutter_bucketeer/src/constants.dart';
 import 'package:flutter_bucketeer/src/evaluation.dart' as bucketeer;
 
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  const channel = MethodChannel('io.bucketeer.sdk.plugin.flutter');
+  const channel = MethodChannel(Constants.methodChannelName);
 
   setUp(() async {
     channel.setMockMethodCallHandler((methodCall) async {

@@ -8,7 +8,7 @@ export 'src/evaluation_update_listener.dart';
 import 'package:flutter/services.dart';
 import 'src/bucketeer_user.dart';
 import 'src/call_methods.dart';
-import 'src/constant.dart';
+import 'src/constants.dart';
 import 'src/evaluation.dart';
 import 'src/evaluation_update_listener.dart';
 import 'src/evaluation_update_listener_dispatcher.dart';
@@ -21,10 +21,10 @@ class Bucketeer {
   static const Bucketeer instance = Bucketeer._();
 
   static const MethodChannel _channel =
-      MethodChannel(Constant.methodChannelName);
-
+      MethodChannel(Constants.methodChannelName);
+  static const EventChannel _eventChannel = EventChannel(Constants.eventChannelName);
   static final EvaluationUpdateListenerDispatcher _dispatcher =
-      EvaluationUpdateListenerDispatcher();
+      EvaluationUpdateListenerDispatcher(_eventChannel.receiveBroadcastStream());
 
   Future<BKTResult<void>> initialize({
     required String apiKey,

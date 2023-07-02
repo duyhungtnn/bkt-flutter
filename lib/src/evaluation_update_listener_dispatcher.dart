@@ -1,18 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'constant.dart';
+import 'constants.dart';
 import 'evaluation_update_listener.dart';
 
 class EvaluationUpdateListenerDispatcher {
+  final _listeners = <String, EvaluationUpdateListener>{};
 
-  static const _eventChannelName =
-      "${Constant.methodChannelName}::evaluation.update.listener";
-  static const EventChannel _eventChannel = EventChannel(_eventChannelName);
-  static const _listeners = <String, EvaluationUpdateListener>{};
-
-  EvaluationUpdateListenerDispatcher() {
-    _eventChannel.receiveBroadcastStream().listen(_onEvent);
+  EvaluationUpdateListenerDispatcher(Stream<dynamic> eventStream) {
+    eventStream.asBroadcastStream().listen(_onEvent);
   }
 
   void _onEvent(Object? event) {
@@ -33,5 +29,9 @@ class EvaluationUpdateListenerDispatcher {
 
   void clearEvaluationUpdateListeners() {
     _listeners.clear();
+  }
+
+  int listenerCount() {
+    return _listeners.keys.length;
   }
 }

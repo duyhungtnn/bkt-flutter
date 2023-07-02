@@ -1,7 +1,11 @@
 import 'package:bucketeer_example/constant.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockEvaluationUpdateListener extends Mock implements EvaluationUpdateListener {}
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +36,8 @@ void main() async {
 
   const String GOAL_ID = "goal-flutter-e2e-1";
   const double GOAL_VALUE = 1.0;
+
+  final listener = MockEvaluationUpdateListener();
 
   void runAllTests() {
     testWidgets('testStringVariation', (WidgetTester _) async {
@@ -203,11 +209,11 @@ void main() async {
           featureTag: FEATURE_TAG,
           userId: "test_id",
           debugging: DEBUGGING,
-          eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
+          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
+          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
+          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
           backgroundPollingInterval:
-          Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
+          Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
           appVersion: APP_VERSION);
       expect(instanceResult.isSuccess, true, reason: "initialize() should success");
 
@@ -237,13 +243,15 @@ void main() async {
           featureTag: FEATURE_TAG,
           userId: USER_ID,
           debugging: DEBUGGING,
-          eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
+          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
+          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
+          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
           backgroundPollingInterval:
-              Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
+              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
           appVersion: APP_VERSION);
       expect(result.isSuccess, true, reason: "initialize() should success");
+
+      Bucketeer.instance.addEvaluationUpdateListener(listener);
 
       var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
           userAttributes: {'app_version': APP_VERSION});
@@ -263,6 +271,14 @@ void main() async {
           reason: "destroy() should success");
     });
 
+    tearDownAll(() async {
+      // listener should be called from the native side
+      final onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
+      expect(onUpdateCallCount > 0, true);
+      print("All tests passed");
+    });
+
     runAllTests();
+
   });
 }

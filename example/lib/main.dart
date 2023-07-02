@@ -33,7 +33,10 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class _AppState extends State<MyApp> with WidgetsBindingObserver {
+class _AppState extends State<MyApp> with WidgetsBindingObserver implements EvaluationUpdateListener {
+
+  late final String _listenToken;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -65,13 +68,14 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
             featureTag: 'flutter',
             userId: userId,
             debugging: true,
-            eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
-            eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
-            pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
-            backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
+            eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
+            eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
+            pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
+            backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
             appVersion: "1.0.0"
         );
       await Bucketeer.instance.updateUserAttributes(userId, userAttributes:{'app_version': "1.2.3"});
+      _listenToken = Bucketeer.instance.addEvaluationUpdateListener(this);
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -80,6 +84,13 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    Bucketeer.instance.removeEvaluationUpdateListener(_listenToken);
+  }
+
+  @override
+  void onUpdate() {
+    // EvaluationUpdateListener onUpdate()
+    debugPrint("EvaluationUpdateListener.onUpdate() called");
   }
 }
 
@@ -92,10 +103,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final flagController = TextEditingController(text: Constants.DEFAULT_FEATURE_TAG);
+  final flagController = TextEditingController(text: Constants.EXAMPLE_FEATURE_TAG);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
   final userIdController =
-      TextEditingController(text: Constants.DEFAULT_USERID);
+      TextEditingController(text: Constants.EXAMPLE_USERID);
 
   Future<void> _getStringVariation(String featureId) async {
     final result = await Bucketeer.instance
@@ -183,13 +194,13 @@ class _MyHomePageState extends State<MyHomePage> {
           apiKey:
           Constants.API_KEY,
           apiEndpoint: Constants.API_ENDPOINT,
-          featureTag: Constants.DEFAULT_FEATURE_TAG,
+          featureTag: Constants.EXAMPLE_FEATURE_TAG,
           userId: userId,
           debugging: true,
-          eventsFlushInterval: Constants.DEFAULT_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.DEFAULT_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.DEFAULT_POLLING_INTERVAL,
-          backgroundPollingInterval: Constants.DEFAULT_BACKGROUND_POLLING_INTERVAL,
+          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
+          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
+          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
+          backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
           appVersion: "1.0.0"
       );
     var result = await Bucketeer.instance.updateUserAttributes(userId, userAttributes: {'app_version': "1.2.3"});
