@@ -231,7 +231,8 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       val args = call.arguments<Map<String, Any>>()!!
       val featureId = args["featureId"] as? String
         ?: return fail(result, "featureId is required")
-      val defaultValue = args["defaultValue"] as? Map<*, *> ?: mapOf<Any, Any>()
+      val defaultValue =
+        args["defaultValue"] as? Map<*, *> ?: return fail(result, "defaultValue is required")
       val response =
         BKTClient.getInstance().jsonVariation(featureId, JSONObject(defaultValue))
       val rawJson = response.toMap()
