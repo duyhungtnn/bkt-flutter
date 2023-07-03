@@ -173,7 +173,7 @@ class Bucketeer {
       // Remove all listener for the current client
       clearEvaluationUpdateListeners();
       // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
-
+      // Will remove when this PR merged https://github.com/bucketeer-io/ios-client-sdk/pull/11
       return await Future.delayed(const Duration(milliseconds: 100), () {
         return value;
       });
