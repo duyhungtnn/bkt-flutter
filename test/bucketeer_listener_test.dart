@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter_bucketeer/bucketeer.dart';
-import 'package:flutter_bucketeer/src/evaluation_update_listener_dispatcher.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/src/evaluation_update_listener_dispatcher.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 

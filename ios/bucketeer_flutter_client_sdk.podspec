@@ -3,8 +3,8 @@
 # Run `pod lib lint flutter_bucketeer.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'flutter_bucketeer'
-  s.version          = '1.4.0'
+  s.name             = 'bucketeer_flutter_client_sdk'
+  s.version          = '2.0.0'
   s.summary          = 'Bucketeer Feature Flag & A/B Testing Service for Flutter'
   s.homepage         = 'https://bucketeer.io/'
   s.license          = { :type => "Apache License, Version 2.0", :file => '../LICENSE' }

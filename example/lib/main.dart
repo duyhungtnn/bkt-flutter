@@ -1,6 +1,6 @@
 import 'package:bucketeer_example/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bucketeer/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ua_client_hints/ua_client_hints.dart';
 

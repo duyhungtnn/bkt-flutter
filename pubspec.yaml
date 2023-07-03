@@ -1,7 +1,6 @@
-name: flutter_bucketeer
+name: bucketeer_flutter_client_sdk
 description: Bucketeer
 version: 1.4.0
-author: CyberAgent, Inc.
 homepage: https://bucketeer.io/
 repository: https://github.com/ca-dp/bucketeer-flutter-sdk
 documentation: https://github.com/ca-dp/bucketeer-flutter-sdk
