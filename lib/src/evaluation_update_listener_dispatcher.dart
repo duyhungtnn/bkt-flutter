@@ -1,11 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
-import 'constants.dart';
 import 'evaluation_update_listener.dart';
 
 class EvaluationUpdateListenerDispatcher {
-  final _listeners = <String, EvaluationUpdateListener>{};
+  final _listeners = <String, BKTEvaluationUpdateListener>{};
 
   EvaluationUpdateListenerDispatcher(Stream<dynamic> eventStream) {
     eventStream.asBroadcastStream().listen(_onEvent);
@@ -17,7 +14,7 @@ class EvaluationUpdateListenerDispatcher {
     });
   }
 
-  String addEvaluationUpdateListener(EvaluationUpdateListener listener) {
+  String addEvaluationUpdateListener(BKTEvaluationUpdateListener listener) {
     final key = UniqueKey().hashCode.toString();
     _listeners[key] = listener;
     return key;

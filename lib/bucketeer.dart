@@ -198,7 +198,7 @@ class Bucketeer {
     );
   }
 
-  String addEvaluationUpdateListener(EvaluationUpdateListener listener) {
+  String addEvaluationUpdateListener(BKTEvaluationUpdateListener listener) {
     return _dispatcher.addEvaluationUpdateListener(listener);
   }
 

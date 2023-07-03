@@ -33,7 +33,7 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class _AppState extends State<MyApp> with WidgetsBindingObserver implements EvaluationUpdateListener {
+class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTEvaluationUpdateListener {
 
   late final String _listenToken;
 

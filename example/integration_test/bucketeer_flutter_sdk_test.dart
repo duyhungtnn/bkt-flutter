@@ -4,7 +4,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockEvaluationUpdateListener extends Mock implements EvaluationUpdateListener {}
+class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

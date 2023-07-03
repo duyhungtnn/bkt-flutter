@@ -5,7 +5,7 @@ import 'package:bucketeer_flutter_client_sdk/src/evaluation_update_listener_disp
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-class MockEvaluationUpdateListener extends Mock implements EvaluationUpdateListener {}
+class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,3 +1,3 @@
-abstract class EvaluationUpdateListener {
+abstract class BKTEvaluationUpdateListener {
   void onUpdate();
 }
