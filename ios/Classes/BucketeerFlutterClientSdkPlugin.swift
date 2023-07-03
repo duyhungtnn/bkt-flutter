@@ -41,7 +41,8 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         }
         
         do {
-            var builder = BKTConfig.Builder(apiKey: apiKey)
+            var builder = BKTConfig.Builder()
+                .with(apiKey: apiKey)
                 .with(apiEndpoint: apiEndpoint)
                 .with(featureTag: featureTag)
                 .with(appVersion: appVersion)

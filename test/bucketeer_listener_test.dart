@@ -11,7 +11,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final eventController = StreamController<bool>.broadcast();
 
-  test('Bucketeer Tests', () async {
+  test('EvaluationUpdateListener Tests', () async {
     final dispatcher = EvaluationUpdateListenerDispatcher(eventController.stream);
     final mockListener = MockEvaluationUpdateListener();
     final neverCalledMockListener = MockEvaluationUpdateListener();
@@ -41,6 +41,8 @@ void main() {
     eventController.add(true);
     eventController.add(true);
     eventController.add(true);
+    // wait 50ms because Stream is async
+    await Future.delayed(const Duration(milliseconds: 50));
     // neverCalledMockListener is removed before any update sent
     // so that, it will never get an update anymore
     verifyNever(() => neverCalledMockListener.onUpdate());

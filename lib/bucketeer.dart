@@ -169,33 +169,33 @@ class Bucketeer {
 
   Future<BKTResult<bool>> destroy() async {
     return _resultGuard(
-        await _invokeMethod(CallMethods.destroy.name).then((value) async {
-      // Remove all listener for the current client
-      clearEvaluationUpdateListeners();
-      // Wait 100ms after destroy, temp work around with iOS destroy problem is not run in Main Thread
-      // Will remove when this PR merged https://github.com/bucketeer-io/ios-client-sdk/pull/11
-      return await Future.delayed(const Duration(milliseconds: 100), () {
-        return value;
-      });
-      // return value;
-    }));
+      await _invokeMethod(CallMethods.destroy.name).then(
+        (value) async {
+          // Remove all listener for the current client
+          clearEvaluationUpdateListeners();
+          return value;
+        },
+      ),
+    );
   }
 
   Future<BKTResult<BKTEvaluation>> evaluationDetails(String featureId) async {
     return _resultGuard<BKTEvaluation>(
-        await _invokeMethod(CallMethods.evaluationDetails.name, argument: {
-          'featureId': featureId,
-        }), onDataChange: (response) {
-      return BKTEvaluation(
-        id: response['id'],
-        featureId: response['featureId'],
-        featureVersion: response['featureVersion'],
-        userId: response['userId'],
-        variationId: response['variationId'],
-        variationValue: response['variationValue'],
-        reason: response['reason'],
-      );
-    });
+      await _invokeMethod(CallMethods.evaluationDetails.name, argument: {
+        'featureId': featureId,
+      }),
+      onDataChange: (response) {
+        return BKTEvaluation(
+          id: response['id'],
+          featureId: response['featureId'],
+          featureVersion: response['featureVersion'],
+          userId: response['userId'],
+          variationId: response['variationId'],
+          variationValue: response['variationValue'],
+          reason: response['reason'],
+        );
+      },
+    );
   }
 
   String addEvaluationUpdateListener(EvaluationUpdateListener listener) {
