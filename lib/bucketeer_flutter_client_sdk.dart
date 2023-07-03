@@ -191,6 +191,7 @@ class BKTClient {
           featureVersion: response['featureVersion'],
           userId: response['userId'],
           variationId: response['variationId'],
+          variationName: response['variationName'],
           variationValue: response['variationValue'],
           reason: response['reason'],
         );

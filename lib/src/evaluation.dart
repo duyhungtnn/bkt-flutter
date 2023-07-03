@@ -8,6 +8,7 @@ class BKTEvaluation {
     required this.featureVersion,
     required this.userId,
     required this.variationId,
+    required this.variationName,
     required this.variationValue,
     required this.reason,
   });
@@ -17,6 +18,7 @@ class BKTEvaluation {
   final int featureVersion;
   final String userId;
   final String variationId;
+  final String variationName;
   final String variationValue;
   final String reason;
 
@@ -29,6 +31,7 @@ class BKTEvaluation {
       featureVersion == other.featureVersion &&
       userId == other.userId &&
       variationId == other.variationId &&
+          variationName == other.variationName &&
       variationValue == other.variationValue &&
       reason == other.reason;
 
@@ -39,6 +42,7 @@ class BKTEvaluation {
       featureVersion.hashCode ^
       userId.hashCode ^
       variationId.hashCode ^
+      variationName.hashCode ^
       variationValue.hashCode ^
       reason.hashCode;
 
@@ -46,7 +50,8 @@ class BKTEvaluation {
   String toString() {
     return 'Evaluation{id: $id, featureId: $featureId, '
         'featureVersion: $featureVersion, userId: $userId, '
-        'variationId: $variationId, variationValue: $variationValue, '
+        'variationId: $variationId, variationName: $variationName, '
+        'variationValue: $variationValue, '
         'reason: $reason}';
   }
 }

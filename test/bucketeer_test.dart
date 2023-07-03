@@ -49,6 +49,7 @@ void main() {
               'featureVersion': 123,
               'userId': 'userId123',
               'variationId': 'variationId123',
+              'variationName': 'variationName123',
               'variationValue': 'variationValue123',
               'reason': 'DEFAULT',
             }
@@ -163,6 +164,7 @@ void main() {
             featureVersion: 123,
             userId: 'userId123',
             variationId: 'variationId123',
+            variationName: 'variationName123',
             variationValue: 'variationValue123',
             reason: "DEFAULT",
           )),
