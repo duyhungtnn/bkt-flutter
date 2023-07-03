@@ -102,8 +102,8 @@ void main() {
       Bucketeer.instance.currentUser(),
       completion(
         equals(
-          const BKTResult<BucketeerUser>.success(
-            data: BucketeerUser(
+          const BKTResult<BKTUser>.success(
+            data: BKTUser(
                 id: 'userId', data: {'appVersion': '9.9.9', 'platform': 'iOS'}),
           ),
         ),

@@ -1,12 +1,12 @@
 library bucketeer;
 
 export 'src/evaluation.dart';
-export 'src/bucketeer_user.dart';
+export 'src/user.dart';
 export 'src/result.dart';
 export 'src/evaluation_update_listener.dart';
 
 import 'package:flutter/services.dart';
-import 'src/bucketeer_user.dart';
+import 'src/user.dart';
 import 'src/call_methods.dart';
 import 'src/constants.dart';
 import 'src/evaluation.dart';
@@ -131,11 +131,11 @@ class Bucketeer {
     );
   }
 
-  Future<BKTResult<BucketeerUser>> currentUser() async {
-    return _resultGuard<BucketeerUser>(
+  Future<BKTResult<BKTUser>> currentUser() async {
+    return _resultGuard<BKTUser>(
       await _invokeMethod(CallMethods.currentUser.name),
       onDataChange: (response) {
-        return BucketeerUser(
+        return BKTUser(
           id: response['id'],
           data: Map<String, String>.from(response['data']),
         );

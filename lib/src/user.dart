@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 @immutable
-class BucketeerUser {
-  const BucketeerUser({
+class BKTUser {
+  const BKTUser({
     required this.id,
     required this.data,
   });
@@ -12,7 +12,7 @@ class BucketeerUser {
 
   @override
   bool operator ==(Object other) =>
-      other is BucketeerUser &&
+      other is BKTUser &&
       runtimeType == other.runtimeType &&
       id == other.id &&
       mapEquals(data, other.data);
