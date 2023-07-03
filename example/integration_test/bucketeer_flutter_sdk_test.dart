@@ -1,7 +1,7 @@
 import 'package:bucketeer_example/constant.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
@@ -41,7 +41,7 @@ void main() async {
   void runAllTests() {
     testWidgets('testStringVariation', (WidgetTester _) async {
       expectLater(
-        Bucketeer.instance
+        BKTClient.instance
             .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_STRING_VALUE)),
@@ -51,7 +51,7 @@ void main() async {
 
     testWidgets('testStringVariationDetail', (WidgetTester _) async {
       var result =
-          await Bucketeer.instance.evaluationDetails(FEATURE_ID_STRING);
+          await BKTClient.instance.evaluationDetails(FEATURE_ID_STRING);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
               id: "$FEATURE_ID_STRING:4:$USER_ID",
@@ -66,7 +66,7 @@ void main() async {
 
     testWidgets('testDoubleVariation', (WidgetTester _) async {
       expectLater(
-        Bucketeer.instance
+        BKTClient.instance
             .doubleVariation(FEATURE_ID_DOUBLE, defaultValue: 100.0),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_DOUBLE_VALUE)),
@@ -75,7 +75,7 @@ void main() async {
     });
     testWidgets('testDoubleVariationDetail', (WidgetTester _) async {
       var result =
-          await Bucketeer.instance.evaluationDetails(FEATURE_ID_DOUBLE);
+          await BKTClient.instance.evaluationDetails(FEATURE_ID_DOUBLE);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
               id: "$FEATURE_ID_DOUBLE:3:$USER_ID",
@@ -90,7 +90,7 @@ void main() async {
 
     testWidgets('testBoolVariation', (WidgetTester _) async {
       expectLater(
-        Bucketeer.instance
+        BKTClient.instance
             .boolVariation(FEATURE_ID_BOOLEAN, defaultValue: false),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_BOOLEAN_VALUE)),
@@ -99,7 +99,7 @@ void main() async {
     });
     testWidgets('testBoolVariationDetail', (WidgetTester _) async {
       var result =
-          await Bucketeer.instance.evaluationDetails(FEATURE_ID_BOOLEAN);
+          await BKTClient.instance.evaluationDetails(FEATURE_ID_BOOLEAN);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
               id: "$FEATURE_ID_BOOLEAN:3:$USER_ID",
@@ -114,14 +114,14 @@ void main() async {
 
     testWidgets('testIntVariation', (WidgetTester _) async {
       expectLater(
-        Bucketeer.instance.intVariation(FEATURE_ID_INT, defaultValue: 1000),
+        BKTClient.instance.intVariation(FEATURE_ID_INT, defaultValue: 1000),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_INT_VALUE)),
         ),
       );
     });
     testWidgets('testIntVariationDetail', (WidgetTester _) async {
-      var result = await Bucketeer.instance.evaluationDetails(FEATURE_ID_INT);
+      var result = await BKTClient.instance.evaluationDetails(FEATURE_ID_INT);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
               id: "$FEATURE_ID_INT:3:$USER_ID",
@@ -135,13 +135,13 @@ void main() async {
     });
 
     testWidgets('testJSONVariation', (WidgetTester _) async {
-      var result = await Bucketeer.instance
+      var result = await BKTClient.instance
           .jsonVariation(FEATURE_ID_JSON, defaultValue: {});
       var expected = const BKTResult.success(data: FEATURE_ID_JSON_VALUE);
       expect(result.asSuccess.data, expected.asSuccess.data);
     });
     testWidgets('testJSONVariationDetail', (WidgetTester _) async {
-      var result = await Bucketeer.instance.evaluationDetails(FEATURE_ID_JSON);
+      var result = await BKTClient.instance.evaluationDetails(FEATURE_ID_JSON);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
               id: "$FEATURE_ID_JSON:3:$USER_ID",
@@ -155,17 +155,17 @@ void main() async {
     });
 
     testWidgets('testTrack', (WidgetTester _) async {
-      var result = await Bucketeer.instance.track(GOAL_ID, value: GOAL_VALUE);
+      var result = await BKTClient.instance.track(GOAL_ID, value: GOAL_VALUE);
       expect(result, const BKTResult.success(data: true));
 
       await Future.delayed(Duration(milliseconds: 100));
-      var flushResult = await Bucketeer.instance.flush();
+      var flushResult = await BKTClient.instance.flush();
       expect(flushResult, const BKTResult.success(data: true));
     });
 
     testWidgets('testEvaluationUpdateFlow', (WidgetTester _) async {
       await expectLater(
-        Bucketeer.instance
+        BKTClient.instance
             .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_STRING_VALUE)),
@@ -173,7 +173,7 @@ void main() async {
       );
 
       await expectLater(
-        Bucketeer.instance.updateUserAttributes(USER_ID,
+        BKTClient.instance.updateUserAttributes(USER_ID,
             userAttributes: {'app_version': OLD_APP_VERSION}),
         completion(
           equals(const BKTResult.success(data: true)),
@@ -181,14 +181,14 @@ void main() async {
       );
 
       await expectLater(
-        Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000),
+        BKTClient.instance.fetchEvaluations(timeoutMillis: 30000),
         completion(
           equals(const BKTResult.success(data: true)),
         ),
       );
 
       await expectLater(
-        Bucketeer.instance
+        BKTClient.instance
             .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
         completion(
           equals(const BKTResult.success(data: FEATURE_ID_STRING_VALUE_UPDATE)),
@@ -198,11 +198,11 @@ void main() async {
 
 
     testWidgets('testSwitchUser', (WidgetTester _) async {
-      var result = await Bucketeer.instance.destroy();
+      var result = await BKTClient.instance.destroy();
       expect(result.isSuccess, true);
       expect(result, const BKTResult.success(data: true),
           reason: "destroy() should success");
-      var instanceResult = await Bucketeer.instance.initialize(
+      var instanceResult = await BKTClient.instance.initialize(
           apiKey: Constants.API_KEY,
           apiEndpoint: Constants.API_ENDPOINT,
           featureTag: FEATURE_TAG,
@@ -216,19 +216,19 @@ void main() async {
           appVersion: APP_VERSION);
       expect(instanceResult.isSuccess, true, reason: "initialize() should success");
 
-      var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
+      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(USER_ID,
           userAttributes: {'app_version': APP_VERSION});
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 
-      var currentUser = await Bucketeer.instance.currentUser();
+      var currentUser = await BKTClient.instance.currentUser();
       expect(currentUser.asSuccess.data.id, "test_id",
           reason: "user_id should be `test_id`");
       expect(currentUser.asSuccess.data.data, {'app_version': APP_VERSION},
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
-      await Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000);
+      await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
@@ -236,7 +236,7 @@ void main() async {
 
   group('Bucketeer', () {
     setUp(() async {
-      var result = await Bucketeer.instance.initialize(
+      var result = await BKTClient.instance.initialize(
           apiKey: Constants.API_KEY,
           apiEndpoint: Constants.API_ENDPOINT,
           featureTag: FEATURE_TAG,
@@ -250,21 +250,21 @@ void main() async {
           appVersion: APP_VERSION);
       expect(result.isSuccess, true, reason: "initialize() should success");
 
-      Bucketeer.instance.addEvaluationUpdateListener(listener);
+      BKTClient.instance.addEvaluationUpdateListener(listener);
 
-      var updateUserInfoRs = await Bucketeer.instance.updateUserAttributes(USER_ID,
+      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(USER_ID,
           userAttributes: {'app_version': APP_VERSION});
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 
       var fetchEvaluationsResult =
-          await Bucketeer.instance.fetchEvaluations(timeoutMillis: 30000);
+          await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
 
     tearDown(() async {
-      var result = await Bucketeer.instance.destroy();
+      var result = await BKTClient.instance.destroy();
       expect(result.isSuccess, true);
       expect(result, const BKTResult.success(data: true),
           reason: "destroy() should success");

@@ -1,6 +1,6 @@
 import 'package:bucketeer_example/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ua_client_hints/ua_client_hints.dart';
 
@@ -61,7 +61,7 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTE
         await prefs.setString(
             keyUserId, userId);
       }
-      await Bucketeer.instance.initialize(
+      await BKTClient.instance.initialize(
             apiKey:
             Constants.API_KEY,
             apiEndpoint: Constants.API_ENDPOINT,
@@ -74,8 +74,8 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTE
             backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
             appVersion: "1.0.0"
         );
-      await Bucketeer.instance.updateUserAttributes(userId, userAttributes:{'app_version': "1.2.3"});
-      _listenToken = Bucketeer.instance.addEvaluationUpdateListener(this);
+      await BKTClient.instance.updateUserAttributes(userId, userAttributes:{'app_version': "1.2.3"});
+      _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -84,7 +84,7 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTE
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    Bucketeer.instance.removeEvaluationUpdateListener(_listenToken);
+    BKTClient.instance.removeEvaluationUpdateListener(_listenToken);
   }
 
   @override
@@ -109,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
       TextEditingController(text: Constants.EXAMPLE_USERID);
 
   Future<void> _getStringVariation(String featureId) async {
-    final result = await Bucketeer.instance
+    final result = await BKTClient.instance
         .stringVariation(featureId, defaultValue: 'default value');
     result.ifSuccess((data) {
       print('getStringVariation: ${data}');
@@ -120,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _getIntVariation(String featureId) async {
     final result =
-        await Bucketeer.instance.intVariation(featureId, defaultValue: 0);
+        await BKTClient.instance.intVariation(featureId, defaultValue: 0);
     result.ifSuccess((data) {
       print('getIntVariation: $data');
       showSnackbar(
@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getDoubleVariation(String featureId) async {
-    final result = await Bucketeer.instance
+    final result = await BKTClient.instance
         .doubleVariation(featureId, defaultValue: 0.0);
     result.ifSuccess((data) {
       print('getDoubleVariation: $data');
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getBoolVariation(String featureId) async {
-    final result = await Bucketeer.instance
+    final result = await BKTClient.instance
         .boolVariation(featureId, defaultValue: false);
     result.ifSuccess((data) {
       print('getBoolVariation: $data');
@@ -149,7 +149,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getJSONVariation(String featureId) async {
-    final result = await Bucketeer.instance
+    final result = await BKTClient.instance
         .jsonVariation(featureId, defaultValue: {});
     result.ifSuccess((data) {
       print('getJSONVariation: $data');
@@ -159,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getEvaluation(String featureId) async {
-    final result = await Bucketeer.instance.evaluationDetails(featureId);
+    final result = await BKTClient.instance.evaluationDetails(featureId);
     result.ifSuccess((evaluation) {
       print('Successful the evaluation');
       showSnackbar(
@@ -170,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sendGoal(String goalId) async {
-    final result = await Bucketeer.instance.track(goalId, value: 3.1412);
+    final result = await BKTClient.instance.track(goalId, value: 3.1412);
     if (result.isSuccess) {
       print('Successful the send goal.');
       showSnackbar(
@@ -188,8 +188,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _switchUser(String userId) async {
     // note: please initialize the Bucketeer again when switching the user
-    await Bucketeer.instance.destroy();
-    await Bucketeer.instance
+    await BKTClient.instance.destroy();
+    await BKTClient.instance
       ..initialize(
           apiKey:
           Constants.API_KEY,
@@ -203,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
           appVersion: "1.0.0"
       );
-    var result = await Bucketeer.instance.updateUserAttributes(userId, userAttributes: {'app_version': "1.2.3"});
+    var result = await BKTClient.instance.updateUserAttributes(userId, userAttributes: {'app_version': "1.2.3"});
     result.ifSuccess((rs) {
       print('Successful the switchUser');
       showSnackbar(
@@ -217,7 +217,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getCurrentUser() async {
-    final result = await Bucketeer.instance.currentUser();
+    final result = await BKTClient.instance.currentUser();
     result.ifSuccess((user) {
       print('Successful the getUser');
       showSnackbar(

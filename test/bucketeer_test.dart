@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:bucketeer_flutter_client_sdk/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:bucketeer_flutter_client_sdk/src/call_methods.dart';
 import 'package:bucketeer_flutter_client_sdk/src/constants.dart';
 import 'package:bucketeer_flutter_client_sdk/src/evaluation.dart' as bucketeer;
@@ -81,7 +81,7 @@ void main() {
 
   test('Bucketeer Tests', () async {
     expectLater(
-      Bucketeer.instance.initialize(
+      BKTClient.instance.initialize(
           apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
           apiEndpoint: 'demo.bucketeer.jp',
           featureTag: 'Flutter',
@@ -99,7 +99,7 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.currentUser(),
+      BKTClient.instance.currentUser(),
       completion(
         equals(
           const BKTResult<BKTUser>.success(
@@ -111,7 +111,7 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.stringVariation('feature-id', defaultValue: ''),
+      BKTClient.instance.stringVariation('feature-id', defaultValue: ''),
       completion(
         equals(const BKTResult.success(data: 'datadata')),
       ),
@@ -122,7 +122,7 @@ void main() {
     // https://stackoverflow.com/questions/61765518/how-to-check-two-maps-are-equal-in-dart
     // We will not compare 2 BKTResult, we will compare the final output
     expect(
-      (await Bucketeer.instance.jsonVariation('feature-id', defaultValue: {}))
+      (await BKTClient.instance.jsonVariation('feature-id', defaultValue: {}))
           .asSuccess
           .data,
       BKTResult<Map<String, dynamic>>.success(
@@ -135,25 +135,25 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.intVariation('feature-id', defaultValue: 0),
+      BKTClient.instance.intVariation('feature-id', defaultValue: 0),
       completion(
         equals(const BKTResult.success(data: 1234)),
       ),
     );
 
     expectLater(
-        Bucketeer.instance.doubleVariation('feature-id', defaultValue: 0.0),
+        BKTClient.instance.doubleVariation('feature-id', defaultValue: 0.0),
         completion(equals(const BKTResult.success(data: 55.2))));
 
     expectLater(
-      Bucketeer.instance.boolVariation('feature-id', defaultValue: false),
+      BKTClient.instance.boolVariation('feature-id', defaultValue: false),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.evaluationDetails('featureId'),
+      BKTClient.instance.evaluationDetails('featureId'),
       completion(
         equals(
           const BKTResult.success(
@@ -171,7 +171,7 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.updateUserAttributes('user-id',
+      BKTClient.instance.updateUserAttributes('user-id',
           userAttributes: {'app_version': '1.0.0'}),
       completion(
         equals(const BKTResult.success(data: true)),
@@ -179,28 +179,28 @@ void main() {
     );
 
     expectLater(
-      Bucketeer.instance.track('goal-id'),
+      BKTClient.instance.track('goal-id'),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.flush(),
+      BKTClient.instance.flush(),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.flush(),
+      BKTClient.instance.flush(),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
     );
 
     expectLater(
-      Bucketeer.instance.fetchEvaluations(timeoutMillis: 10000),
+      BKTClient.instance.fetchEvaluations(timeoutMillis: 10000),
       completion(
         equals(const BKTResult.success(data: true)),
       ),

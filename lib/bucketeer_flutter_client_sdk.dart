@@ -15,10 +15,10 @@ import 'src/evaluation_update_listener_dispatcher.dart';
 import 'src/result.dart';
 
 /// Bucketeer Flutter SDK
-class Bucketeer {
-  const Bucketeer._();
+class BKTClient {
+  const BKTClient._();
 
-  static const Bucketeer instance = Bucketeer._();
+  static const BKTClient instance = BKTClient._();
 
   static const MethodChannel _channel =
       MethodChannel(Constants.methodChannelName);
