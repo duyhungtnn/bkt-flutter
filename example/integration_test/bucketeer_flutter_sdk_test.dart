@@ -1,5 +1,4 @@
 import 'package:bucketeer_example/constant.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:flutter_bucketeer/bucketeer.dart';
@@ -55,9 +54,9 @@ void main() async {
           await Bucketeer.instance.evaluationDetails(FEATURE_ID_STRING);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
-              id: "$FEATURE_ID_STRING:3:$USER_ID",
+              id: "$FEATURE_ID_STRING:4:$USER_ID",
               featureId: FEATURE_ID_STRING,
-              featureVersion: 3,
+              featureVersion: 4,
               userId: USER_ID,
               variationId: "2e696c59-ac2f-4b54-82a7-4aecfdd80224",
               variationValue: "value-1",
@@ -79,9 +78,9 @@ void main() async {
           await Bucketeer.instance.evaluationDetails(FEATURE_ID_DOUBLE);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
-              id: "$FEATURE_ID_DOUBLE:2:$USER_ID",
+              id: "$FEATURE_ID_DOUBLE:3:$USER_ID",
               featureId: FEATURE_ID_DOUBLE,
-              featureVersion: 2,
+              featureVersion: 3,
               userId: USER_ID,
               variationId: "a141d1fa-85ef-4124-af5e-25374225474b",
               variationValue: "2.1",
@@ -103,9 +102,9 @@ void main() async {
           await Bucketeer.instance.evaluationDetails(FEATURE_ID_BOOLEAN);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
-              id: "$FEATURE_ID_BOOLEAN:2:$USER_ID",
+              id: "$FEATURE_ID_BOOLEAN:3:$USER_ID",
               featureId: FEATURE_ID_BOOLEAN,
-              featureVersion: 2,
+              featureVersion: 3,
               userId: USER_ID,
               variationId: "cbd42331-094e-4306-aacd-d7bf3f07cf65",
               variationValue: "true",
@@ -125,9 +124,9 @@ void main() async {
       var result = await Bucketeer.instance.evaluationDetails(FEATURE_ID_INT);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
-              id: "$FEATURE_ID_INT:2:$USER_ID",
+              id: "$FEATURE_ID_INT:3:$USER_ID",
               featureId: FEATURE_ID_INT,
-              featureVersion: 2,
+              featureVersion: 3,
               userId: USER_ID,
               variationId: "36f14c02-300a-48f3-b4eb-b296afba3953",
               variationValue: "10",
@@ -145,9 +144,9 @@ void main() async {
       var result = await Bucketeer.instance.evaluationDetails(FEATURE_ID_JSON);
       var expected = const BKTResult.success(
           data: BKTEvaluation(
-              id: "$FEATURE_ID_JSON:2:$USER_ID",
+              id: "$FEATURE_ID_JSON:3:$USER_ID",
               featureId: FEATURE_ID_JSON,
-              featureVersion: 2,
+              featureVersion: 3,
               userId: USER_ID,
               variationId: "813070cf-7d6b-45a9-8713-cf9816d63997",
               variationValue: "{ \"key\": \"value-1\" }",
