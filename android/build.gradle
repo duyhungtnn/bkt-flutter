@@ -1,4 +1,4 @@
-group 'jp.bucketeer.plugin'
+group 'io.bucketeer.sdk.plugin'
 version '2.0.0'
 
 buildscript {
