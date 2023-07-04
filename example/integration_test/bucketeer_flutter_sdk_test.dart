@@ -4,7 +4,8 @@ import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
+class MockEvaluationUpdateListener extends Mock
+    implements BKTEvaluationUpdateListener {}
 
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -178,8 +179,9 @@ void main() async {
       );
 
       await expectLater(
-        BKTClient.instance.updateUserAttributes(USER_ID,
-            userAttributes: {'app_version': OLD_APP_VERSION}),
+        BKTClient.instance.updateUserAttributes(
+          userAttributes: {'app_version': OLD_APP_VERSION},
+        ),
         completion(
           equals(const BKTResult.success(data: true)),
         ),
@@ -201,28 +203,35 @@ void main() async {
       );
     });
 
-
     testWidgets('testSwitchUser', (WidgetTester _) async {
       var result = await BKTClient.instance.destroy();
       expect(result.isSuccess, true);
       expect(result, const BKTResult.success(data: true),
           reason: "destroy() should success");
-      var instanceResult = await BKTClient.instance.initialize(
-          apiKey: Constants.API_KEY,
-          apiEndpoint: Constants.API_ENDPOINT,
-          featureTag: FEATURE_TAG,
-          userId: "test_id",
-          debugging: DEBUGGING,
-          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
-          backgroundPollingInterval:
-          Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
-          appVersion: APP_VERSION);
-      expect(instanceResult.isSuccess, true, reason: "initialize() should success");
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.API_KEY)
+          .apiEndpoint(Constants.API_ENDPOINT)
+          .featureTag(FEATURE_TAG)
+          .debugging(DEBUGGING)
+          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
+          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
+          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .backgroundPollingInterval(
+              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+          .appVersion(APP_VERSION)
+          .build();
+      final user = BKTUserBuilder().id("test_id").data({}).build();
 
-      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(USER_ID,
-          userAttributes: {'app_version': APP_VERSION});
+      var instanceResult = await BKTClient.instance.initialize(
+        config: config,
+        user: user,
+      );
+      expect(instanceResult.isSuccess, true,
+          reason: "initialize() should success");
+
+      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': APP_VERSION},
+      );
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 
@@ -233,7 +242,7 @@ void main() async {
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
-      await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
+          await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
@@ -241,24 +250,31 @@ void main() async {
 
   group('Bucketeer', () {
     setUp(() async {
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.API_KEY)
+          .apiEndpoint(Constants.API_ENDPOINT)
+          .featureTag(FEATURE_TAG)
+          .debugging(DEBUGGING)
+          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
+          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
+          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .backgroundPollingInterval(
+              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+          .appVersion(APP_VERSION)
+          .build();
+      final user = BKTUserBuilder().id(USER_ID).data({}).build();
+
       var result = await BKTClient.instance.initialize(
-          apiKey: Constants.API_KEY,
-          apiEndpoint: Constants.API_ENDPOINT,
-          featureTag: FEATURE_TAG,
-          userId: USER_ID,
-          debugging: DEBUGGING,
-          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
-          backgroundPollingInterval:
-              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
-          appVersion: APP_VERSION);
+        config: config,
+        user: user,
+      );
       expect(result.isSuccess, true, reason: "initialize() should success");
 
       BKTClient.instance.addEvaluationUpdateListener(listener);
 
-      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(USER_ID,
-          userAttributes: {'app_version': APP_VERSION});
+      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': APP_VERSION},
+      );
       expect(updateUserInfoRs.isSuccess, true,
           reason: "updateUserAttributes() should success");
 
@@ -283,6 +299,5 @@ void main() async {
     });
 
     runAllTests();
-
   });
 }

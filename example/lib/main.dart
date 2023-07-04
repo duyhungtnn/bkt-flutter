@@ -33,8 +33,9 @@ Future<void> main() async {
   runApp(MyApp());
 }
 
-class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTEvaluationUpdateListener {
-
+class _AppState extends State<MyApp>
+    with WidgetsBindingObserver
+    implements BKTEvaluationUpdateListener {
   late final String _listenToken;
 
   @override
@@ -58,23 +59,23 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver implements BKTE
       var userId = prefs.getString(keyUserId);
       if (userId == null) {
         userId = 'demo-userId-${DateTime.now().millisecondsSinceEpoch}';
-        await prefs.setString(
-            keyUserId, userId);
+        await prefs.setString(keyUserId, userId);
       }
-      await BKTClient.instance.initialize(
-            apiKey:
-            Constants.API_KEY,
-            apiEndpoint: Constants.API_ENDPOINT,
-            featureTag: 'flutter',
-            userId: userId,
-            debugging: true,
-            eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
-            eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
-            pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
-            backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
-            appVersion: "1.0.0"
-        );
-      await BKTClient.instance.updateUserAttributes(userId, userAttributes:{'app_version': "1.2.3"});
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.API_KEY)
+          .apiKey(Constants.API_ENDPOINT)
+          .featureTag(Constants.EXAMPLE_FEATURE_TAG)
+          .debugging(true)
+          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
+          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
+          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .backgroundPollingInterval(
+              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+          .appVersion("1.0.0")
+          .build();
+      final user =
+          BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
+      await BKTClient.instance.initialize(config: config, user: user);
       _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
     });
     WidgetsBinding.instance.addObserver(this);
@@ -103,7 +104,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final flagController = TextEditingController(text: Constants.EXAMPLE_FEATURE_TAG);
+  final flagController =
+      TextEditingController(text: Constants.EXAMPLE_FEATURE_TAG);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
   final userIdController =
       TextEditingController(text: Constants.EXAMPLE_USERID);
@@ -129,8 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getDoubleVariation(String featureId) async {
-    final result = await BKTClient.instance
-        .doubleVariation(featureId, defaultValue: 0.0);
+    final result =
+        await BKTClient.instance.doubleVariation(featureId, defaultValue: 0.0);
     result.ifSuccess((data) {
       print('getDoubleVariation: $data');
       showSnackbar(
@@ -139,8 +141,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getBoolVariation(String featureId) async {
-    final result = await BKTClient.instance
-        .boolVariation(featureId, defaultValue: false);
+    final result =
+        await BKTClient.instance.boolVariation(featureId, defaultValue: false);
     result.ifSuccess((data) {
       print('getBoolVariation: $data');
       showSnackbar(
@@ -149,8 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getJSONVariation(String featureId) async {
-    final result = await BKTClient.instance
-        .jsonVariation(featureId, defaultValue: {});
+    final result =
+        await BKTClient.instance.jsonVariation(featureId, defaultValue: {});
     result.ifSuccess((data) {
       print('getJSONVariation: $data');
       showSnackbar(
@@ -188,22 +190,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _switchUser(String userId) async {
     // note: please initialize the Bucketeer again when switching the user
+    final config = BKTConfigBuilder()
+        .apiKey(Constants.API_KEY)
+        .apiKey(Constants.API_ENDPOINT)
+        .featureTag(Constants.EXAMPLE_FEATURE_TAG)
+        .debugging(true)
+        .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
+        .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
+        .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+        .backgroundPollingInterval(
+            Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+        .appVersion("1.0.0")
+        .build();
+    final user =
+        BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
+
     await BKTClient.instance.destroy();
-    await BKTClient.instance
-      ..initialize(
-          apiKey:
-          Constants.API_KEY,
-          apiEndpoint: Constants.API_ENDPOINT,
-          featureTag: Constants.EXAMPLE_FEATURE_TAG,
-          userId: userId,
-          debugging: true,
-          eventsFlushInterval: Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL,
-          eventsMaxQueueSize: Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE,
-          pollingInterval: Constants.EXAMPLE_POLLING_INTERVAL,
-          backgroundPollingInterval: Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL,
-          appVersion: "1.0.0"
-      );
-    var result = await BKTClient.instance.updateUserAttributes(userId, userAttributes: {'app_version': "1.2.3"});
+    await BKTClient.instance.initialize(
+      config: config,
+      user: user,
+    );
+    var result = await BKTClient.instance.updateUserAttributes(
+      userAttributes: {'app_version': "1.2.4"},
+    );
     result.ifSuccess((rs) {
       print('Successful the switchUser');
       showSnackbar(

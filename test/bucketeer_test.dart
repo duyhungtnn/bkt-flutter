@@ -1,3 +1,4 @@
+import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/services.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:bucketeer_flutter_client_sdk/src/call_methods.dart';
@@ -81,19 +82,25 @@ void main() {
   });
 
   test('Bucketeer Tests', () async {
+    final config = BKTConfigBuilder()
+        .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
+        .apiEndpoint("demo.bucketeer.jp")
+        .featureTag('Flutter')
+        .debugging(true)
+        .eventsMaxQueueSize(10000)
+        .eventsFlushInterval(10000)
+        .pollingInterval(10000)
+        .backgroundPollingInterval(10000)
+        .appVersion("1.0.0")
+        .build();
+    final user =
+        BKTUserBuilder().id("2023").data({'app_version': '1.0.0'}).build();
+
     expectLater(
       BKTClient.instance.initialize(
-          apiKey: "apikeyapikeyapikeyapikeyapikeyapikeyapikey",
-          apiEndpoint: 'demo.bucketeer.jp',
-          featureTag: 'Flutter',
-          userId: '2023',
-          debugging: true,
-          eventsFlushInterval: 10000,
-          eventsMaxQueueSize: 10000,
-          pollingInterval: 10000,
-          backgroundPollingInterval: 10000,
-          appVersion: '1.0.0',
-          userAttributes: {'app_version': '1.0.0'}),
+        config: config,
+        user: user,
+      ),
       completion(
         equals(const BKTResult.success(data: true)),
       ),
@@ -103,9 +110,13 @@ void main() {
       BKTClient.instance.currentUser(),
       completion(
         equals(
-          const BKTResult<BKTUser>.success(
-            data: BKTUser(
-                id: 'userId', data: {'appVersion': '9.9.9', 'platform': 'iOS'}),
+          BKTResult<BKTUser>.success(
+            data: BKTUserBuilder().id('userId').data(
+              {
+                'appVersion': '9.9.9',
+                'platform': 'iOS',
+              },
+            ).build(),
           ),
         ),
       ),
@@ -173,8 +184,9 @@ void main() {
     );
 
     expectLater(
-      BKTClient.instance.updateUserAttributes('user-id',
-          userAttributes: {'app_version': '1.0.0'}),
+      BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': '1.0.0'},
+      ),
       completion(
         equals(const BKTResult.success(data: true)),
       ),

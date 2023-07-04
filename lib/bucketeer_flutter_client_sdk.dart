@@ -4,7 +4,9 @@ export 'src/evaluation.dart';
 export 'src/user.dart';
 export 'src/result.dart';
 export 'src/evaluation_update_listener.dart';
+export 'src/config.dart';
 
+import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/services.dart';
 import 'src/user.dart';
 import 'src/call_methods.dart';
@@ -29,45 +31,76 @@ class BKTClient {
           _eventChannel.receiveBroadcastStream());
 
   Future<BKTResult<void>> initialize({
-    required String apiKey,
-    required String apiEndpoint,
-    required String featureTag,
-    required String userId,
-    required String appVersion,
-    bool debugging = false,
-    int? eventsFlushInterval,
-    int? eventsMaxQueueSize,
-    int? pollingInterval,
-    int? backgroundPollingInterval,
+    required BKTConfig config,
+    required BKTUser user,
     int? timeoutMillis,
-    Map<String, String>? userAttributes,
   }) async {
-    var rs = await _invokeMethod(CallMethods.initialize.name, argument: {
-      'apiKey': apiKey,
-      'apiEndpoint': apiEndpoint,
-      'featureTag': featureTag,
-      'userId': userId,
-      'debugging': debugging,
-      'eventsFlushInterval': eventsFlushInterval,
-      'eventsMaxQueueSize': eventsMaxQueueSize,
-      'pollingInterval': pollingInterval,
-      'backgroundPollingInterval': backgroundPollingInterval,
-      'appVersion': appVersion,
-      'timeoutMillis': timeoutMillis,
-      'userAttributes': userAttributes,
-    });
+    var rs = await _invokeMethod(
+      CallMethods.initialize.name,
+      argument: {
+        'apiKey': config.apiKey,
+        'apiEndpoint': config.apiEndpoint,
+        'featureTag': config.featureTag,
+        'debugging': config.debugging,
+        'eventsFlushInterval': config.eventsFlushInterval,
+        'eventsMaxQueueSize': config.eventsMaxQueueSize,
+        'pollingInterval': config.pollingInterval,
+        'backgroundPollingInterval': config.backgroundPollingInterval,
+        'appVersion': config.appVersion,
+        'timeoutMillis': timeoutMillis,
+        'userId': user.id,
+        'userAttributes': user.data,
+      },
+    );
     return _resultGuard(rs);
   }
+
+  // Future<BKTResult<void>> initialize({
+  //   required String apiKey,
+  //   required String apiEndpoint,
+  //   required String featureTag,
+  //   required String userId,
+  //   required String appVersion,
+  //   bool debugging = false,
+  //   int? eventsFlushInterval,
+  //   int? eventsMaxQueueSize,
+  //   int? pollingInterval,
+  //   int? backgroundPollingInterval,
+  //   int? timeoutMillis,
+  //   Map<String, String>? userAttributes,
+  // }) async {
+  //   var rs = await _invokeMethod(
+  //     CallMethods.initialize.name,
+  //     argument: {
+  //       'apiKey': apiKey,
+  //       'apiEndpoint': apiEndpoint,
+  //       'featureTag': featureTag,
+  //       'userId': userId,
+  //       'debugging': debugging,
+  //       'eventsFlushInterval': eventsFlushInterval,
+  //       'eventsMaxQueueSize': eventsMaxQueueSize,
+  //       'pollingInterval': pollingInterval,
+  //       'backgroundPollingInterval': backgroundPollingInterval,
+  //       'appVersion': appVersion,
+  //       'timeoutMillis': timeoutMillis,
+  //       'userAttributes': userAttributes,
+  //     },
+  //   );
+  //   return _resultGuard(rs);
+  // }
 
   Future<BKTResult<String>> stringVariation(
     String featureId, {
     required String defaultValue,
   }) async {
     return _resultGuard<String>(
-      await _invokeMethod(CallMethods.stringVariation.name, argument: {
-        'featureId': featureId,
-        'defaultValue': defaultValue,
-      }),
+      await _invokeMethod(
+        CallMethods.stringVariation.name,
+        argument: {
+          'featureId': featureId,
+          'defaultValue': defaultValue,
+        },
+      ),
     );
   }
 
@@ -76,10 +109,13 @@ class BKTClient {
     required int defaultValue,
   }) async {
     return _resultGuard<int>(
-      await _invokeMethod(CallMethods.intVariation.name, argument: {
-        'featureId': featureId,
-        'defaultValue': defaultValue,
-      }),
+      await _invokeMethod(
+        CallMethods.intVariation.name,
+        argument: {
+          'featureId': featureId,
+          'defaultValue': defaultValue,
+        },
+      ),
     );
   }
 
@@ -88,10 +124,13 @@ class BKTClient {
     required double defaultValue,
   }) async {
     return _resultGuard<double>(
-      await _invokeMethod(CallMethods.doubleVariation.name, argument: {
-        'featureId': featureId,
-        'defaultValue': defaultValue,
-      }),
+      await _invokeMethod(
+        CallMethods.doubleVariation.name,
+        argument: {
+          'featureId': featureId,
+          'defaultValue': defaultValue,
+        },
+      ),
     );
   }
 
@@ -100,10 +139,14 @@ class BKTClient {
     required bool defaultValue,
   }) async {
     return _resultGuard<bool>(
-        await _invokeMethod(CallMethods.boolVariation.name, argument: {
-      'featureId': featureId,
-      'defaultValue': defaultValue,
-    }));
+      await _invokeMethod(
+        CallMethods.boolVariation.name,
+        argument: {
+          'featureId': featureId,
+          'defaultValue': defaultValue,
+        },
+      ),
+    );
   }
 
   Future<BKTResult<Map<String, dynamic>>> jsonVariation(
@@ -111,12 +154,17 @@ class BKTClient {
     required Map<String, dynamic> defaultValue,
   }) async {
     return _resultGuard<Map<String, dynamic>>(
-        await _invokeMethod(CallMethods.jsonVariation.name, argument: {
+      await _invokeMethod(
+        CallMethods.jsonVariation.name,
+        argument: {
           'featureId': featureId,
           'defaultValue': defaultValue,
-        }), onDataChange: (response) {
-      return response;
-    });
+        },
+      ),
+      onDataChange: (response) {
+        return response;
+      },
+    );
   }
 
   Future<BKTResult<void>> track(
@@ -124,10 +172,13 @@ class BKTClient {
     double? value,
   }) async {
     return _resultGuard(
-      await _invokeMethod(CallMethods.track.name, argument: {
-        'goalId': goalId,
-        'value': value,
-      }),
+      await _invokeMethod(
+        CallMethods.track.name,
+        argument: {
+          'goalId': goalId,
+          'value': value,
+        },
+      ),
     );
   }
 
@@ -135,29 +186,35 @@ class BKTClient {
     return _resultGuard<BKTUser>(
       await _invokeMethod(CallMethods.currentUser.name),
       onDataChange: (response) {
-        return BKTUser(
-          id: response['id'],
-          data: Map<String, String>.from(response['data']),
-        );
+        return BKTUserBuilder()
+            .id(response['id'])
+            .data(
+              Map<String, String>.from(response['data']),
+            )
+            .build();
       },
     );
   }
 
-  Future<BKTResult<bool>> updateUserAttributes(
-    String userId, {
+  Future<BKTResult<bool>> updateUserAttributes({
     required Map<String, String> userAttributes,
   }) async {
     return _resultGuard(
-      await _invokeMethod(CallMethods.updateUserAttributes.name,
-          argument: userAttributes),
+      await _invokeMethod(
+        CallMethods.updateUserAttributes.name,
+        argument: userAttributes,
+      ),
     );
   }
 
   Future<BKTResult<void>> fetchEvaluations({int? timeoutMillis}) async {
     return _resultGuard(
-      await _invokeMethod(CallMethods.fetchEvaluations.name, argument: {
-        'timeoutMillis': timeoutMillis,
-      }),
+      await _invokeMethod(
+        CallMethods.fetchEvaluations.name,
+        argument: {
+          'timeoutMillis': timeoutMillis,
+        },
+      ),
     );
   }
 

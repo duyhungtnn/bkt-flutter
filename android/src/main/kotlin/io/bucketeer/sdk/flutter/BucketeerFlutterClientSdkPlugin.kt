@@ -162,6 +162,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       map["featureVersion"] = evaluation.featureVersion
       map["userId"] = evaluation.userId
       map["variationId"] = evaluation.variationId
+      map["variationName"] = evaluation.variationName
       map["variationValue"] = evaluation.variationValue
       map["reason"] = evaluation.reason.name
       success(result, map)
