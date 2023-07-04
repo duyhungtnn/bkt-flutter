@@ -63,7 +63,7 @@ class _AppState extends State<MyApp>
       }
       final config = BKTConfigBuilder()
           .apiKey(Constants.API_KEY)
-          .apiKey(Constants.API_ENDPOINT)
+          .apiEndpoint(Constants.API_ENDPOINT)
           .featureTag(Constants.EXAMPLE_FEATURE_TAG)
           .debugging(true)
           .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
@@ -192,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // note: please initialize the Bucketeer again when switching the user
     final config = BKTConfigBuilder()
         .apiKey(Constants.API_KEY)
-        .apiKey(Constants.API_ENDPOINT)
+        .apiEndpoint(Constants.API_ENDPOINT)
         .featureTag(Constants.EXAMPLE_FEATURE_TAG)
         .debugging(true)
         .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
