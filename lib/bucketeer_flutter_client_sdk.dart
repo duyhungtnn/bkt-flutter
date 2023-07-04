@@ -55,40 +55,6 @@ class BKTClient {
     return _resultGuard(rs);
   }
 
-  // Future<BKTResult<void>> initialize({
-  //   required String apiKey,
-  //   required String apiEndpoint,
-  //   required String featureTag,
-  //   required String userId,
-  //   required String appVersion,
-  //   bool debugging = false,
-  //   int? eventsFlushInterval,
-  //   int? eventsMaxQueueSize,
-  //   int? pollingInterval,
-  //   int? backgroundPollingInterval,
-  //   int? timeoutMillis,
-  //   Map<String, String>? userAttributes,
-  // }) async {
-  //   var rs = await _invokeMethod(
-  //     CallMethods.initialize.name,
-  //     argument: {
-  //       'apiKey': apiKey,
-  //       'apiEndpoint': apiEndpoint,
-  //       'featureTag': featureTag,
-  //       'userId': userId,
-  //       'debugging': debugging,
-  //       'eventsFlushInterval': eventsFlushInterval,
-  //       'eventsMaxQueueSize': eventsMaxQueueSize,
-  //       'pollingInterval': pollingInterval,
-  //       'backgroundPollingInterval': backgroundPollingInterval,
-  //       'appVersion': appVersion,
-  //       'timeoutMillis': timeoutMillis,
-  //       'userAttributes': userAttributes,
-  //     },
-  //   );
-  //   return _resultGuard(rs);
-  // }
-
   Future<BKTResult<String>> stringVariation(
     String featureId, {
     required String defaultValue,
