@@ -51,7 +51,9 @@ jobs:
         run: flutter test test --verbose
 
       - name: Run integration tests
-        run: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
+        run: | 
+          cd example
+          flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
   # job responsible for running Flutter tests on Android devices
   android:
     runs-on: macos-13
