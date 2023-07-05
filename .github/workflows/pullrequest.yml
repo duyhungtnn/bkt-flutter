@@ -78,14 +78,19 @@ jobs:
         run: flutter pub get
 
       - name: Run unit tests
-        run: flutter test test --verbose
+        run: flutter test test
 
       - name: Run integration tests
         # more info on https://github.com/ReactiveCircus/android-emulator-runner
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
+          avd-name: macOS-avd-x64-33
           arch: x86_64
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
           channel: stable
           profile: Nexus 6
-          script: adb kill-server && adb start-server && cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
+          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
