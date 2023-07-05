@@ -76,12 +76,6 @@ jobs:
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
-          emulator-build: 7425822
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          disable-animations: true
-          disable-spellchecker: false
-          disable-linux-hw-accel: auto
-          enable-hw-keyboard: false
           channel: stable
           profile: Nexus 6
           script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
