@@ -12,7 +12,8 @@ void main() {
   const channel = MethodChannel(Constants.methodChannelName);
 
   setUp(() async {
-    channel.setMockMethodCallHandler((methodCall) async {
+    TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (methodCall) async {
       var callMethod = CallMethods.values.firstWhere(
           (element) => element.name == methodCall.method,
           orElse: () => CallMethods.unknown);
