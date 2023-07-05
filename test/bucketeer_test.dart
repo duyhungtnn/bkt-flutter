@@ -1,4 +1,3 @@
-import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/services.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:bucketeer_flutter_client_sdk/src/call_methods.dart';
