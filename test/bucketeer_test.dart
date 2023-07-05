@@ -12,7 +12,7 @@ void main() {
   const channel = MethodChannel(Constants.methodChannelName);
 
   setUp(() async {
-    TestDefaultBinaryMessengerBinding.instance?.defaultBinaryMessenger
+    TestWidgetsFlutterBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
       var callMethod = CallMethods.values.firstWhere(
           (element) => element.name == methodCall.method,
@@ -66,19 +66,16 @@ void main() {
             }
           };
         case CallMethods.addEvaluationUpdateListener:
-          break;
         case CallMethods.removeEvaluationUpdateListener:
-          break;
         case CallMethods.clearEvaluationUpdateListeners:
-          break;
         case CallMethods.unknown:
-          break;
+          return null;
       }
     });
   });
 
   tearDown(() {
-    channel.setMockMethodCallHandler(null);
+
   });
 
   test('Bucketeer Tests', () async {
