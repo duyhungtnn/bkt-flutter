@@ -46,6 +46,7 @@ jobs:
       # if one of the jobs in the matrix expansion fails, the rest of the jobs will be cancelled
       fail-fast: true
     runs-on: macos-13 # or macos-latest if you prefer, but be aware that the available simulators could be different if you run a different version
+    timeout-minutes: 45
     steps:
       - name: "List all simulators"
         run: "xcrun xctrace list devices"
@@ -78,6 +79,7 @@ jobs:
   android:
     needs: unit-tests
     runs-on: macos-13
+    timeout-minutes: 45
     strategy:
       matrix:
         api-level:
