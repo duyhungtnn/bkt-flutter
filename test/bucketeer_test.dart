@@ -9,11 +9,14 @@ void main() {
 
   const channel = MethodChannel(Constants.methodChannelName);
   var enableMockRuntimeError = false;
+  var enableMockGetEvaluationDetailsNotFound = false;
 
   setUp(() async {
-
     TestWidgetsFlutterBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
+      if (enableMockRuntimeError) {
+        throw Exception("test runtime error");
+      }
       var callMethod = CallMethods.values.firstWhere(
           (element) => element.name == methodCall.method,
           orElse: () => CallMethods.unknown);
@@ -24,9 +27,6 @@ void main() {
         case CallMethods.flush:
         case CallMethods.fetchEvaluations:
         case CallMethods.destroy:
-          if (enableMockRuntimeError) {
-            throw Exception("test runtime error");
-          }
           return {'status': true};
         case CallMethods.currentUser:
           return {
@@ -45,6 +45,9 @@ void main() {
         case CallMethods.boolVariation:
           return {'status': true, 'response': true};
         case CallMethods.evaluationDetails:
+          if (enableMockGetEvaluationDetailsNotFound) {
+            return {'status': true, 'errorMessage': 'Feature flag not found.'};
+          }
           return {
             'status': true,
             'response': {
@@ -151,8 +154,11 @@ void main() {
     );
 
     expectLater(
-        BKTClient.instance.doubleVariation('feature-id', defaultValue: 0.0),
-        completion(equals(55.2),),);
+      BKTClient.instance.doubleVariation('feature-id', defaultValue: 0.0),
+      completion(
+        equals(55.2),
+      ),
+    );
 
     expectLater(
       BKTClient.instance.boolVariation('feature-id', defaultValue: false),
@@ -227,7 +233,8 @@ void main() {
 
     /// Test runtime error
     enableMockRuntimeError = true;
-    final fetchEvaluationsFailRs = await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+    final fetchEvaluationsFailRs =
+        await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
     expect(fetchEvaluationsFailRs.isFailure, equals(true));
 
     final flushFailRs = await BKTClient.instance.flush();
@@ -236,5 +243,52 @@ void main() {
     final trackFailRs = await BKTClient.instance.track('goal-id');
     expect(trackFailRs.isFailure, equals(true));
 
+    var evaluationDetailsRs =
+        await BKTClient.instance.evaluationDetails("not_found_featureId");
+    expect(evaluationDetailsRs == null, equals(true));
+
+    /// Should return the default value 200.0 when catching an error
+    expectLater(
+      BKTClient.instance.stringVariation('feature-id', defaultValue: 'bkt'),
+      completion(
+        equals('bkt'),
+      ),
+    );
+
+    expect(
+      (await BKTClient.instance.jsonVariation(
+        'feature-id',
+        defaultValue: {'value': 'default'},
+      )),
+      {'value': 'default'},
+    );
+
+    expectLater(
+      BKTClient.instance.intVariation('feature-id', defaultValue: 90),
+      completion(
+        equals(90),
+      ),
+    );
+
+    expectLater(
+      BKTClient.instance.doubleVariation('feature-id', defaultValue: 110.0),
+      completion(
+        equals(110.0),
+      ),
+    );
+
+    expectLater(
+      BKTClient.instance.boolVariation('feature-id', defaultValue: false),
+      completion(
+        equals(false),
+      ),
+    );
+
+    enableMockGetEvaluationDetailsNotFound = true;
+
+    /// Should return the null when catching an error
+    evaluationDetailsRs =
+        await BKTClient.instance.evaluationDetails("not_found_featureId");
+    expect(evaluationDetailsRs == null, equals(true));
   });
 }

@@ -235,7 +235,11 @@ class BKTClient {
           reason: response['reason'],
         );
       },
-    ).onError((error, stackTrace) => null);
+    ).onError((error, stackTrace) {
+      // Feature flag not found.
+      debugPrint("get evaluationDetails fail ${error?.toString()}");
+      return null;
+    });
   }
 
   String addEvaluationUpdateListener(BKTEvaluationUpdateListener listener) {
@@ -308,7 +312,7 @@ class BKTClient {
       // default runtime error catching
       return {
         "status": false,
-        "errorMessage": "runtime unknown error ${ex.toString()}",
+        "errorMessage": "${ex.toString()}",
       };
     }
   }
