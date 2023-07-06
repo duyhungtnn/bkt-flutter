@@ -2,8 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:bucketeer_flutter_client_sdk/src/call_methods.dart';
 import 'package:bucketeer_flutter_client_sdk/src/constants.dart';
-import 'package:bucketeer_flutter_client_sdk/src/evaluation.dart' as bucketeer;
-
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
