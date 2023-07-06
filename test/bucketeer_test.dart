@@ -74,9 +74,7 @@ void main() {
     });
   });
 
-  tearDown(() {
-
-  });
+  tearDown(() {});
 
   test('Bucketeer Tests', () async {
     final config = BKTConfigBuilder()
@@ -122,7 +120,7 @@ void main() {
     expectLater(
       BKTClient.instance.stringVariation('feature-id', defaultValue: ''),
       completion(
-        equals(const BKTResult.success(data: 'datadata')),
+        equals('datadata'),
       ),
     );
 
@@ -131,33 +129,32 @@ void main() {
     // https://stackoverflow.com/questions/61765518/how-to-check-two-maps-are-equal-in-dart
     // We will not compare 2 BKTResult, we will compare the final output
     expect(
-      (await BKTClient.instance.jsonVariation('feature-id', defaultValue: {}))
-          .asSuccess
-          .data,
-      BKTResult<Map<String, dynamic>>.success(
-          data: Map<String, dynamic>.from({
-        'id': 'id123',
-        'featureId': 'featureId123',
-        'featureVersion': 123,
-        'enable': true,
-      })).asSuccess.data,
+      (await BKTClient.instance.jsonVariation('feature-id', defaultValue: {})),
+      Map<String, dynamic>.from(
+        {
+          'id': 'id123',
+          'featureId': 'featureId123',
+          'featureVersion': 123,
+          'enable': true,
+        },
+      ),
     );
 
     expectLater(
       BKTClient.instance.intVariation('feature-id', defaultValue: 0),
       completion(
-        equals(const BKTResult.success(data: 1234)),
+        equals(1234),
       ),
     );
 
     expectLater(
         BKTClient.instance.doubleVariation('feature-id', defaultValue: 0.0),
-        completion(equals(const BKTResult.success(data: 55.2))));
+        completion(equals(55.2),),);
 
     expectLater(
       BKTClient.instance.boolVariation('feature-id', defaultValue: false),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(true),
       ),
     );
 
@@ -165,8 +162,7 @@ void main() {
       BKTClient.instance.evaluationDetails('featureId'),
       completion(
         equals(
-          const BKTResult.success(
-              data: bucketeer.BKTEvaluation(
+          const BKTEvaluation(
             id: 'id123',
             featureId: 'featureId123',
             featureVersion: 123,
@@ -175,7 +171,7 @@ void main() {
             variationName: 'variationName123',
             variationValue: 'variationValue123',
             reason: "DEFAULT",
-          )),
+          ),
         ),
       ),
     );

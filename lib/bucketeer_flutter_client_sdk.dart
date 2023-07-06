@@ -55,11 +55,11 @@ class BKTClient {
     return _resultGuard(rs);
   }
 
-  Future<BKTResult<String>> stringVariation(
+  Future<String> stringVariation(
     String featureId, {
     required String defaultValue,
   }) async {
-    return _resultGuard<String>(
+    return _valueGuard<String>(
       await _invokeMethod(
         CallMethods.stringVariation.name,
         argument: {
@@ -67,14 +67,14 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    );
+    ).onError((error, stackTrace) => defaultValue);
   }
 
-  Future<BKTResult<int>> intVariation(
+  Future<int> intVariation(
     String featureId, {
     required int defaultValue,
   }) async {
-    return _resultGuard<int>(
+    return _valueGuard<int>(
       await _invokeMethod(
         CallMethods.intVariation.name,
         argument: {
@@ -82,14 +82,14 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    );
+    ).onError((error, stackTrace) => defaultValue);
   }
 
-  Future<BKTResult<double>> doubleVariation(
+  Future<double> doubleVariation(
     String featureId, {
     required double defaultValue,
   }) async {
-    return _resultGuard<double>(
+    return _valueGuard<double>(
       await _invokeMethod(
         CallMethods.doubleVariation.name,
         argument: {
@@ -97,14 +97,14 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    );
+    ).onError((error, stackTrace) => defaultValue);
   }
 
-  Future<BKTResult<bool>> boolVariation(
+  Future<bool> boolVariation(
     String featureId, {
     required bool defaultValue,
   }) async {
-    return _resultGuard<bool>(
+    return _valueGuard<bool>(
       await _invokeMethod(
         CallMethods.boolVariation.name,
         argument: {
@@ -112,14 +112,14 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    );
+    ).onError((error, stackTrace) => defaultValue);
   }
 
-  Future<BKTResult<Map<String, dynamic>>> jsonVariation(
+  Future<Map<String, dynamic>> jsonVariation(
     String featureId, {
     required Map<String, dynamic> defaultValue,
   }) async {
-    return _resultGuard<Map<String, dynamic>>(
+    return _valueGuard<Map<String, dynamic>>(
       await _invokeMethod(
         CallMethods.jsonVariation.name,
         argument: {
@@ -127,10 +127,10 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-      onDataChange: (response) {
+      customMapping: (response) {
         return response;
       },
-    );
+    ).onError((error, stackTrace) => defaultValue);
   }
 
   Future<BKTResult<void>> track(
@@ -151,7 +151,7 @@ class BKTClient {
   Future<BKTResult<BKTUser>> currentUser() async {
     return _resultGuard<BKTUser>(
       await _invokeMethod(CallMethods.currentUser.name),
-      onDataChange: (response) {
+      customMapping: (response) {
         return BKTUserBuilder()
             .id(response['id'])
             .data(
@@ -202,12 +202,12 @@ class BKTClient {
     );
   }
 
-  Future<BKTResult<BKTEvaluation>> evaluationDetails(String featureId) async {
-    return _resultGuard<BKTEvaluation>(
+  Future<BKTEvaluation?> evaluationDetails(String featureId) async {
+    return _valueGuard<BKTEvaluation?>(
       await _invokeMethod(CallMethods.evaluationDetails.name, argument: {
         'featureId': featureId,
       }),
-      onDataChange: (response) {
+      customMapping: (response) {
         return BKTEvaluation(
           id: response['id'],
           featureId: response['featureId'],
@@ -219,7 +219,7 @@ class BKTClient {
           reason: response['reason'],
         );
       },
-    );
+    ).onError((error, stackTrace) => null);
   }
 
   String addEvaluationUpdateListener(BKTEvaluationUpdateListener listener) {
@@ -234,13 +234,38 @@ class BKTClient {
     _dispatcher.clearEvaluationUpdateListeners();
   }
 
-  BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
-      {T Function(Map<String, dynamic>)? onDataChange}) {
+  // _valueGuard will parse the response from the native side
+  // The response format {'status':1, 'response': value}
+  // this func could call _resultGuard underlying
+  // but I want `_valueGuard` has its own simple logic.
+  Future<T> _valueGuard<T>(Map<String, dynamic> result,
+      {T Function(Map<String, dynamic>)? customMapping}) async {
     if (result['status']) {
       if (result['response'] != null) {
-        if (onDataChange != null) {
+        if (customMapping != null) {
+          // throw runtime exception
+          return customMapping(
+            Map<String, dynamic>.from(result['response']),
+          );
+        } else {
+          // throw runtime exception
+          return result['response'] as T;
+        }
+      } else {
+        throw Exception('unknown error: missing result response');
+      }
+    } else {
+      throw Exception(result['errorMessage'] as String);
+    }
+  }
+
+  BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
+      {T Function(Map<String, dynamic>)? customMapping}) {
+    if (result['status']) {
+      if (result['response'] != null) {
+        if (customMapping != null) {
           return BKTResult<T>.success(
-            data: onDataChange(
+            data: customMapping(
               Map<String, dynamic>.from(result['response']),
             ),
           );
