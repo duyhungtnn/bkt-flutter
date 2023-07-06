@@ -312,7 +312,7 @@ class BKTClient {
       // default runtime error catching
       return {
         "status": false,
-        "errorMessage": "${ex.toString()}",
+        "errorMessage": ex.toString(),
       };
     }
   }
