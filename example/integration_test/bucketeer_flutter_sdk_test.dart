@@ -156,11 +156,11 @@ void main() async {
 
     testWidgets('testTrack', (WidgetTester _) async {
       var result = await BKTClient.instance.track(GOAL_ID, value: GOAL_VALUE);
-      expect(result, const BKTResult.success(data: true));
+      expect(result, const BKTResult.success());
 
       await Future.delayed(Duration(milliseconds: 100));
       var flushResult = await BKTClient.instance.flush();
-      expect(flushResult, const BKTResult.success(data: true));
+      expect(flushResult, const BKTResult.success());
     });
 
     testWidgets('testEvaluationUpdateFlow', (WidgetTester _) async {
@@ -177,14 +177,14 @@ void main() async {
           userAttributes: {'app_version': OLD_APP_VERSION},
         ),
         completion(
-          equals(const BKTResult.success(data: true)),
+          equals(const BKTResult.success()),
         ),
       );
 
       await expectLater(
         BKTClient.instance.fetchEvaluations(timeoutMillis: 30000),
         completion(
-          equals(const BKTResult.success(data: true)),
+          equals(const BKTResult.success()),
         ),
       );
 
@@ -200,7 +200,7 @@ void main() async {
     testWidgets('testSwitchUser', (WidgetTester _) async {
       var result = await BKTClient.instance.destroy();
       expect(result.isSuccess, true);
-      expect(result, const BKTResult.success(data: true),
+      expect(result, const BKTResult.success(),
           reason: "destroy() should success");
       final config = BKTConfigBuilder()
           .apiKey(Constants.API_KEY)
@@ -281,7 +281,7 @@ void main() async {
     tearDown(() async {
       var result = await BKTClient.instance.destroy();
       expect(result.isSuccess, true);
-      expect(result, const BKTResult.success(data: true),
+      expect(result, const BKTResult.success(),
           reason: "destroy() should success");
     });
 

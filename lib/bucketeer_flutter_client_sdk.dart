@@ -7,6 +7,7 @@ export 'src/evaluation_update_listener.dart';
 export 'src/config.dart';
 
 import 'package:bucketeer_flutter_client_sdk/src/config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'src/user.dart';
 import 'src/call_methods.dart';
@@ -67,7 +68,10 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    ).onError((error, stackTrace) => defaultValue);
+    ).onError((error, stackTrace) {
+      debugPrint("get stringVariation fail ${error?.toString()}");
+      return defaultValue;
+    });
   }
 
   Future<int> intVariation(
@@ -82,7 +86,10 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    ).onError((error, stackTrace) => defaultValue);
+    ).onError((error, stackTrace) {
+      debugPrint("get intVariation fail ${error?.toString()}");
+      return defaultValue;
+    });
   }
 
   Future<double> doubleVariation(
@@ -97,7 +104,10 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    ).onError((error, stackTrace) => defaultValue);
+    ).onError((error, stackTrace) {
+      debugPrint("get doubleVariation fail ${error?.toString()}");
+      return defaultValue;
+    });
   }
 
   Future<bool> boolVariation(
@@ -112,7 +122,10 @@ class BKTClient {
           'defaultValue': defaultValue,
         },
       ),
-    ).onError((error, stackTrace) => defaultValue);
+    ).onError((error, stackTrace) {
+      debugPrint("get boolVariation fail ${error?.toString()}");
+      return defaultValue;
+    });
   }
 
   Future<Map<String, dynamic>> jsonVariation(
@@ -130,7 +143,10 @@ class BKTClient {
       customMapping: (response) {
         return response;
       },
-    ).onError((error, stackTrace) => defaultValue);
+    ).onError((error, stackTrace) {
+      debugPrint("get jsonVariation fail ${error?.toString()}");
+      return defaultValue;
+    });
   }
 
   Future<BKTResult<void>> track(
@@ -162,7 +178,7 @@ class BKTClient {
     );
   }
 
-  Future<BKTResult<bool>> updateUserAttributes({
+  Future<BKTResult<void>> updateUserAttributes({
     required Map<String, String> userAttributes,
   }) async {
     return _resultGuard(
@@ -190,7 +206,7 @@ class BKTClient {
     );
   }
 
-  Future<BKTResult<bool>> destroy() async {
+  Future<BKTResult<void>> destroy() async {
     return _resultGuard(
       await _invokeMethod(CallMethods.destroy.name).then(
         (value) async {
@@ -237,7 +253,7 @@ class BKTClient {
   // _valueGuard will parse the response from the native side
   // The response format {'status':1, 'response': value}
   // this func could call _resultGuard underlying
-  // but I want `_valueGuard` has its own simple logic.
+  // but I want `_valueGuard` has its own logic for more simple
   Future<T> _valueGuard<T>(Map<String, dynamic> result,
       {T Function(Map<String, dynamic>)? customMapping}) async {
     if (result['status']) {
@@ -284,8 +300,16 @@ class BKTClient {
     String method, {
     Map<String, dynamic> argument = const {},
   }) async {
-    return Map<String, dynamic>.from(
-      await _channel.invokeMapMethod(method, argument) ?? {},
-    );
+    try {
+      return Map<String, dynamic>.from(
+        await _channel.invokeMapMethod(method, argument) ?? {},
+      );
+    } catch (ex) {
+      // default runtime error catching
+      return {
+        "status": false,
+        "errorMessage": "runtime unknown error ${ex.toString()}",
+      };
+    }
   }
 }

@@ -78,7 +78,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             }
             // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
             BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
-            success(result: result, response: true)
+            success(result: result)
         } catch {
             debugPrint("BKTClient.initialize failed with error: \(error)")
             fail(result: result, message: error.localizedDescription)
@@ -147,7 +147,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         } else {
             BKTClient.shared.track(goalId: goalId)
         }
-        success(result: result, response: true)
+        success(result: result)
     }
     
     private func jsonVariation(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
@@ -177,7 +177,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             return
         }
         BKTClient.shared.updateUserAttributes(attributes: userAttributes)
-        success(result: result, response: true)
+        success(result: result)
     }
     
     private func fetchEvaluations(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
@@ -186,7 +186,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             if let err {
                 self?.fail(result: result, message: err.localizedDescription)
             } else {
-                self?.success(result: result, response: true)
+                self?.success(result: result)
             }
         }
     }
@@ -197,7 +197,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 let errorMessage = bktError.localizedDescription
                 self?.fail(result: result, message: errorMessage)
             } else {
-                self?.success(result: result, response: true)
+                self?.success(result: result)
             }
         }
     }
@@ -274,7 +274,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             
         case .destroy:
             BKTClient.destroy()
-            success(result: result, response: true)
+            success(result: result)
             
         default:
             result(FlutterMethodNotImplemented)

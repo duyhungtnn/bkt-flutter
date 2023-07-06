@@ -132,7 +132,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       BKTClient.getInstance().addEvaluationUpdateListener(
         evaluationUpdateListener
       )
-      success(result, true)
+      success(result)
     } catch (ex: Exception) {
       fail(result, ex.message)
     }
@@ -224,7 +224,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     } else {
       BKTClient.getInstance().track(goalId)
     }
-    success(result, true)
+    success(result)
   }
 
   private fun jsonVariation(call: MethodCall, result: MethodChannel.Result) {
@@ -246,7 +246,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   private fun updateUserAttributes(call: MethodCall, result: MethodChannel.Result) {
     val args = call.arguments<Map<String, String>>()!!
     BKTClient.getInstance().updateUserAttributes(args)
-    success(result, true)
+    success(result)
   }
 
   private fun fetchEvaluations(call: MethodCall, result: MethodChannel.Result) {
@@ -259,7 +259,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       if (err != null) {
         fail(result, err.message)
       } else {
-        success(result, true)
+        success(result)
       }
     }
   }
@@ -272,7 +272,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       if (err != null) {
         success(result, err.message)
       } else {
-        success(result, true)
+        success(result)
       }
     }
   }
@@ -341,7 +341,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
 
         CallMethods.Destroy -> {
           BKTClient.destroy()
-          success(result, true)
+          success(result)
         }
 
         CallMethods.Unknown -> {

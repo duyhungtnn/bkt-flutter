@@ -8,8 +8,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   const channel = MethodChannel(Constants.methodChannelName);
+  var enableMockRuntimeError = false;
 
   setUp(() async {
+
     TestWidgetsFlutterBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (methodCall) async {
       var callMethod = CallMethods.values.firstWhere(
@@ -22,7 +24,10 @@ void main() {
         case CallMethods.flush:
         case CallMethods.fetchEvaluations:
         case CallMethods.destroy:
-          return {'status': true, 'response': true};
+          if (enableMockRuntimeError) {
+            throw Exception("test runtime error");
+          }
+          return {'status': true};
         case CallMethods.currentUser:
           return {
             'status': true,
@@ -95,7 +100,7 @@ void main() {
         user: user,
       ),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
 
@@ -179,35 +184,35 @@ void main() {
         userAttributes: {'app_version': '1.0.0'},
       ),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
 
     expectLater(
       BKTClient.instance.track('goal-id'),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
 
     expectLater(
       BKTClient.instance.flush(),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
 
     expectLater(
       BKTClient.instance.flush(),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
 
     expectLater(
       BKTClient.instance.fetchEvaluations(timeoutMillis: 10000),
       completion(
-        equals(const BKTResult.success(data: true)),
+        equals(const BKTResult.success()),
       ),
     );
     const success = BKTResult.success(data: 'Success');
@@ -219,5 +224,17 @@ void main() {
     expect(failure.isFailure, equals(true));
     expect(failure.isSuccess, equals(false));
     expect(failure.asFailure.message, equals('Failed'));
+
+    /// Test runtime error
+    enableMockRuntimeError = true;
+    final fetchEvaluationsFailRs = await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+    expect(fetchEvaluationsFailRs.isFailure, equals(true));
+
+    final flushFailRs = await BKTClient.instance.flush();
+    expect(flushFailRs.isFailure, equals(true));
+
+    final trackFailRs = await BKTClient.instance.track('goal-id');
+    expect(trackFailRs.isFailure, equals(true));
+
   });
 }
