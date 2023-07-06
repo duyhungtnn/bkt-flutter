@@ -113,62 +113,52 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getStringVariation(String featureId) async {
     final result = await BKTClient.instance
         .stringVariation(featureId, defaultValue: 'default value');
-    result.ifSuccess((data) {
-      print('getStringVariation: ${data}');
-      showSnackbar(
-          context: context, title: 'getStringVariation', message: data);
-    });
+    print('getStringVariation: ${result}');
+    showSnackbar(
+        context: context, title: 'getStringVariation', message: result);
   }
 
   Future<void> _getIntVariation(String featureId) async {
     final result =
         await BKTClient.instance.intVariation(featureId, defaultValue: 0);
-    result.ifSuccess((data) {
-      print('getIntVariation: $data');
-      showSnackbar(
-          context: context, title: 'getIntVariation', message: '$data');
-    });
+    print('getIntVariation: $result');
+    showSnackbar(
+        context: context, title: 'getIntVariation', message: '$result');
   }
 
   Future<void> _getDoubleVariation(String featureId) async {
     final result =
         await BKTClient.instance.doubleVariation(featureId, defaultValue: 0.0);
-    result.ifSuccess((data) {
-      print('getDoubleVariation: $data');
-      showSnackbar(
-          context: context, title: 'getDoubleVariation', message: '$data');
-    });
+    print('getDoubleVariation: $result');
+    showSnackbar(
+        context: context, title: 'getDoubleVariation', message: '$result');
   }
 
   Future<void> _getBoolVariation(String featureId) async {
     final result =
         await BKTClient.instance.boolVariation(featureId, defaultValue: false);
-    result.ifSuccess((data) {
-      print('getBoolVariation: $data');
-      showSnackbar(
-          context: context, title: 'getBoolVariation', message: '$data');
-    });
+    print('getBoolVariation: $result');
+    showSnackbar(
+        context: context, title: 'getBoolVariation', message: '$result');
   }
 
   Future<void> _getJSONVariation(String featureId) async {
     final result =
         await BKTClient.instance.jsonVariation(featureId, defaultValue: {});
-    result.ifSuccess((data) {
-      print('getJSONVariation: $data');
-      showSnackbar(
-          context: context, title: 'getJSONVariation', message: '$data');
-    });
+    print('getJSONVariation: $result');
+    showSnackbar(
+        context: context, title: 'getJSONVariation', message: '$result');
   }
 
   Future<void> _getEvaluation(String featureId) async {
     final result = await BKTClient.instance.evaluationDetails(featureId);
-    result.ifSuccess((evaluation) {
-      print('Successful the evaluation');
+    print('Successful get evaluation details');
+    if (result != null) {
       showSnackbar(
           context: context,
-          title: 'getEvaluation(${evaluation.toString()})',
+          title: 'getEvaluation(${result.toString()})',
           message: 'Successful the evaluation.');
-    });
+    }
   }
 
   Future<void> _sendGoal(String goalId) async {
