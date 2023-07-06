@@ -31,12 +31,12 @@ class BKTClient {
       EvaluationUpdateListenerDispatcher(
           _eventChannel.receiveBroadcastStream());
 
-  Future<BKTResult<void>> initialize({
+  static Future<BKTResult<void>> initialize({
     required BKTConfig config,
     required BKTUser user,
     int? timeoutMillis,
   }) async {
-    var rs = await _invokeMethod(
+    var rs = await instance._invokeMethod(
       CallMethods.initialize.name,
       argument: {
         'apiKey': config.apiKey,
@@ -53,7 +53,7 @@ class BKTClient {
         'userAttributes': user.data,
       },
     );
-    return _resultGuard(rs);
+    return instance._resultGuard(rs);
   }
 
   Future<String> stringVariation(
@@ -206,16 +206,20 @@ class BKTClient {
     );
   }
 
-  Future<BKTResult<void>> destroy() async {
+  Future<BKTResult<void>> _destroy() async {
     return _resultGuard(
       await _invokeMethod(CallMethods.destroy.name).then(
-        (value) async {
+            (value) async {
           // Remove all listener for the current client
           clearEvaluationUpdateListeners();
           return value;
         },
       ),
     );
+  }
+
+  static Future<BKTResult<void>> destroy() async {
+    return instance._destroy();
   }
 
   Future<BKTEvaluation?> evaluationDetails(String featureId) async {
@@ -281,22 +285,27 @@ class BKTClient {
 
   BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
       {T Function(Map<String, dynamic>)? customMapping}) {
-    if (result['status']) {
-      if (result['response'] != null) {
-        if (customMapping != null) {
-          return BKTResult<T>.success(
-            data: customMapping(
-              Map<String, dynamic>.from(result['response']),
-            ),
-          );
+    try {
+      if (result['status']) {
+        if (result['response'] != null) {
+          if (customMapping != null) {
+            return BKTResult<T>.success(
+              data: customMapping(
+                Map<String, dynamic>.from(result['response']),
+              ),
+            );
+          } else {
+            return BKTResult<T>.success(data: result['response']);
+          }
         } else {
-          return BKTResult<T>.success(data: result['response']);
+          return const BKTResult.success();
         }
       } else {
-        return const BKTResult.success();
+        return BKTResult.failure(result['errorMessage']);
       }
-    } else {
-      return BKTResult.failure(result['errorMessage']);
+    } catch (ex) {
+      // catch runtime exception when parse the result
+      return BKTResult.failure(ex.toString());
     }
   }
 

@@ -75,8 +75,14 @@ class _AppState extends State<MyApp>
           .build();
       final user =
           BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
-      await BKTClient.instance.initialize(config: config, user: user);
-      _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
+      final result = await BKTClient.initialize(config: config, user: user);
+      if (result.isSuccess) {
+        _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
+      } else if (result.isFailure) {
+        final errorMessage = result.asFailure.message;
+        debugPrint(errorMessage);
+      }
+
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -195,8 +201,8 @@ class _MyHomePageState extends State<MyHomePage> {
     final user =
         BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
 
-    await BKTClient.instance.destroy();
-    await BKTClient.instance.initialize(
+    await BKTClient.destroy();
+    await BKTClient.initialize(
       config: config,
       user: user,
     );

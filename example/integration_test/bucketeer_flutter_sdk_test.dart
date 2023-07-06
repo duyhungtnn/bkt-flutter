@@ -198,7 +198,7 @@ void main() async {
     });
 
     testWidgets('testSwitchUser', (WidgetTester _) async {
-      var result = await BKTClient.instance.destroy();
+      var result = await BKTClient.destroy();
       expect(result.isSuccess, true);
       expect(result, const BKTResult.success(),
           reason: "destroy() should success");
@@ -216,7 +216,7 @@ void main() async {
           .build();
       final user = BKTUserBuilder().id("test_id").data({}).build();
 
-      var instanceResult = await BKTClient.instance.initialize(
+      var instanceResult = await BKTClient.initialize(
         config: config,
         user: user,
       );
@@ -258,7 +258,7 @@ void main() async {
           .build();
       final user = BKTUserBuilder().id(USER_ID).data({}).build();
 
-      var result = await BKTClient.instance.initialize(
+      var result = await BKTClient.initialize(
         config: config,
         user: user,
       );
@@ -279,7 +279,7 @@ void main() async {
     });
 
     tearDown(() async {
-      var result = await BKTClient.instance.destroy();
+      var result = await BKTClient.destroy();
       expect(result.isSuccess, true);
       expect(result, const BKTResult.success(),
           reason: "destroy() should success");

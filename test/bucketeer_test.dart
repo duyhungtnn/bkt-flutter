@@ -98,7 +98,7 @@ void main() {
         BKTUserBuilder().id("2023").data({'app_version': '1.0.0'}).build();
 
     expectLater(
-      BKTClient.instance.initialize(
+      BKTClient.initialize(
         config: config,
         user: user,
       ),

@@ -270,7 +270,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         return@withContext BKTClient.getInstance().flush().get()
       }
       if (err != null) {
-        success(result, err.message)
+        fail(result, err.message)
       } else {
         success(result)
       }
