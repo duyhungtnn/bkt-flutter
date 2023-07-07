@@ -53,6 +53,7 @@ class BKTClient {
         'userAttributes': user.data,
       },
     );
+    // The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
     return instance._resultGuard(rs);
   }
 
@@ -149,23 +150,23 @@ class BKTClient {
     });
   }
 
-  Future<BKTResult<void>> track(
+  Future<void> track(
     String goalId, {
     double? value,
   }) async {
-    return _resultGuard(
-      await _invokeMethod(
-        CallMethods.track.name,
-        argument: {
-          'goalId': goalId,
-          'value': value,
-        },
-      ),
-    );
+    await _invokeMethod(
+      CallMethods.track.name,
+      argument: {
+        'goalId': goalId,
+        'value': value,
+      },
+    ).then((value) {}, onError: (error) {
+      debugPrint("track fail ${error?.toString()}");
+    });
   }
 
-  Future<BKTResult<BKTUser>> currentUser() async {
-    return _resultGuard<BKTUser>(
+  Future<BKTUser?> currentUser() async {
+    return _valueGuard<BKTUser?>(
       await _invokeMethod(CallMethods.currentUser.name),
       customMapping: (response) {
         return BKTUserBuilder()
@@ -175,21 +176,25 @@ class BKTClient {
             )
             .build();
       },
-    );
+    ).onError((error, stackTrace) {
+      debugPrint("get currentUser fail ${error?.toString()}");
+      return null;
+    });
   }
 
-  Future<BKTResult<void>> updateUserAttributes({
+  Future<void> updateUserAttributes({
     required Map<String, String> userAttributes,
   }) async {
-    return _resultGuard(
-      await _invokeMethod(
-        CallMethods.updateUserAttributes.name,
-        argument: userAttributes,
-      ),
-    );
+    await _invokeMethod(
+      CallMethods.updateUserAttributes.name,
+      argument: userAttributes,
+    ).then((value) {}, onError: (error) {
+      debugPrint("updateUserAttributes fail ${error?.toString()}");
+    });
   }
 
   Future<BKTResult<void>> fetchEvaluations({int? timeoutMillis}) async {
+    /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
     return _resultGuard(
       await _invokeMethod(
         CallMethods.fetchEvaluations.name,
@@ -201,25 +206,22 @@ class BKTClient {
   }
 
   Future<BKTResult<void>> flush() async {
+    /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
     return _resultGuard(
       await _invokeMethod(CallMethods.flush.name),
     );
   }
 
-  Future<BKTResult<void>> _destroy() async {
-    return _resultGuard(
-      await _invokeMethod(CallMethods.destroy.name).then(
-            (value) async {
-          // Remove all listener for the current client
-          clearEvaluationUpdateListeners();
-          return value;
-        },
-      ),
-    );
-  }
-
-  static Future<BKTResult<void>> destroy() async {
-    return instance._destroy();
+  Future<void> destroy() async {
+    await _invokeMethod(CallMethods.destroy.name).then(
+          (value) async {
+        // Remove all listener for the current client
+        clearEvaluationUpdateListeners();
+        return value;
+      },
+    ).then((value) {}, onError: (error) {
+      debugPrint("destroy fail ${error?.toString()}");
+    });
   }
 
   Future<BKTEvaluation?> evaluationDetails(String featureId) async {
