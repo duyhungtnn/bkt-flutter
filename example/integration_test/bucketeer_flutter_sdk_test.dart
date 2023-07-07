@@ -155,8 +155,11 @@ void main() async {
     });
 
     testWidgets('testTrack', (WidgetTester _) async {
-      var result = await BKTClient.instance.track(GOAL_ID, value: GOAL_VALUE);
-      expect(result, const BKTResult.success());
+      await BKTClient.instance
+          .track(GOAL_ID, value: GOAL_VALUE)
+          .onError((error, stackTrace) {
+        fail("BKTClient.instance.track should success");
+      });
 
       await Future.delayed(Duration(milliseconds: 100));
       var flushResult = await BKTClient.instance.flush();
@@ -172,13 +175,11 @@ void main() async {
         ),
       );
 
-      await expectLater(
-        BKTClient.instance.updateUserAttributes(
-          userAttributes: {'app_version': OLD_APP_VERSION},
-        ),
-        completion(
-          equals(const BKTResult.success()),
-        ),
+      await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': OLD_APP_VERSION},
+      ).onError(
+        (error, stackTrace) => fail(
+            "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
       );
 
       await expectLater(
@@ -198,10 +199,8 @@ void main() async {
     });
 
     testWidgets('testSwitchUser', (WidgetTester _) async {
-      var result = await BKTClient.destroy();
-      expect(result.isSuccess, true);
-      expect(result, const BKTResult.success(),
-          reason: "destroy() should success");
+      await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
+          "BKTClient.instance.destroy should success and should not throw exception"));
       final config = BKTConfigBuilder()
           .apiKey(Constants.API_KEY)
           .apiEndpoint(Constants.API_ENDPOINT)
@@ -223,16 +222,19 @@ void main() async {
       expect(instanceResult.isSuccess, true,
           reason: "initialize() should success");
 
-      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(
+      await BKTClient.instance.updateUserAttributes(
         userAttributes: {'app_version': APP_VERSION},
+      ).onError(
+        (error, stackTrace) => fail(
+            "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
       );
-      expect(updateUserInfoRs.isSuccess, true,
-          reason: "updateUserAttributes() should success");
 
       var currentUser = await BKTClient.instance.currentUser();
-      expect(currentUser.asSuccess.data.id, "test_id",
-          reason: "user_id should be `test_id`");
-      expect(currentUser.asSuccess.data.data, {'app_version': APP_VERSION},
+      expect(currentUser != null, true,
+          reason:
+              "BKTClient.instance.currentUser() should return non-null user data");
+      expect(currentUser!.id, "test_id", reason: "user_id should be `test_id`");
+      expect(currentUser.data, {'app_version': APP_VERSION},
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
@@ -266,11 +268,11 @@ void main() async {
 
       BKTClient.instance.addEvaluationUpdateListener(listener);
 
-      var updateUserInfoRs = await BKTClient.instance.updateUserAttributes(
+      await BKTClient.instance.updateUserAttributes(
         userAttributes: {'app_version': APP_VERSION},
-      );
-      expect(updateUserInfoRs.isSuccess, true,
-          reason: "updateUserAttributes() should success");
+      ).onError((error, stackTrace) => fail(
+          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
+      ;
 
       var fetchEvaluationsResult =
           await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
@@ -279,10 +281,9 @@ void main() async {
     });
 
     tearDown(() async {
-      var result = await BKTClient.destroy();
-      expect(result.isSuccess, true);
-      expect(result, const BKTResult.success(),
-          reason: "destroy() should success");
+      await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
+          "BKTClient.instance.destroy should success and should not throw exception"));
+      ;
     });
 
     tearDownAll(() async {

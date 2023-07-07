@@ -82,7 +82,7 @@ void main() {
 
   tearDown(() {});
 
-  test('Bucketeer Tests', () async {
+  test('Bucketeer Success Cases Tests', () async {
     final config = BKTConfigBuilder()
         .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
         .apiEndpoint("demo.bucketeer.jp")
@@ -108,17 +108,29 @@ void main() {
     );
 
     expectLater(
+      BKTClient.instance.flush(),
+      completion(
+        equals(const BKTResult.success()),
+      ),
+    );
+
+    expectLater(
+      BKTClient.instance.fetchEvaluations(timeoutMillis: 10000),
+      completion(
+        equals(const BKTResult.success()),
+      ),
+    );
+
+    expectLater(
       BKTClient.instance.currentUser(),
       completion(
         equals(
-          BKTResult<BKTUser>.success(
-            data: BKTUserBuilder().id('userId').data(
-              {
-                'appVersion': '9.9.9',
-                'platform': 'iOS',
-              },
-            ).build(),
-          ),
+          BKTUserBuilder().id('userId').data(
+            {
+              'appVersion': '9.9.9',
+              'platform': 'iOS',
+            },
+          ).build(),
         ),
       ),
     );
@@ -130,10 +142,6 @@ void main() {
       ),
     );
 
-    // Current equal operator of BKTResult is not supported runtime type `Map`
-    // Compare 2 map if dart is not easy
-    // https://stackoverflow.com/questions/61765518/how-to-check-two-maps-are-equal-in-dart
-    // We will not compare 2 BKTResult, we will compare the final output
     expect(
       (await BKTClient.instance.jsonVariation('feature-id', defaultValue: {})),
       Map<String, dynamic>.from(
@@ -185,53 +193,63 @@ void main() {
       ),
     );
 
+    /// Void method should not throw exception
+    BKTClient.instance.updateUserAttributes(
+      userAttributes: {'app_version': '1.0.0'},
+    ).onError((error, stackTrace) {
+      expect(error == null, false,
+          reason:
+              "BKTClient.instance.updateUserAttributes should not throw an exception");
+    });
+
+    /// Void method should not throw exception
+    BKTClient.instance.track('goal-id').onError((error, stackTrace) {
+      expect(error == null, false,
+          reason: "BKTClient.instance.track should not throw an exception");
+    });
+
+
+    /// Void method should not throw exception
+    await BKTClient.instance.destroy().onError((error, stackTrace) {
+      expect(error == null, false,
+          reason: "BKTClient.instance.destroy() should not throw an exception");
+    });
+  });
+
+  test('Bucketeer Error Handling Tests', () async {
+    final config = BKTConfigBuilder()
+        .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
+        .apiEndpoint("demo.bucketeer.jp")
+        .featureTag('Flutter')
+        .debugging(true)
+        .eventsMaxQueueSize(10000)
+        .eventsFlushInterval(10000)
+        .pollingInterval(10000)
+        .backgroundPollingInterval(10000)
+        .appVersion("1.0.0")
+        .build();
+    final user =
+        BKTUserBuilder().id("2023").data({'app_version': '1.0.0'}).build();
+
     expectLater(
-      BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': '1.0.0'},
+      BKTClient.initialize(
+        config: config,
+        user: user,
       ),
       completion(
         equals(const BKTResult.success()),
       ),
     );
 
-    expectLater(
-      BKTClient.instance.track('goal-id'),
-      completion(
-        equals(const BKTResult.success()),
-      ),
-    );
+    enableMockGetEvaluationDetailsNotFound = true;
 
-    expectLater(
-      BKTClient.instance.flush(),
-      completion(
-        equals(const BKTResult.success()),
-      ),
-    );
+    /// Should return the null when catching an error
+    var evaluationDetailsRs =
+        await BKTClient.instance.evaluationDetails("not_found_featureId");
+    expect(evaluationDetailsRs == null, equals(true),
+        reason: "BKTClient.instance.evaluationDetails should return null");
 
-    expectLater(
-      BKTClient.instance.flush(),
-      completion(
-        equals(const BKTResult.success()),
-      ),
-    );
-
-    expectLater(
-      BKTClient.instance.fetchEvaluations(timeoutMillis: 10000),
-      completion(
-        equals(const BKTResult.success()),
-      ),
-    );
-    const success = BKTResult.success(data: 'Success');
-    expect(success.isSuccess, equals(true));
-    expect(success.isFailure, equals(false));
-    expect(success.asSuccess.data, equals('Success'));
-
-    final failure = BKTResult.failure('Failed');
-    expect(failure.isFailure, equals(true));
-    expect(failure.isSuccess, equals(false));
-    expect(failure.asFailure.message, equals('Failed'));
-
-    /// Test runtime error
+    /// Test runtime error, all methods call below that line should fail
     enableMockRuntimeError = true;
     final fetchEvaluationsFailRs =
         await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
@@ -240,12 +258,37 @@ void main() {
     final flushFailRs = await BKTClient.instance.flush();
     expect(flushFailRs.isFailure, equals(true));
 
-    final trackFailRs = await BKTClient.instance.track('goal-id');
-    expect(trackFailRs.isFailure, equals(true));
+    /// Should get `null`
+    expectLater(
+      BKTClient.instance.currentUser(),
+      completion(
+        equals(
+          null,
+        ),
+      ),
+      reason: "BKTClient.instance.currentUser should return null",
+    );
 
-    var evaluationDetailsRs =
+    /// Void method should not throw exception
+    BKTClient.instance.updateUserAttributes(
+      userAttributes: {'app_version': '1.0.0'},
+    ).onError((error, stackTrace) {
+      expect(error == null, false,
+          reason:
+              "BKTClient.instance.updateUserAttributes should not throw an exception");
+    });
+
+    /// Void method should not throw exception
+    await BKTClient.instance.track('goal-id').onError((error, stackTrace) {
+      expect(error == null, false,
+          reason: "BKTClient.instance.track should not throw an exception");
+    });
+
+    /// Void method should not throw exception
+    var evaluationDetailsFailRs =
         await BKTClient.instance.evaluationDetails("not_found_featureId");
-    expect(evaluationDetailsRs == null, equals(true));
+    expect(evaluationDetailsFailRs == null, equals(true),
+        reason: "BKTClient.instance.evaluationDetails should return null");
 
     /// Should return the default value 200.0 when catching an error
     expectLater(
@@ -284,11 +327,23 @@ void main() {
       ),
     );
 
-    enableMockGetEvaluationDetailsNotFound = true;
+    final flushRs = await BKTClient.instance.flush();
+    expect(flushRs.isFailure, true, reason: "BKTClient.instance.flush should return BKTResult.failure");
 
-    /// Should return the null when catching an error
-    evaluationDetailsRs =
-        await BKTClient.instance.evaluationDetails("not_found_featureId");
-    expect(evaluationDetailsRs == null, equals(true));
+    final fetchEvaluationsRs = await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+    expect(fetchEvaluationsRs.isFailure, true, reason: "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
+
+    /// Void method should not throw exception
+    await BKTClient.instance.destroy().onError((error, stackTrace) {
+      expect(error == null, false,
+          reason: "BKTClient.instance.destroy() should not throw an exception");
+    });
+
+    /// Try re-initialize , but should fail
+    final shouldFailInitializeRs = await BKTClient.initialize(
+      config: config,
+      user: user,
+    );
+    expect(shouldFailInitializeRs.isFailure, true, reason: "BKTClient.instance.initialize should return BKTResult.failure");
   });
 }

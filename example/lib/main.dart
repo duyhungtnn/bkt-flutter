@@ -168,20 +168,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _sendGoal(String goalId) async {
-    final result = await BKTClient.instance.track(goalId, value: 3.1412);
-    if (result.isSuccess) {
-      print('Successful the send goal.');
-      showSnackbar(
-          context: context,
-          title: 'sendGoal',
-          message: 'Successful the send goal.');
-    } else {
-      print('Failed the send goal.');
-      showSnackbar(
-          context: context,
-          title: 'sendGoal',
-          message: 'Failed the send goal.');
-    }
+    await BKTClient.instance.track(goalId, value: 3.1412);
+    print('Successful the send goal.');
+    showSnackbar(
+        context: context,
+        title: 'sendGoal',
+        message: 'Successful the send goal.');
   }
 
   Future<void> _switchUser(String userId) async {
@@ -201,35 +193,30 @@ class _MyHomePageState extends State<MyHomePage> {
     final user =
         BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
 
-    await BKTClient.destroy();
+    await BKTClient.instance.destroy();
     await BKTClient.initialize(
       config: config,
       user: user,
     );
-    var result = await BKTClient.instance.updateUserAttributes(
+    await BKTClient.instance.updateUserAttributes(
       userAttributes: {'app_version': "1.2.4"},
     );
-    result.ifSuccess((rs) {
-      print('Successful the switchUser');
-      showSnackbar(
-          context: context,
-          title: 'setUser',
-          message: 'Successful the switchUser.');
-    });
-    result.ifFailure((message) {
-      print('Fail to update user info ${message}');
-    });
+    print('Successful the switchUser');
+    showSnackbar(
+        context: context,
+        title: 'setUser',
+        message: 'Successful the switchUser.');
   }
 
   Future<void> _getCurrentUser() async {
-    final result = await BKTClient.instance.currentUser();
-    result.ifSuccess((user) {
+    final user = await BKTClient.instance.currentUser();
+    if (user != null ) {
       print('Successful the getUser');
       showSnackbar(
           context: context,
           title: 'getUser(${user.id})',
           message: '${user.data.toString()}');
-    });
+    };
   }
 
   @override
