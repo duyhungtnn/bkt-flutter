@@ -241,7 +241,7 @@ void main() {
     expect(evaluationDetailsRs == null, equals(true),
         reason: "BKTClient.instance.evaluationDetails should return null");
 
-    /// Test runtime error, all methods call below that line should fail
+    /// Test runtime error, all methods call under that line should fail
     enableMockRuntimeError = true;
     final fetchEvaluationsFailRs =
         await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
