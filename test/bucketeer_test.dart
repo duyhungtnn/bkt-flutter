@@ -196,24 +196,16 @@ void main() {
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
       userAttributes: {'app_version': '1.0.0'},
-    ).onError((error, stackTrace) {
-      expect(error == null, false,
-          reason:
-              "BKTClient.instance.updateUserAttributes should not throw an exception");
-    });
+    ).onError((error, stackTrace) => fail(
+        "BKTClient.instance.updateUserAttributes should not throw an exception"));
 
     /// Void method should not throw exception
-    BKTClient.instance.track('goal-id').onError((error, stackTrace) {
-      expect(error == null, false,
-          reason: "BKTClient.instance.track should not throw an exception");
-    });
-
+    BKTClient.instance.track('goal-id').onError((error, stackTrace) =>
+        fail("BKTClient.instance.track should not throw an exception"));
 
     /// Void method should not throw exception
-    await BKTClient.instance.destroy().onError((error, stackTrace) {
-      expect(error == null, false,
-          reason: "BKTClient.instance.destroy() should not throw an exception");
-    });
+    await BKTClient.instance.destroy().onError((error, stackTrace) =>
+        fail("BKTClient.instance.destroy should not throw an exception"));
   });
 
   test('Bucketeer Error Handling Tests', () async {
@@ -272,17 +264,12 @@ void main() {
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
       userAttributes: {'app_version': '1.0.0'},
-    ).onError((error, stackTrace) {
-      expect(error == null, false,
-          reason:
-              "BKTClient.instance.updateUserAttributes should not throw an exception");
-    });
+    ).onError((error, stackTrace) => fail(
+        "BKTClient.instance.updateUserAttributes should not throw an exception"));
 
     /// Void method should not throw exception
-    await BKTClient.instance.track('goal-id').onError((error, stackTrace) {
-      expect(error == null, false,
-          reason: "BKTClient.instance.track should not throw an exception");
-    });
+    await BKTClient.instance.track('goal-id').onError((error, stackTrace) =>
+        fail("BKTClient.instance.track should not throw an exception"));
 
     /// Void method should not throw exception
     var evaluationDetailsFailRs =
@@ -328,22 +315,26 @@ void main() {
     );
 
     final flushRs = await BKTClient.instance.flush();
-    expect(flushRs.isFailure, true, reason: "BKTClient.instance.flush should return BKTResult.failure");
+    expect(flushRs.isFailure, true,
+        reason: "BKTClient.instance.flush should return BKTResult.failure");
 
-    final fetchEvaluationsRs = await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
-    expect(fetchEvaluationsRs.isFailure, true, reason: "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
+    final fetchEvaluationsRs =
+        await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+    expect(fetchEvaluationsRs.isFailure, true,
+        reason:
+            "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
 
     /// Void method should not throw exception
-    await BKTClient.instance.destroy().onError((error, stackTrace) {
-      expect(error == null, false,
-          reason: "BKTClient.instance.destroy() should not throw an exception");
-    });
+    await BKTClient.instance.destroy().onError((error, stackTrace) =>
+        fail("BKTClient.instance.destroy() should not throw an exception"));
 
     /// Try re-initialize , but should fail
     final shouldFailInitializeRs = await BKTClient.initialize(
       config: config,
       user: user,
     );
-    expect(shouldFailInitializeRs.isFailure, true, reason: "BKTClient.instance.initialize should return BKTResult.failure");
+    expect(shouldFailInitializeRs.isFailure, true,
+        reason:
+            "BKTClient.instance.initialize should return BKTResult.failure");
   });
 }
