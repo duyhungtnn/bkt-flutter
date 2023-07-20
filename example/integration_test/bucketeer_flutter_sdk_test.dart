@@ -89,31 +89,6 @@ void main() async {
       BKTClient.instance.removeEvaluationUpdateListener(listenToken);
     });
 
-    testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
-      var user = await BKTClient.instance.currentUser();
-      expect(user, BKTUserBuilder().id(userId).data({}).build());
-      await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': appVersion},
-      ).onError((error, stackTrace) => fail(
-          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
-      user = await BKTClient.instance.currentUser();
-      expect(
-          user,
-          BKTUserBuilder()
-              .id(userId)
-              .data({'app_version': appVersion}).build());
-    });
-
-    testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
-      var fetchEvaluationsResult = await BKTClient.instance
-          .fetchEvaluations(timeoutMillis: 30000)
-          .timeout(const Duration(milliseconds: 31000), onTimeout: () {
-        fail("fetchEvaluations should time out under 30000ms");
-      });
-      expect(fetchEvaluationsResult.isSuccess, true,
-          reason: "fetchEvaluations() should success");
-    });
-
     testWidgets('testStringVariation', (WidgetTester _) async {
       expectLater(
         BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
@@ -305,17 +280,43 @@ void main() async {
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
+
+    testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
+      var user = await BKTClient.instance.currentUser();
+      expect(user, BKTUserBuilder().id(userId).data({}).build());
+      await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': appVersion},
+      ).onError((error, stackTrace) => fail(
+          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
+      user = await BKTClient.instance.currentUser();
+      expect(
+          user,
+          BKTUserBuilder()
+              .id(userId)
+              .data({'app_version': appVersion}).build());
+    });
+
+    testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
+      var fetchEvaluationsResult = await BKTClient.instance
+          .fetchEvaluations(timeoutMillis: 30000)
+          .timeout(const Duration(milliseconds: 31000), onTimeout: () {
+        fail("fetchEvaluations should time out under 30000ms");
+      });
+      expect(fetchEvaluationsResult.isSuccess, true,
+          reason: "fetchEvaluations() should success");
+    });
   }
 
   group('Bucketeer', () {
     setUp(() async {});
 
     tearDown(() async {
-      await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
-          "BKTClient.instance.destroy should success and should not throw exception"));
+
     });
 
     tearDownAll(() async {
+      await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
+          "BKTClient.instance.destroy should success and should not throw exception"));
       debugPrint("All tests passed");
     });
 
