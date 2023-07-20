@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 extension SnackbarSupport on State<StatefulWidget> {
   void showSnackbar({
-    required BuildContext context,
     required String title,
     required String message,
   }) {

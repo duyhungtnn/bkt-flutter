@@ -71,8 +71,7 @@ class _AppState extends State<MyApp>
           .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
           .eventsFlushInterval(Constants.exampleEventsFlushInterval)
           .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(
-              Constants.exampleBackgroundPollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion("1.0.0")
           .build();
       final user =
@@ -84,7 +83,6 @@ class _AppState extends State<MyApp>
         final errorMessage = result.asFailure.message;
         debugPrint(errorMessage);
       }
-
     });
     WidgetsBinding.instance.addObserver(this);
   }
@@ -115,47 +113,41 @@ class _MyHomePageState extends State<MyHomePage> {
   final flagController =
       TextEditingController(text: Constants.exampleFeatureTag);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
-  final userIdController =
-      TextEditingController(text: Constants.exampleUserId);
+  final userIdController = TextEditingController(text: Constants.exampleUserId);
 
   Future<void> _getStringVariation(String featureId) async {
     final result = await BKTClient.instance
         .stringVariation(featureId, defaultValue: 'default value');
     debugPrint('getStringVariation: $result');
-    showSnackbar(
-        context: context, title: 'getStringVariation', message: result);
+    showSnackbar(title: 'getStringVariation', message: result);
   }
 
   Future<void> _getIntVariation(String featureId) async {
     final result =
         await BKTClient.instance.intVariation(featureId, defaultValue: 0);
     debugPrint('getIntVariation: $result');
-    showSnackbar(
-        context: context, title: 'getIntVariation', message: '$result');
+    showSnackbar(title: 'getIntVariation', message: '$result');
   }
 
   Future<void> _getDoubleVariation(String featureId) async {
     final result =
         await BKTClient.instance.doubleVariation(featureId, defaultValue: 0.0);
     debugPrint('getDoubleVariation: $result');
-    showSnackbar(
-        context: context, title: 'getDoubleVariation', message: '$result');
+    showSnackbar(title: 'getDoubleVariation', message: '$result');
   }
 
   Future<void> _getBoolVariation(String featureId) async {
     final result =
         await BKTClient.instance.boolVariation(featureId, defaultValue: false);
     debugPrint('getBoolVariation: $result');
-    showSnackbar(
-        context: context, title: 'getBoolVariation', message: '$result');
+    showSnackbar(title: 'getBoolVariation', message: '$result');
   }
 
   Future<void> _getJSONVariation(String featureId) async {
     final result =
         await BKTClient.instance.jsonVariation(featureId, defaultValue: {});
     debugPrint('getJSONVariation: $result');
-    showSnackbar(
-        context: context, title: 'getJSONVariation', message: '$result');
+    showSnackbar(title: 'getJSONVariation', message: '$result');
   }
 
   Future<void> _getEvaluation(String featureId) async {
@@ -163,7 +155,6 @@ class _MyHomePageState extends State<MyHomePage> {
     debugPrint('Successful get evaluation details');
     if (result != null) {
       showSnackbar(
-          context: context,
           title: 'getEvaluation(${result.toString()})',
           message: 'Successful the evaluation.');
     }
@@ -172,10 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _sendGoal(String goalId) async {
     await BKTClient.instance.track(goalId, value: 3.1412);
     debugPrint('Successful the send goal.');
-    showSnackbar(
-        context: context,
-        title: 'sendGoal',
-        message: 'Successful the send goal.');
+    showSnackbar(title: 'sendGoal', message: 'Successful the send goal.');
   }
 
   Future<void> _switchUser(String userId) async {
@@ -188,8 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
         .eventsFlushInterval(Constants.exampleEventsFlushInterval)
         .pollingInterval(Constants.examplePollingInterval)
-        .backgroundPollingInterval(
-            Constants.exampleBackgroundPollingInterval)
+        .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
         .appVersion("1.0.0")
         .build();
     final user =
@@ -204,20 +191,14 @@ class _MyHomePageState extends State<MyHomePage> {
       userAttributes: {'app_version': "1.2.4"},
     );
     debugPrint('Successful the switchUser');
-    showSnackbar(
-        context: context,
-        title: 'setUser',
-        message: 'Successful the switchUser.');
+    showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
   }
 
   Future<void> _getCurrentUser() async {
     final user = await BKTClient.instance.currentUser();
-    if (user != null ) {
+    if (user != null) {
       debugPrint('Successful the getUser');
-      showSnackbar(
-          context: context,
-          title: 'getUser(${user.id})',
-          message: user.data.toString());
+      showSnackbar(title: 'getUser(${user.id})', message: user.data.toString());
     }
   }
 
@@ -246,8 +227,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   TextFormField(
                     controller: flagController,
-                    decoration:
-                        const InputDecoration(hintText: 'bucketeer-feature-flag'),
+                    decoration: const InputDecoration(
+                        hintText: 'bucketeer-feature-flag'),
                   ),
                   const SizedBox(height: 12),
                   const Text('GET VARIATION',
