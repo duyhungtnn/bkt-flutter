@@ -41,6 +41,79 @@ void main() async {
   const double goalValue = 1.0;
 
   void runAllTests() {
+    testWidgets('Initialize the SDK and waiting for evaluations data ready',
+        (WidgetTester _) async {
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(featureTag)
+          .debugging(debugging)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+          .appVersion(appVersion)
+          .build();
+      final user = BKTUserBuilder().id(userId).data({}).build();
+
+      await BKTClient.initialize(
+        config: config,
+        user: user,
+      ).onError((error, stackTrace) => fail("initialize() should success"));
+
+      final listener = MockEvaluationUpdateListener();
+      final listenToken =
+          BKTClient.instance.addEvaluationUpdateListener(listener);
+      // Make sure `listener.onUpdate()` called
+      // Wait for all evaluations fetched by the SDK automatically after `initialize`
+      // We will be ready to run specific tests after the `listener.onUpdate()` is called.
+      // Use Completer to convert a listener callback to a future
+      var completer = Completer();
+      when(() => listener.onUpdate()).thenAnswer((invocation) {
+        //Called, complete the future
+        completer.complete();
+      });
+      await completer.future.timeout(const Duration(seconds: 60),
+          onTimeout: () {
+        // Fast fail
+        fail("The OnUpdate callback should called under 60 seconds");
+      });
+      var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
+      // The listener should called 1 times.
+      expect(onUpdateCallCount, 1,
+          reason:
+              "The OnUpdate callback should called when the evaluations are updated");
+      // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
+      // The `completer` instance may get more call more times.
+      // Because it already complete, it will throw an exception cause the test fail.
+      BKTClient.instance.removeEvaluationUpdateListener(listenToken);
+    });
+
+    testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
+      var user = await BKTClient.instance.currentUser();
+      expect(user, BKTUserBuilder().id(userId).data({}).build());
+      await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': appVersion},
+      ).onError((error, stackTrace) => fail(
+          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
+      user = await BKTClient.instance.currentUser();
+      expect(
+          user,
+          BKTUserBuilder()
+              .id(userId)
+              .data({'app_version': appVersion}).build());
+    });
+
+    testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
+      var fetchEvaluationsResult = await BKTClient.instance
+          .fetchEvaluations(timeoutMillis: 30000)
+          .timeout(const Duration(milliseconds: 31000), onTimeout: () {
+        fail("fetchEvaluations should time out under 30000ms");
+      });
+      expect(fetchEvaluationsResult.isSuccess, true,
+          reason: "fetchEvaluations() should success");
+    });
+
     testWidgets('testStringVariation', (WidgetTester _) async {
       expectLater(
         BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
@@ -235,58 +308,7 @@ void main() async {
   }
 
   group('Bucketeer', () {
-    setUp(() async {
-      final config = BKTConfigBuilder()
-          .apiKey(Constants.apiKey)
-          .apiEndpoint(Constants.apiEndpoint)
-          .featureTag(featureTag)
-          .debugging(debugging)
-          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
-          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
-          .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
-          .appVersion(appVersion)
-          .build();
-      final user = BKTUserBuilder().id(userId).data({}).build();
-
-      var result = await BKTClient.initialize(
-        config: config,
-        user: user,
-      );
-      expect(result.isSuccess, true, reason: "initialize() should success");
-
-      final listener = MockEvaluationUpdateListener();
-      final listenToken = BKTClient.instance.addEvaluationUpdateListener(listener);
-
-      await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': appVersion},
-      ).onError((error, stackTrace) => fail(
-          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
-
-      // Make sure `listener.onUpdate()` called
-      // Wait for all evaluations fetched by the SDK automatically after `initialize`
-      // We will be ready to run specific tests after the `listener.onUpdate()` is called.
-      // Use Completer to convert a listener callback to a future
-
-      var completer = Completer();
-      when(() => listener.onUpdate()).thenAnswer((invocation) {
-        //Called, complete the future
-        completer.complete();
-      });
-      await completer.future.timeout(const Duration(seconds: 60), onTimeout: (){
-        // Fast fail
-        fail("The OnUpdate callback should called under 60 seconds");
-      });
-      var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
-      // The listener should called 1 times.
-      expect(onUpdateCallCount, 1,
-          reason:
-          "The OnUpdate callback should called when the evaluations are updated");
-      // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
-      // The `completer` instance may get more call more times.
-      // Because it already complete, it will throw an exception cause the test fail.
-      BKTClient.instance.removeEvaluationUpdateListener(listenToken);
-    });
+    setUp(() async {});
 
     tearDown(() async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(

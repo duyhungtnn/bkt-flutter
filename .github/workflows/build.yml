@@ -102,6 +102,10 @@ jobs:
           channel: stable
           # instead of "channel: stable", you could be more precise by specifying the exact version of Flutter you're using:
           # flutter-version: '<FLUTTER_VERSION>'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+          architecture: x64
 
       - name: Install Flutter dependencies
         run: flutter pub get
