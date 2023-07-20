@@ -76,7 +76,7 @@ jobs:
       - name: Run integration tests
         run: |
           cd example
-          flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
+          flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
 
       - name: Build the example app
         run: |
@@ -119,7 +119,7 @@ jobs:
           disable-animations: false
           channel: stable
           profile: Nexus 6
-          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
+          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
 
       - name: Build the example app
         run: |
