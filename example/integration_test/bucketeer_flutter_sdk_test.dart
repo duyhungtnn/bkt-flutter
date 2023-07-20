@@ -161,7 +161,6 @@ void main() async {
         fail("BKTClient.instance.track should success");
       });
 
-      await Future.delayed(Duration(milliseconds: 100));
       var flushResult = await BKTClient.instance.flush();
       expect(flushResult, const BKTResult.success());
     });
