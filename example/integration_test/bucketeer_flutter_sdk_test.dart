@@ -32,7 +32,7 @@ void main() async {
   const String featureIdDouble = "feature-flutter-e2e-double";
   const double featureIdDoubleValue = 2.1;
 
-  const String featureIdJson = " eature-flutter-e2e-json";
+  const String featureIdJson = "feature-flutter-e2e-json";
   const Map<String, dynamic> featureIdJsonValue = {"key": "value-1"};
 
   const String goalId = "goal-flutter-e2e-1";
