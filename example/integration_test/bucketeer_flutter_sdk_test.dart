@@ -273,7 +273,10 @@ void main() async {
         //Called, complete the future
         completer.complete();
       });
-      await completer.future;
+      await completer.future.timeout(const Duration(seconds: 60), onTimeout: (){
+        // Fast fail
+        fail("The OnUpdate callback should called under 60 seconds");
+      });
       var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
       // The listener should called 1 times.
       expect(onUpdateCallCount, 1,
@@ -283,7 +286,6 @@ void main() async {
       // The `completer` instance may get more call more times.
       // Because it already complete, it will throw an exception cause the test fail.
       BKTClient.instance.removeEvaluationUpdateListener(listenToken);
-
     });
 
     tearDown(() async {
