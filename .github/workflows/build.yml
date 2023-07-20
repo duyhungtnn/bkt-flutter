@@ -29,7 +29,10 @@ jobs:
         run: flutter pub get
 
       - name: Flutter lint
-        run: flutter analyze
+        run: |
+          flutter analyze
+          # lint check the example project
+          cd example && flutter analyze
 
       - name: Run unit tests
         run: flutter test test
@@ -75,6 +78,11 @@ jobs:
           cd example
           flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
 
+      - name: Build the example app
+        run: |
+          cd example 
+          flutter build ios
+
   # job responsible for running Flutter tests on Android devices
   android:
     needs: unit-tests
@@ -112,3 +120,8 @@ jobs:
           channel: stable
           profile: Nexus 6
           script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
+
+      - name: Build the example app
+        run: |
+          cd example 
+          flutter build apk
