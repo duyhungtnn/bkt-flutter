@@ -81,7 +81,7 @@ jobs:
       - name: Build the example app
         run: |
           cd example 
-          flutter build ios
+          flutter build ipa
 
   # job responsible for running Flutter tests on Android devices
   android:

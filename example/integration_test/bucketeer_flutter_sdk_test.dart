@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bucketeer_example/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -37,8 +39,6 @@ void main() async {
 
   const String goalId = "goal-flutter-e2e-1";
   const double goalValue = 1.0;
-
-  final listener = MockEvaluationUpdateListener();
 
   void runAllTests() {
     testWidgets('testStringVariation', (WidgetTester _) async {
@@ -200,8 +200,7 @@ void main() async {
           .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
           .eventsFlushInterval(Constants.exampleEventsFlushInterval)
           .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(
-              Constants.exampleBackgroundPollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion(appVersion)
           .build();
       final user = BKTUserBuilder().id("test_id").data({}).build();
@@ -245,8 +244,7 @@ void main() async {
           .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
           .eventsFlushInterval(Constants.exampleEventsFlushInterval)
           .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(
-              Constants.exampleBackgroundPollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion(appVersion)
           .build();
       final user = BKTUserBuilder().id(userId).data({}).build();
@@ -257,17 +255,35 @@ void main() async {
       );
       expect(result.isSuccess, true, reason: "initialize() should success");
 
-      BKTClient.instance.addEvaluationUpdateListener(listener);
+      final listener = MockEvaluationUpdateListener();
+      final listenToken = BKTClient.instance.addEvaluationUpdateListener(listener);
 
       await BKTClient.instance.updateUserAttributes(
         userAttributes: {'app_version': appVersion},
       ).onError((error, stackTrace) => fail(
           "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
 
-      var fetchEvaluationsResult =
-          await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
-      expect(fetchEvaluationsResult.isSuccess, true,
-          reason: "fetchEvaluations() should success");
+      // Make sure `listener.onUpdate()` called
+      // Wait for all evaluations fetched by the SDK automatically after `initialize`
+      // We will be ready to run specific tests after the `listener.onUpdate()` is called.
+      // Use Completer to convert a listener callback to a future
+
+      var completer = Completer();
+      when(() => listener.onUpdate()).thenAnswer((invocation) {
+        //Called, complete the future
+        completer.complete();
+      });
+      await completer.future;
+      var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
+      // The listener should called 1 times.
+      expect(onUpdateCallCount, 1,
+          reason:
+          "The OnUpdate callback should called when the evaluations are updated");
+      // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
+      // The `completer` instance may get more call more times.
+      // Because it already complete, it will throw an exception cause the test fail.
+      BKTClient.instance.removeEvaluationUpdateListener(listenToken);
+
     });
 
     tearDown(() async {
@@ -276,9 +292,6 @@ void main() async {
     });
 
     tearDownAll(() async {
-      // listener should be called from the native side
-      final onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
-      expect(onUpdateCallCount > 0, true);
       debugPrint("All tests passed");
     });
 
