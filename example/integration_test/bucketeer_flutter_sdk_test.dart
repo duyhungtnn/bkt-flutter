@@ -1,4 +1,5 @@
 import 'package:bucketeer_example/constant.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
@@ -10,54 +11,52 @@ class MockEvaluationUpdateListener extends Mock
 void main() async {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  const String APP_VERSION = "1.2.3";
-  const String OLD_APP_VERSION = "0.0.1";
-  const bool DEBUGGING = true;
+  const String appVersion = "1.2.3";
+  const String oldAppVersion = "0.0.1";
+  const bool debugging = true;
 
   // E2E Flutter
-  const String FEATURE_TAG = "flutter";
-  const String USER_ID = 'bucketeer-flutter-user-id-1';
+  const String featureTag = "flutter";
+  const String userId = 'bucketeer-flutter-user-id-1';
 
-  const String FEATURE_ID_BOOLEAN = "feature-flutter-e2e-boolean";
-  const bool FEATURE_ID_BOOLEAN_VALUE = true;
+  const String featureIdBoolean = "feature-flutter-e2e-boolean";
+  const bool featureIdBooleanValue = true;
 
-  const String FEATURE_ID_STRING = "feature-flutter-e2e-string";
-  const String FEATURE_ID_STRING_VALUE = "value-1";
-  const String FEATURE_ID_STRING_VALUE_UPDATE = "value-2";
+  const String featureIdString = "feature-flutter-e2e-string";
+  const String featureIdStringValue = "value-1";
+  const String featureIdStringValueUpdate = "value-2";
 
-  const String FEATURE_ID_INT = "feature-flutter-e2e-int";
-  const int FEATURE_ID_INT_VALUE = 10;
+  const String featureIdInt = "feature-flutter-e2e-int";
+  const int featureIdIntValue = 10;
 
-  const String FEATURE_ID_DOUBLE = "feature-flutter-e2e-double";
-  const double FEATURE_ID_DOUBLE_VALUE = 2.1;
+  const String featureIdDouble = "feature-flutter-e2e-double";
+  const double featureIdDoubleValue = 2.1;
 
-  const String FEATURE_ID_JSON = "feature-flutter-e2e-json";
-  const Map<String, dynamic> FEATURE_ID_JSON_VALUE = {"key": "value-1"};
+  const String featureIdJson = " eature-flutter-e2e-json";
+  const Map<String, dynamic> featureIdJsonValue = {"key": "value-1"};
 
-  const String GOAL_ID = "goal-flutter-e2e-1";
-  const double GOAL_VALUE = 1.0;
+  const String goalId = "goal-flutter-e2e-1";
+  const double goalValue = 1.0;
 
   final listener = MockEvaluationUpdateListener();
 
   void runAllTests() {
     testWidgets('testStringVariation', (WidgetTester _) async {
       expectLater(
-        BKTClient.instance
-            .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
+        BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
         completion(
-          equals(FEATURE_ID_STRING_VALUE),
+          equals(featureIdStringValue),
         ),
       );
     });
 
     testWidgets('testStringVariationDetail', (WidgetTester _) async {
-      var result =
-          await BKTClient.instance.evaluationDetails(FEATURE_ID_STRING);
+      var result = await BKTClient.instance.evaluationDetails(featureIdString);
       var expected = const BKTEvaluation(
-          id: "$FEATURE_ID_STRING:4:$USER_ID",
-          featureId: FEATURE_ID_STRING,
+          id: "$featureIdString:4:$userId",
+          featureId: featureIdString,
           featureVersion: 4,
-          userId: USER_ID,
+          userId: userId,
           variationId: "2e696c59-ac2f-4b54-82a7-4aecfdd80224",
           variationName: "variation 1",
           variationValue: "value-1",
@@ -68,20 +67,19 @@ void main() async {
     testWidgets('testDoubleVariation', (WidgetTester _) async {
       expectLater(
         BKTClient.instance
-            .doubleVariation(FEATURE_ID_DOUBLE, defaultValue: 100.0),
+            .doubleVariation(featureIdDouble, defaultValue: 100.0),
         completion(
-          equals(FEATURE_ID_DOUBLE_VALUE),
+          equals(featureIdDoubleValue),
         ),
       );
     });
     testWidgets('testDoubleVariationDetail', (WidgetTester _) async {
-      var result =
-          await BKTClient.instance.evaluationDetails(FEATURE_ID_DOUBLE);
+      var result = await BKTClient.instance.evaluationDetails(featureIdDouble);
       var expected = const BKTEvaluation(
-          id: "$FEATURE_ID_DOUBLE:3:$USER_ID",
-          featureId: FEATURE_ID_DOUBLE,
+          id: "$featureIdDouble:3:$userId",
+          featureId: featureIdDouble,
           featureVersion: 3,
-          userId: USER_ID,
+          userId: userId,
           variationId: "a141d1fa-85ef-4124-af5e-25374225474b",
           variationName: "variation 2.1",
           variationValue: "2.1",
@@ -91,21 +89,19 @@ void main() async {
 
     testWidgets('testBoolVariation', (WidgetTester _) async {
       expectLater(
-        BKTClient.instance
-            .boolVariation(FEATURE_ID_BOOLEAN, defaultValue: false),
+        BKTClient.instance.boolVariation(featureIdBoolean, defaultValue: false),
         completion(
-          equals(FEATURE_ID_BOOLEAN_VALUE),
+          equals(featureIdBooleanValue),
         ),
       );
     });
     testWidgets('testBoolVariationDetail', (WidgetTester _) async {
-      var result =
-          await BKTClient.instance.evaluationDetails(FEATURE_ID_BOOLEAN);
+      var result = await BKTClient.instance.evaluationDetails(featureIdBoolean);
       var expected = const BKTEvaluation(
-          id: "$FEATURE_ID_BOOLEAN:3:$USER_ID",
-          featureId: FEATURE_ID_BOOLEAN,
+          id: "$featureIdBoolean:3:$userId",
+          featureId: featureIdBoolean,
           featureVersion: 3,
-          userId: USER_ID,
+          userId: userId,
           variationId: "cbd42331-094e-4306-aacd-d7bf3f07cf65",
           variationName: "variation true",
           variationValue: "true",
@@ -115,19 +111,19 @@ void main() async {
 
     testWidgets('testIntVariation', (WidgetTester _) async {
       expectLater(
-        BKTClient.instance.intVariation(FEATURE_ID_INT, defaultValue: 1000),
+        BKTClient.instance.intVariation(featureIdInt, defaultValue: 1000),
         completion(
-          equals(FEATURE_ID_INT_VALUE),
+          equals(featureIdIntValue),
         ),
       );
     });
     testWidgets('testIntVariationDetail', (WidgetTester _) async {
-      var result = await BKTClient.instance.evaluationDetails(FEATURE_ID_INT);
+      var result = await BKTClient.instance.evaluationDetails(featureIdInt);
       var expected = const BKTEvaluation(
-          id: "$FEATURE_ID_INT:3:$USER_ID",
-          featureId: FEATURE_ID_INT,
+          id: "$featureIdInt:3:$userId",
+          featureId: featureIdInt,
           featureVersion: 3,
-          userId: USER_ID,
+          userId: userId,
           variationId: "36f14c02-300a-48f3-b4eb-b296afba3953",
           variationName: "variation 10",
           variationValue: "10",
@@ -137,16 +133,16 @@ void main() async {
 
     testWidgets('testJSONVariation', (WidgetTester _) async {
       var result = await BKTClient.instance
-          .jsonVariation(FEATURE_ID_JSON, defaultValue: {});
-      expect(result, FEATURE_ID_JSON_VALUE);
+          .jsonVariation(featureIdJson, defaultValue: {});
+      expect(result, featureIdJsonValue);
     });
     testWidgets('testJSONVariationDetail', (WidgetTester _) async {
-      var result = await BKTClient.instance.evaluationDetails(FEATURE_ID_JSON);
+      var result = await BKTClient.instance.evaluationDetails(featureIdJson);
       var expected = const BKTEvaluation(
-          id: "$FEATURE_ID_JSON:3:$USER_ID",
-          featureId: FEATURE_ID_JSON,
+          id: "$featureIdJson:3:$userId",
+          featureId: featureIdJson,
           featureVersion: 3,
-          userId: USER_ID,
+          userId: userId,
           variationId: "813070cf-7d6b-45a9-8713-cf9816d63997",
           variationName: "variation 1",
           variationValue: "{ \"key\": \"value-1\" }",
@@ -155,11 +151,9 @@ void main() async {
     });
 
     testWidgets('testTrack', (WidgetTester _) async {
-      await BKTClient.instance
-          .track(GOAL_ID, value: GOAL_VALUE)
-          .onError((error, stackTrace) {
-        fail("BKTClient.instance.track should success");
-      });
+      await BKTClient.instance.track(goalId, value: goalValue).onError(
+          (error, stackTrace) =>
+              fail("BKTClient.instance.track should success"));
 
       var flushResult = await BKTClient.instance.flush();
       expect(flushResult, const BKTResult.success());
@@ -167,15 +161,14 @@ void main() async {
 
     testWidgets('testEvaluationUpdateFlow', (WidgetTester _) async {
       await expectLater(
-        BKTClient.instance
-            .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
+        BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
         completion(
-          equals(FEATURE_ID_STRING_VALUE),
+          equals(featureIdStringValue),
         ),
       );
 
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': OLD_APP_VERSION},
+        userAttributes: {'app_version': oldAppVersion},
       ).onError(
         (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
@@ -189,10 +182,9 @@ void main() async {
       );
 
       await expectLater(
-        BKTClient.instance
-            .stringVariation(FEATURE_ID_STRING, defaultValue: "hh"),
+        BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
         completion(
-          equals(FEATURE_ID_STRING_VALUE_UPDATE),
+          equals(featureIdStringValueUpdate),
         ),
       );
     });
@@ -201,16 +193,16 @@ void main() async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
           "BKTClient.instance.destroy should success and should not throw exception"));
       final config = BKTConfigBuilder()
-          .apiKey(Constants.API_KEY)
-          .apiEndpoint(Constants.API_ENDPOINT)
-          .featureTag(FEATURE_TAG)
-          .debugging(DEBUGGING)
-          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
-          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
-          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(featureTag)
+          .debugging(debugging)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
           .backgroundPollingInterval(
-              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
-          .appVersion(APP_VERSION)
+              Constants.exampleBackgroundPollingInterval)
+          .appVersion(appVersion)
           .build();
       final user = BKTUserBuilder().id("test_id").data({}).build();
 
@@ -222,7 +214,7 @@ void main() async {
           reason: "initialize() should success");
 
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': APP_VERSION},
+        userAttributes: {'app_version': appVersion},
       ).onError(
         (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
@@ -233,7 +225,7 @@ void main() async {
           reason:
               "BKTClient.instance.currentUser() should return non-null user data");
       expect(currentUser!.id, "test_id", reason: "user_id should be `test_id`");
-      expect(currentUser.data, {'app_version': APP_VERSION},
+      expect(currentUser.data, {'app_version': appVersion},
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
@@ -246,18 +238,18 @@ void main() async {
   group('Bucketeer', () {
     setUp(() async {
       final config = BKTConfigBuilder()
-          .apiKey(Constants.API_KEY)
-          .apiEndpoint(Constants.API_ENDPOINT)
-          .featureTag(FEATURE_TAG)
-          .debugging(DEBUGGING)
-          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
-          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
-          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(featureTag)
+          .debugging(debugging)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
           .backgroundPollingInterval(
-              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
-          .appVersion(APP_VERSION)
+              Constants.exampleBackgroundPollingInterval)
+          .appVersion(appVersion)
           .build();
-      final user = BKTUserBuilder().id(USER_ID).data({}).build();
+      final user = BKTUserBuilder().id(userId).data({}).build();
 
       var result = await BKTClient.initialize(
         config: config,
@@ -268,10 +260,9 @@ void main() async {
       BKTClient.instance.addEvaluationUpdateListener(listener);
 
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': APP_VERSION},
+        userAttributes: {'app_version': appVersion},
       ).onError((error, stackTrace) => fail(
           "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
-      ;
 
       var fetchEvaluationsResult =
           await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
@@ -282,14 +273,13 @@ void main() async {
     tearDown(() async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
           "BKTClient.instance.destroy should success and should not throw exception"));
-      ;
     });
 
     tearDownAll(() async {
       // listener should be called from the native side
       final onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
       expect(onUpdateCallCount > 0, true);
-      print("All tests passed");
+      debugPrint("All tests passed");
     });
 
     runAllTests();

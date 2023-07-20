@@ -22,6 +22,8 @@ Future<Map<String, String>> userMap() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _AppState();
@@ -30,7 +32,7 @@ class MyApp extends StatefulWidget {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class _AppState extends State<MyApp>
@@ -46,7 +48,7 @@ class _AppState extends State<MyApp>
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Bucketeer Demo'),
+      home: const MyHomePage(title: 'Bucketeer Demo'),
     );
   }
 
@@ -62,15 +64,15 @@ class _AppState extends State<MyApp>
         await prefs.setString(keyUserId, userId);
       }
       final config = BKTConfigBuilder()
-          .apiKey(Constants.API_KEY)
-          .apiEndpoint(Constants.API_ENDPOINT)
-          .featureTag(Constants.EXAMPLE_FEATURE_TAG)
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(Constants.exampleFeatureTag)
           .debugging(true)
-          .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
-          .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
-          .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
           .backgroundPollingInterval(
-              Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+              Constants.exampleBackgroundPollingInterval)
           .appVersion("1.0.0")
           .build();
       final user =
@@ -102,24 +104,24 @@ class _AppState extends State<MyApp>
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
   final flagController =
-      TextEditingController(text: Constants.EXAMPLE_FEATURE_TAG);
+      TextEditingController(text: Constants.exampleFeatureTag);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
   final userIdController =
-      TextEditingController(text: Constants.EXAMPLE_USERID);
+      TextEditingController(text: Constants.exampleUserId);
 
   Future<void> _getStringVariation(String featureId) async {
     final result = await BKTClient.instance
         .stringVariation(featureId, defaultValue: 'default value');
-    print('getStringVariation: ${result}');
+    debugPrint('getStringVariation: $result');
     showSnackbar(
         context: context, title: 'getStringVariation', message: result);
   }
@@ -127,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getIntVariation(String featureId) async {
     final result =
         await BKTClient.instance.intVariation(featureId, defaultValue: 0);
-    print('getIntVariation: $result');
+    debugPrint('getIntVariation: $result');
     showSnackbar(
         context: context, title: 'getIntVariation', message: '$result');
   }
@@ -135,7 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getDoubleVariation(String featureId) async {
     final result =
         await BKTClient.instance.doubleVariation(featureId, defaultValue: 0.0);
-    print('getDoubleVariation: $result');
+    debugPrint('getDoubleVariation: $result');
     showSnackbar(
         context: context, title: 'getDoubleVariation', message: '$result');
   }
@@ -143,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getBoolVariation(String featureId) async {
     final result =
         await BKTClient.instance.boolVariation(featureId, defaultValue: false);
-    print('getBoolVariation: $result');
+    debugPrint('getBoolVariation: $result');
     showSnackbar(
         context: context, title: 'getBoolVariation', message: '$result');
   }
@@ -151,14 +153,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getJSONVariation(String featureId) async {
     final result =
         await BKTClient.instance.jsonVariation(featureId, defaultValue: {});
-    print('getJSONVariation: $result');
+    debugPrint('getJSONVariation: $result');
     showSnackbar(
         context: context, title: 'getJSONVariation', message: '$result');
   }
 
   Future<void> _getEvaluation(String featureId) async {
     final result = await BKTClient.instance.evaluationDetails(featureId);
-    print('Successful get evaluation details');
+    debugPrint('Successful get evaluation details');
     if (result != null) {
       showSnackbar(
           context: context,
@@ -169,7 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _sendGoal(String goalId) async {
     await BKTClient.instance.track(goalId, value: 3.1412);
-    print('Successful the send goal.');
+    debugPrint('Successful the send goal.');
     showSnackbar(
         context: context,
         title: 'sendGoal',
@@ -179,15 +181,15 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _switchUser(String userId) async {
     // note: please initialize the Bucketeer again when switching the user
     final config = BKTConfigBuilder()
-        .apiKey(Constants.API_KEY)
-        .apiEndpoint(Constants.API_ENDPOINT)
-        .featureTag(Constants.EXAMPLE_FEATURE_TAG)
+        .apiKey(Constants.apiKey)
+        .apiEndpoint(Constants.apiEndpoint)
+        .featureTag(Constants.exampleFeatureTag)
         .debugging(true)
-        .eventsMaxQueueSize(Constants.EXAMPLE_EVENT_MAX_QUEUE_SIZE)
-        .eventsFlushInterval(Constants.EXAMPLE_EVENTS_FLUSH_INTERVAL)
-        .pollingInterval(Constants.EXAMPLE_POLLING_INTERVAL)
+        .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+        .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+        .pollingInterval(Constants.examplePollingInterval)
         .backgroundPollingInterval(
-            Constants.EXAMPLE_BACKGROUND_POLLING_INTERVAL)
+            Constants.exampleBackgroundPollingInterval)
         .appVersion("1.0.0")
         .build();
     final user =
@@ -201,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
     await BKTClient.instance.updateUserAttributes(
       userAttributes: {'app_version': "1.2.4"},
     );
-    print('Successful the switchUser');
+    debugPrint('Successful the switchUser');
     showSnackbar(
         context: context,
         title: 'setUser',
@@ -211,12 +213,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _getCurrentUser() async {
     final user = await BKTClient.instance.currentUser();
     if (user != null ) {
-      print('Successful the getUser');
+      debugPrint('Successful the getUser');
       showSnackbar(
           context: context,
           title: 'getUser(${user.id})',
-          message: '${user.data.toString()}');
-    };
+          message: user.data.toString());
+    }
   }
 
   @override
@@ -237,56 +239,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'Feature Flag Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextFormField(
                     controller: flagController,
                     decoration:
-                        InputDecoration(hintText: 'bucketeer-feature-flag'),
+                        const InputDecoration(hintText: 'bucketeer-feature-flag'),
                   ),
                   const SizedBox(height: 12),
-                  Text('GET VARIATION',
+                  const Text('GET VARIATION',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
                       TextButton(
-                          child: Text('GET String param'),
+                          child: const Text('GET String param'),
                           onPressed: () async {
                             return _getStringVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET int param'),
+                          child: const Text('GET int param'),
                           onPressed: () async {
                             return _getIntVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET double params'),
+                          child: const Text('GET double params'),
                           onPressed: () async {
                             return _getDoubleVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET bool params'),
+                          child: const Text('GET bool params'),
                           onPressed: () async {
                             return _getBoolVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET json params'),
+                          child: const Text('GET json params'),
                           onPressed: () async {
                             return _getJSONVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET evaluation'),
+                          child: const Text('GET evaluation'),
                           onPressed: () async {
                             return _getEvaluation(flagController.text);
                           }),
                     ],
                   ),
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'Goal Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -295,12 +297,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(hintText: goalController.text),
                   ),
                   TextButton(
-                      child: Text('SEND GOAL'),
+                      child: const Text('SEND GOAL'),
                       onPressed: () async {
                         return _sendGoal(goalController.text);
                       }),
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'User Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -312,12 +314,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     children: [
                       TextButton(
-                          child: Text('SWITCH USER'),
+                          child: const Text('SWITCH USER'),
                           onPressed: () async {
                             return _switchUser(userIdController.text);
                           }),
                       TextButton(
-                        child: Text('GET CURRENT USER'),
+                        child: const Text('GET CURRENT USER'),
                         onPressed: () async {
                           return _getCurrentUser();
                         },
