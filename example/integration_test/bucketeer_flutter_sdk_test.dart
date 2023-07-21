@@ -211,7 +211,7 @@ void main() async {
       var user = await BKTClient.instance.currentUser();
       expect(user, BKTUserBuilder().id(userId).customAttributes({}).build());
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': appVersion},
+        {'app_version': appVersion},
       ).onError((error, stackTrace) => fail(
           "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
       user = await BKTClient.instance.currentUser();
@@ -241,7 +241,7 @@ void main() async {
       );
 
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': oldAppVersion},
+        {'app_version': oldAppVersion},
       ).onError(
         (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
@@ -286,7 +286,7 @@ void main() async {
           reason: "initialize() should success");
 
       await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': appVersion},
+        {'app_version': appVersion},
       ).onError(
         (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
@@ -310,9 +310,7 @@ void main() async {
   group('Bucketeer', () {
     setUp(() async {});
 
-    tearDown(() async {
-
-    });
+    tearDown(() async {});
 
     tearDownAll(() async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(

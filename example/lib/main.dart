@@ -188,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
       user: user,
     );
     await BKTClient.instance.updateUserAttributes(
-      userAttributes: {'app_version': "1.2.4"},
+      {'app_version': "1.2.4"},
     );
     debugPrint('Successful the switchUser');
     showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
