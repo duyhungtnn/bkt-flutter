@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bucketeer_example/constant.dart';
 import 'package:flutter/cupertino.dart';
@@ -207,6 +208,31 @@ void main() async {
       expect(flushResult, const BKTResult.success());
     });
 
+    testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
+      var user = await BKTClient.instance.currentUser();
+      expect(user, BKTUserBuilder().id(userId).data({}).build());
+      await BKTClient.instance.updateUserAttributes(
+        userAttributes: {'app_version': appVersion},
+      ).onError((error, stackTrace) => fail(
+          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
+      user = await BKTClient.instance.currentUser();
+      expect(
+          user,
+          BKTUserBuilder()
+              .id(userId)
+              .data({'app_version': appVersion}).build());
+    });
+
+    testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
+      var fetchEvaluationsResult = await BKTClient.instance
+          .fetchEvaluations(timeoutMillis: 30000)
+          .timeout(const Duration(milliseconds: 31000), onTimeout: () {
+        fail("fetchEvaluations should time out under 30000ms");
+      });
+      expect(fetchEvaluationsResult.isSuccess, true,
+          reason: "fetchEvaluations() should success");
+    });
+
     testWidgets('testEvaluationUpdateFlow', (WidgetTester _) async {
       await expectLater(
         BKTClient.instance.stringVariation(featureIdString, defaultValue: "hh"),
@@ -277,31 +303,6 @@ void main() async {
 
       var fetchEvaluationsResult =
           await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
-      expect(fetchEvaluationsResult.isSuccess, true,
-          reason: "fetchEvaluations() should success");
-    });
-
-    testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
-      var user = await BKTClient.instance.currentUser();
-      expect(user, BKTUserBuilder().id(userId).data({}).build());
-      await BKTClient.instance.updateUserAttributes(
-        userAttributes: {'app_version': appVersion},
-      ).onError((error, stackTrace) => fail(
-          "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
-      user = await BKTClient.instance.currentUser();
-      expect(
-          user,
-          BKTUserBuilder()
-              .id(userId)
-              .data({'app_version': appVersion}).build());
-    });
-
-    testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
-      var fetchEvaluationsResult = await BKTClient.instance
-          .fetchEvaluations(timeoutMillis: 30000)
-          .timeout(const Duration(milliseconds: 31000), onTimeout: () {
-        fail("fetchEvaluations should time out under 30000ms");
-      });
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
