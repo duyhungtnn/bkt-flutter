@@ -24,6 +24,10 @@ jobs:
           channel: stable
           # instead of "channel: stable", you could be more precise by specifying the exact version of Flutter you're using:
           # flutter-version: '<FLUTTER_VERSION>'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+          architecture: x64
 
       - name: Install Flutter dependencies
         run: flutter pub get
@@ -80,12 +84,7 @@ jobs:
       - name: Run integration tests
         run: |
           cd example
-          flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
-
-      - name: Build the example app
-        run: |
-          cd example 
-          flutter build ipa
+          flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
 
   # job responsible for running Flutter tests on Android devices
   android:
@@ -127,7 +126,27 @@ jobs:
           disable-animations: false
           channel: stable
           profile: Nexus 6
-          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test --verbose
+          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
+
+  build-example-app:
+    needs: unit-tests
+    runs-on: macos-13
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # instead of "channel: stable", you could be more precise by specifying the exact version of Flutter you're using:
+          # flutter-version: '<FLUTTER_VERSION>'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+          architecture: x64
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
 
       - name: Build the example app
         run: |
