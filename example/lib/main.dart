@@ -75,7 +75,7 @@ class _AppState extends State<MyApp>
           .appVersion("1.0.0")
           .build();
       final user =
-          BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
+          BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
       final result = await BKTClient.initialize(config: config, user: user);
       if (result.isSuccess) {
         _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .appVersion("1.0.0")
         .build();
     final user =
-        BKTUserBuilder().id(userId).data({'app_version': "1.2.3"}).build();
+        BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
 
     await BKTClient.instance.destroy();
     await BKTClient.initialize(
@@ -198,7 +198,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final user = await BKTClient.instance.currentUser();
     if (user != null) {
       debugPrint('Successful the getUser');
-      showSnackbar(title: 'getUser(${user.id})', message: user.data.toString());
+      showSnackbar(title: 'getUser(${user.id})', message: user.attributes.toString());
     }
   }
 

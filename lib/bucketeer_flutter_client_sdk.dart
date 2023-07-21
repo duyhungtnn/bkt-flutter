@@ -50,7 +50,7 @@ class BKTClient {
         'appVersion': config.appVersion,
         'timeoutMillis': timeoutMillis,
         'userId': user.id,
-        'userAttributes': user.data,
+        'userAttributes': user.attributes,
       },
     );
     // The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
@@ -171,7 +171,7 @@ class BKTClient {
       customMapping: (response) {
         return BKTUserBuilder()
             .id(response['id'])
-            .data(
+            .customAttributes(
               Map<String, String>.from(response['data']),
             )
             .build();

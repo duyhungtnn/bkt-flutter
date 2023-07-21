@@ -95,7 +95,7 @@ void main() {
         .appVersion("1.0.0")
         .build();
     final user =
-        BKTUserBuilder().id("2023").data({'app_version': '1.0.0'}).build();
+        BKTUserBuilder().id("2023").customAttributes({'app_version': '1.0.0'}).build();
 
     expectLater(
       BKTClient.initialize(
@@ -125,7 +125,7 @@ void main() {
       BKTClient.instance.currentUser(),
       completion(
         equals(
-          BKTUserBuilder().id('userId').data(
+          BKTUserBuilder().id('userId').customAttributes(
             {
               'appVersion': '9.9.9',
               'platform': 'iOS',
@@ -221,7 +221,7 @@ void main() {
         .appVersion("1.0.0")
         .build();
     final user =
-        BKTUserBuilder().id("2023").data({'app_version': '1.0.0'}).build();
+        BKTUserBuilder().id("2023").customAttributes({'app_version': '1.0.0'}).build();
 
     expectLater(
       BKTClient.initialize(

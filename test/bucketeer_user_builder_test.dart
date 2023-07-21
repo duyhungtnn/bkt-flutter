@@ -7,8 +7,8 @@ void main() {
   test('BKTUserBuilder Tests', () async {
     final builderWithError = BKTUserBuilder().id("");
     expect(() => builderWithError.build(), throwsA(isA<ArgumentError>()));
-    final builder = BKTUserBuilder().id("1233").data(const {"name":"test"});
+    final builder = BKTUserBuilder().id("1233").customAttributes(const {"name":"test"});
     expect(builder.build().id, "1233");
-    expect(builder.build().data, const {"name":"test"});
+    expect(builder.build().attributes, const {"name":"test"});
   });
 }

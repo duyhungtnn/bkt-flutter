@@ -54,7 +54,7 @@ void main() async {
           .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion(appVersion)
           .build();
-      final user = BKTUserBuilder().id(userId).data({}).build();
+      final user = BKTUserBuilder().id(userId).customAttributes({}).build();
 
       await BKTClient.initialize(
         config: config,
@@ -209,7 +209,7 @@ void main() async {
 
     testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
       var user = await BKTClient.instance.currentUser();
-      expect(user, BKTUserBuilder().id(userId).data({}).build());
+      expect(user, BKTUserBuilder().id(userId).customAttributes({}).build());
       await BKTClient.instance.updateUserAttributes(
         userAttributes: {'app_version': appVersion},
       ).onError((error, stackTrace) => fail(
@@ -219,7 +219,7 @@ void main() async {
           user,
           BKTUserBuilder()
               .id(userId)
-              .data({'app_version': appVersion}).build());
+              .customAttributes({'app_version': appVersion}).build());
     });
 
     testWidgets('testFetchEvaluationsWithTimeout', (WidgetTester _) async {
@@ -276,7 +276,7 @@ void main() async {
           .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion(appVersion)
           .build();
-      final user = BKTUserBuilder().id("test_id").data({}).build();
+      final user = BKTUserBuilder().id("test_id").customAttributes({}).build();
 
       var instanceResult = await BKTClient.initialize(
         config: config,
@@ -297,7 +297,7 @@ void main() async {
           reason:
               "BKTClient.instance.currentUser() should return non-null user data");
       expect(currentUser!.id, "test_id", reason: "user_id should be `test_id`");
-      expect(currentUser.data, {'app_version': appVersion},
+      expect(currentUser.attributes, {'app_version': appVersion},
           reason: "user_data should match");
 
       var fetchEvaluationsResult =

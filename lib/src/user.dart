@@ -4,39 +4,39 @@ import 'package:flutter/foundation.dart';
 class BKTUser {
   const BKTUser._({
     required this.id,
-    required this.data,
+    required this.attributes,
   });
 
   final String id;
-  final Map<String, String> data;
+  final Map<String, String> attributes;
 
   @override
   bool operator ==(Object other) =>
       other is BKTUser &&
       runtimeType == other.runtimeType &&
       id == other.id &&
-      mapEquals(data, other.data);
+      mapEquals(attributes, other.attributes);
 
   @override
-  int get hashCode => id.hashCode ^ data.hashCode;
+  int get hashCode => id.hashCode ^ attributes.hashCode;
 
   @override
   String toString() {
-    return 'BucketeerUser{id: $id, data: $data}';
+    return 'BucketeerUser{id: $id, data: $attributes}';
   }
 }
 
 class BKTUserBuilder {
   String _id = "";
-  Map<String, String> _data = {};
+  Map<String, String> _attributes = {};
 
   BKTUserBuilder id(String id) {
     _id = id;
     return this;
   }
 
-  BKTUserBuilder data(Map<String, String> data) {
-    _data = data;
+  BKTUserBuilder customAttributes(Map<String, String> data) {
+    _attributes = data;
     return this;
   }
 
@@ -47,6 +47,6 @@ class BKTUserBuilder {
     if (_id.isEmpty) {
       throw ArgumentError("id is required");
     }
-    return BKTUser._(id: _id, data: _data);
+    return BKTUser._(id: _id, attributes: _attributes);
   }
 }
