@@ -182,9 +182,7 @@ class BKTClient {
     });
   }
 
-  Future<void> updateUserAttributes({
-    required Map<String, String> userAttributes,
-  }) async {
+  Future<void> updateUserAttributes(Map<String, String> userAttributes) async {
     await _invokeMethod(
       CallMethods.updateUserAttributes.name,
       argument: userAttributes,

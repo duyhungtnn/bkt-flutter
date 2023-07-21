@@ -94,8 +94,9 @@ void main() {
         .backgroundPollingInterval(10000)
         .appVersion("1.0.0")
         .build();
-    final user =
-        BKTUserBuilder().id("2023").customAttributes({'app_version': '1.0.0'}).build();
+    final user = BKTUserBuilder()
+        .id("2023")
+        .customAttributes({'app_version': '1.0.0'}).build();
 
     expectLater(
       BKTClient.initialize(
@@ -195,7 +196,7 @@ void main() {
 
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
-      userAttributes: {'app_version': '1.0.0'},
+      {'app_version': '1.0.0'},
     ).onError((error, stackTrace) => fail(
         "BKTClient.instance.updateUserAttributes should not throw an exception"));
 
@@ -220,8 +221,9 @@ void main() {
         .backgroundPollingInterval(10000)
         .appVersion("1.0.0")
         .build();
-    final user =
-        BKTUserBuilder().id("2023").customAttributes({'app_version': '1.0.0'}).build();
+    final user = BKTUserBuilder()
+        .id("2023")
+        .customAttributes({'app_version': '1.0.0'}).build();
 
     expectLater(
       BKTClient.initialize(
@@ -263,7 +265,7 @@ void main() {
 
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
-      userAttributes: {'app_version': '1.0.0'},
+      {'app_version': '1.0.0'},
     ).onError((error, stackTrace) => fail(
         "BKTClient.instance.updateUserAttributes should not throw an exception"));
 
