@@ -1,0 +1,40 @@
+name: Pull Request
+
+on:
+  pull_request:
+    paths-ignore:
+      - '*.md'
+  workflow_dispatch:
+
+concurrency:
+  group: pr-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: macos-13 # or macos-latest if you prefer, but be aware that the available simulators could be different if you run a different version
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          # instead of "channel: stable", you could be more precise by specifying the exact version of Flutter you're using:
+          # flutter-version: '<FLUTTER_VERSION>'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:' # optional, change this to force refresh cache
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:' # optional, change this to specify the cache path
+          architecture: x64
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Flutter lint
+        run: |
+          flutter analyze
+          # lint check the example project
+          cd example && flutter analyze
+
+      - name: Run unit tests
+        run: flutter test test

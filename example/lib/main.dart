@@ -1,8 +1,10 @@
 import 'package:bucketeer_example/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bucketeer/bucketeer.dart';
+import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ua_client_hints/ua_client_hints.dart';
+
+import 'constant.dart';
 
 const keyUserId = 'key_user_id';
 
@@ -20,6 +22,8 @@ Future<Map<String, String>> userMap() async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return _AppState();
@@ -28,21 +32,14 @@ class MyApp extends StatefulWidget {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Bucketeer.instance
-    ..initialize(
-      apiKey:
-          '****************************************************************',
-      endpoint: '*********.bucketeer.jp',
-      featureTag: 'Flutter',
-      debugging: true,
-      logSendingIntervalMillis: 3000,
-      logSendingMaxBatchQueueCount: 3,
-      pollingEvaluationIntervalMillis: 3000,
-    );
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-class _AppState extends State<MyApp> with WidgetsBindingObserver {
+class _AppState extends State<MyApp>
+    with WidgetsBindingObserver
+    implements BKTEvaluationUpdateListener {
+  late final String _listenToken;
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,18 +48,8 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: 'Bucketeer Demo'),
+      home: const MyHomePage(title: 'Bucketeer Demo'),
     );
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      Bucketeer.instance.start();
-    } else if (state == AppLifecycleState.paused) {
-      Bucketeer.instance.stop();
-    }
   }
 
   @override
@@ -71,12 +58,30 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
     Future(() async {
       // Generate UserId for Demo
       final prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString(keyUserId);
+      var userId = prefs.getString(keyUserId);
       if (userId == null) {
-        await prefs.setString(
-            keyUserId, 'demo-userId-${DateTime.now().millisecondsSinceEpoch}');
-      } else {
-        await Bucketeer.instance.setUser(userId, userMap: await userMap());
+        userId = 'demo-userId-${DateTime.now().millisecondsSinceEpoch}';
+        await prefs.setString(keyUserId, userId);
+      }
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(Constants.exampleFeatureTag)
+          .debugging(true)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+          .appVersion("1.0.0")
+          .build();
+      final user =
+          BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
+      final result = await BKTClient.initialize(config: config, user: user);
+      if (result.isSuccess) {
+        _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
+      } else if (result.isFailure) {
+        final errorMessage = result.asFailure.message;
+        debugPrint(errorMessage);
       }
     });
     WidgetsBinding.instance.addObserver(this);
@@ -86,112 +91,115 @@ class _AppState extends State<MyApp> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    BKTClient.instance.removeEvaluationUpdateListener(_listenToken);
+  }
+
+  @override
+  void onUpdate() {
+    // EvaluationUpdateListener onUpdate()
+    debugPrint("EvaluationUpdateListener.onUpdate() called");
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final flagController = TextEditingController(text: 'bucketeer-feature-flag');
+  final flagController =
+      TextEditingController(text: Constants.exampleFeatureTag);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
-  final userIdController =
-      TextEditingController(text: 'bucketeer-flutter-user-id');
+  final userIdController = TextEditingController(text: Constants.exampleUserId);
 
   Future<void> _getStringVariation(String featureId) async {
-    final result = await Bucketeer.instance
-        .getStringVariation(featureId, defaultValue: 'default value');
-    result.ifSuccess((data) {
-      print('getStringVariation: ${data}');
-      showSnackbar(
-          context: context, title: 'getStringVariation', message: data);
-    });
+    final result = await BKTClient.instance
+        .stringVariation(featureId, defaultValue: 'default value');
+    debugPrint('getStringVariation: $result');
+    showSnackbar(title: 'getStringVariation', message: result);
   }
 
   Future<void> _getIntVariation(String featureId) async {
     final result =
-        await Bucketeer.instance.getIntVariation(featureId, defaultValue: 0);
-    result.ifSuccess((data) {
-      print('getIntVariation: $data');
-      showSnackbar(
-          context: context, title: 'getIntVariation', message: '$data');
-    });
+        await BKTClient.instance.intVariation(featureId, defaultValue: 0);
+    debugPrint('getIntVariation: $result');
+    showSnackbar(title: 'getIntVariation', message: '$result');
   }
 
   Future<void> _getDoubleVariation(String featureId) async {
-    final result = await Bucketeer.instance
-        .getDoubleVariation(featureId, defaultValue: 0.0);
-    result.ifSuccess((data) {
-      print('getDoubleVariation: $data');
-      showSnackbar(
-          context: context, title: 'getDoubleVariation', message: '$data');
-    });
+    final result =
+        await BKTClient.instance.doubleVariation(featureId, defaultValue: 0.0);
+    debugPrint('getDoubleVariation: $result');
+    showSnackbar(title: 'getDoubleVariation', message: '$result');
   }
 
   Future<void> _getBoolVariation(String featureId) async {
-    final result = await Bucketeer.instance
-        .getBoolVariation(featureId, defaultValue: false);
-    result.ifSuccess((data) {
-      print('getBoolVariation: $data');
-      showSnackbar(
-          context: context, title: 'getBoolVariation', message: '$data');
-    });
+    final result =
+        await BKTClient.instance.boolVariation(featureId, defaultValue: false);
+    debugPrint('getBoolVariation: $result');
+    showSnackbar(title: 'getBoolVariation', message: '$result');
+  }
+
+  Future<void> _getJSONVariation(String featureId) async {
+    final result =
+        await BKTClient.instance.jsonVariation(featureId, defaultValue: {});
+    debugPrint('getJSONVariation: $result');
+    showSnackbar(title: 'getJSONVariation', message: '$result');
   }
 
   Future<void> _getEvaluation(String featureId) async {
-    final result = await Bucketeer.instance.getEvaluation(featureId);
-    result.ifSuccess((evaluation) {
-      print('Successful the evaluation');
+    final result = await BKTClient.instance.evaluationDetails(featureId);
+    debugPrint('Successful get evaluation details');
+    if (result != null) {
       showSnackbar(
-          context: context,
-          title: 'getEvaluation(${evaluation.toString()})',
+          title: 'getEvaluation(${result.toString()})',
           message: 'Successful the evaluation.');
-    });
-  }
-
-  Future<void> _sendGoal(String goalId) async {
-    final result = await Bucketeer.instance.track(goalId, value: 3.1412);
-    if (result.isSuccess) {
-      print('Successful the send goal.');
-      showSnackbar(
-          context: context,
-          title: 'sendGoal',
-          message: 'Successful the send goal.');
-    } else {
-      print('Failed the send goal.');
-      showSnackbar(
-          context: context,
-          title: 'sendGoal',
-          message: 'Failed the send goal.');
     }
   }
 
+  Future<void> _sendGoal(String goalId) async {
+    await BKTClient.instance.track(goalId, value: 3.1412);
+    debugPrint('Successful the send goal.');
+    showSnackbar(title: 'sendGoal', message: 'Successful the send goal.');
+  }
+
   Future<void> _switchUser(String userId) async {
-    final result =
-        await Bucketeer.instance.setUser(userId, userMap: await userMap());
-    result.ifSuccess((_) {
-      print('Successful the setUser');
-      showSnackbar(
-          context: context,
-          title: 'setUser',
-          message: 'Successful the setUser.');
-    });
+    // note: please initialize the Bucketeer again when switching the user
+    final config = BKTConfigBuilder()
+        .apiKey(Constants.apiKey)
+        .apiEndpoint(Constants.apiEndpoint)
+        .featureTag(Constants.exampleFeatureTag)
+        .debugging(true)
+        .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+        .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+        .pollingInterval(Constants.examplePollingInterval)
+        .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+        .appVersion("1.0.0")
+        .build();
+    final user =
+        BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
+
+    await BKTClient.instance.destroy();
+    await BKTClient.initialize(
+      config: config,
+      user: user,
+    );
+    await BKTClient.instance.updateUserAttributes(
+      {'app_version': "1.2.4"},
+    );
+    debugPrint('Successful the switchUser');
+    showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
   }
 
   Future<void> _getCurrentUser() async {
-    final result = await Bucketeer.instance.getUser();
-    result.ifSuccess((user) {
-      print('Successful the getUser');
-      showSnackbar(
-          context: context,
-          title: 'getUser(${user.id})',
-          message: 'Successful the getUser.');
-    });
+    final user = await BKTClient.instance.currentUser();
+    if (user != null) {
+      debugPrint('Successful the getUser');
+      showSnackbar(title: 'getUser(${user.id})', message: user.attributes.toString());
+    }
   }
 
   @override
@@ -212,51 +220,56 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'Feature Flag Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   TextFormField(
                     controller: flagController,
-                    decoration:
-                        InputDecoration(hintText: 'bucketeer-feature-flag'),
+                    decoration: const InputDecoration(
+                        hintText: 'bucketeer-feature-flag'),
                   ),
                   const SizedBox(height: 12),
-                  Text('GET VARIATION',
+                  const Text('GET VARIATION',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Wrap(
                     spacing: 8,
                     children: [
                       TextButton(
-                          child: Text('GET String param'),
+                          child: const Text('GET String param'),
                           onPressed: () async {
                             return _getStringVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET int param'),
+                          child: const Text('GET int param'),
                           onPressed: () async {
                             return _getIntVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET double params'),
+                          child: const Text('GET double params'),
                           onPressed: () async {
                             return _getDoubleVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET bool params'),
+                          child: const Text('GET bool params'),
                           onPressed: () async {
                             return _getBoolVariation(flagController.text);
                           }),
                       TextButton(
-                          child: Text('GET evalution'),
+                          child: const Text('GET json params'),
+                          onPressed: () async {
+                            return _getJSONVariation(flagController.text);
+                          }),
+                      TextButton(
+                          child: const Text('GET evaluation'),
                           onPressed: () async {
                             return _getEvaluation(flagController.text);
                           }),
                     ],
                   ),
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'Goal Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -265,12 +278,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     decoration: InputDecoration(hintText: goalController.text),
                   ),
                   TextButton(
-                      child: Text('SEND GOAL'),
+                      child: const Text('SEND GOAL'),
                       onPressed: () async {
                         return _sendGoal(goalController.text);
                       }),
-                  SizedBox(height: 36.0),
-                  Text(
+                  const SizedBox(height: 36.0),
+                  const Text(
                     'User Id',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -282,12 +295,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   Row(
                     children: [
                       TextButton(
-                          child: Text('SWITCH USER'),
+                          child: const Text('SWITCH USER'),
                           onPressed: () async {
                             return _switchUser(userIdController.text);
                           }),
                       TextButton(
-                        child: Text('GET CURRENT USER'),
+                        child: const Text('GET CURRENT USER'),
                         onPressed: () async {
                           return _getCurrentUser();
                         },
