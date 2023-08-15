@@ -16,7 +16,7 @@ build-android:
 	cd example && flutter build apk && cd ..
 
 build-ios:
-	cd example && flutter build ios --no-codesign && cd ..
+	cd example && flutter build ios --no-codesign --no-tree-shake-icons && cd ..
 
 unit-test:
 	flutter test --coverage --coverage-path=./coverage/lcov.info
