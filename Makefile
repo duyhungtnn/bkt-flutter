@@ -13,7 +13,7 @@ format:
 	flutter format lib/ example/lib
 
 build-android:
-	cd example && flutter build apk && cd ..
+	cd example && flutter build apk --no-tree-shake-icons && cd ..
 
 build-ios:
 	cd example && flutter build ios --no-codesign --no-tree-shake-icons && cd ..
