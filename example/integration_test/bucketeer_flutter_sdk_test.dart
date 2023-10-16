@@ -43,23 +43,6 @@ void main() async {
   void runAllTests() {
     testWidgets('Initialize the SDK and waiting for evaluations data ready',
         (WidgetTester _) async {
-      final config = BKTConfigBuilder()
-          .apiKey(Constants.apiKey)
-          .apiEndpoint(Constants.apiEndpoint)
-          .featureTag(featureTag)
-          .debugging(debugging)
-          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
-          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
-          .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
-          .appVersion(appVersion)
-          .build();
-      final user = BKTUserBuilder().id(userId).customAttributes({}).build();
-
-      await BKTClient.initialize(
-        config: config,
-        user: user,
-      ).onError((error, stackTrace) => fail("initialize() should success"));
 
       // final listener = MockEvaluationUpdateListener();
       // final listenToken =
@@ -308,6 +291,26 @@ void main() async {
   }
 
   group('Bucketeer', () {
+    setUpAll(() async {
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .featureTag(featureTag)
+          .debugging(debugging)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+          .appVersion(appVersion)
+          .build();
+      final user = BKTUserBuilder().id(userId).customAttributes({}).build();
+
+      await BKTClient.initialize(
+        config: config,
+        user: user,
+      ).onError((error, stackTrace) => fail("initialize() should success"));
+    });
+
     setUp(() async {});
 
     tearDown(() async {});

@@ -1,6 +1,7 @@
 package io.bucketeer.sdk.flutter
 
 import android.content.Context
+import android.util.Log
 import io.bucketeer.sdk.android.BKTClient
 import io.bucketeer.sdk.android.BKTConfig
 import io.bucketeer.sdk.android.BKTException
@@ -30,6 +31,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     const val METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
     const val EVALUATION_UPDATE_EVENT_CHANNEL_NAME =
       "$METHOD_CHANNEL_NAME::evaluation.update.listener"
+    const val TAG = "BKTFlutterClientSdkPlugin"
   }
 
   private var applicationContext: Context? = null
@@ -142,6 +144,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           BKTClient.getInstance().addEvaluationUpdateListener(
             evaluationUpdateListener
           )
+          Log.d(TAG, "BKTClient.initialize okay")
           success(methodChannelResult)
         }
       }
