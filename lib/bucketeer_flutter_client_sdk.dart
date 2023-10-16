@@ -154,12 +154,14 @@ class BKTClient {
     String goalId, {
     double? value,
   }) async {
-    await _invokeMethod(
-      CallMethods.track.name,
-      argument: {
-        'goalId': goalId,
-        'value': value,
-      },
+    await _statusGuard(
+      await _invokeMethod(
+        CallMethods.track.name,
+        argument: {
+          'goalId': goalId,
+          'value': value,
+        },
+      ),
     ).then((value) {}, onError: (error) {
       debugPrint("track fail ${error?.toString()}");
     });
@@ -183,9 +185,11 @@ class BKTClient {
   }
 
   Future<void> updateUserAttributes(Map<String, String> userAttributes) async {
-    await _invokeMethod(
-      CallMethods.updateUserAttributes.name,
-      argument: userAttributes,
+    await _statusGuard(
+        await _invokeMethod(
+          CallMethods.updateUserAttributes.name,
+          argument: userAttributes,
+        ),
     ).then((value) {}, onError: (error) {
       debugPrint("updateUserAttributes fail ${error?.toString()}");
     });
@@ -211,12 +215,14 @@ class BKTClient {
   }
 
   Future<void> destroy() async {
-    await _invokeMethod(CallMethods.destroy.name).then(
-          (value) async {
-        // Remove all listener for the current client
-        clearEvaluationUpdateListeners();
-        return value;
-      },
+    await _statusGuard(
+        await _invokeMethod(CallMethods.destroy.name).then(
+              (value) async {
+            // Remove all listener for the current client
+            clearEvaluationUpdateListeners();
+            return value;
+          },
+        ),
     ).then((value) {}, onError: (error) {
       debugPrint("destroy fail ${error?.toString()}");
     });
@@ -258,8 +264,9 @@ class BKTClient {
     _dispatcher.clearEvaluationUpdateListeners();
   }
 
-  // _valueGuard will parse the response from the native side
-  // The response format {'status':1, 'response': value}
+  // _valueGuard should use to parse the response for single value
+  // it will parse the response from the native side
+  // The response format {'status':true, 'response': value}
   // this func could call _resultGuard underlying
   // but I want `_valueGuard` has its own logic for more simple
   Future<T> _valueGuard<T>(Map<String, dynamic> result,
@@ -283,6 +290,14 @@ class BKTClient {
     }
   }
 
+  // _statusGuard checking and parser the status only
+  Future<void> _statusGuard<T>(Map<String, dynamic> result) async {
+    if (!result['status']) {
+      throw Exception(result['errorMessage'] as String);
+    }
+  }
+
+  // _resultGuard for handle any native func will throw the BKTException
   BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
       {T Function(Map<String, dynamic>)? customMapping}) {
     try {

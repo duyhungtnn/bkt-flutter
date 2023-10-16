@@ -38,10 +38,10 @@ SPEC CHECKSUMS:
   Bucketeer: 1c8dc41017506ad8bd6b10ef55923bf26ecd0691
   bucketeer_flutter_client_sdk: 90c3b148a05b7702c9144b4fd0fe8382971bbefa
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
+  integration_test: 13825b8a9334a850581300559b8839134b124670
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   ua_client_hints: d8d0ce034e13b28242fa75c7c339f2e3b1942d6b
 
 PODFILE CHECKSUM: d08e30077a700e78308d8611dd3c9a470302f88a
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.13.0

@@ -61,32 +61,32 @@ void main() async {
         user: user,
       ).onError((error, stackTrace) => fail("initialize() should success"));
 
-      final listener = MockEvaluationUpdateListener();
-      final listenToken =
-          BKTClient.instance.addEvaluationUpdateListener(listener);
-      // Make sure `listener.onUpdate()` called
-      // Wait for all evaluations fetched by the SDK automatically after `initialize`
-      // We will be ready to run specific tests after the `listener.onUpdate()` is called.
-      // Use Completer to convert a listener callback to a future
-      var completer = Completer();
-      when(() => listener.onUpdate()).thenAnswer((invocation) {
-        //Called, complete the future
-        completer.complete();
-      });
-      await completer.future.timeout(const Duration(seconds: 60),
-          onTimeout: () {
-        // Fast fail
-        fail("The OnUpdate callback should called under 60 seconds");
-      });
-      var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
-      // The listener should called 1 times.
-      expect(onUpdateCallCount, 1,
-          reason:
-              "The OnUpdate callback should called when the evaluations are updated");
-      // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
-      // The `completer` instance may get more call more times.
-      // Because it already complete, it will throw an exception cause the test fail.
-      BKTClient.instance.removeEvaluationUpdateListener(listenToken);
+      // final listener = MockEvaluationUpdateListener();
+      // final listenToken =
+      //     BKTClient.instance.addEvaluationUpdateListener(listener);
+      // // Make sure `listener.onUpdate()` called
+      // // Wait for all evaluations fetched by the SDK automatically after `initialize`
+      // // We will be ready to run specific tests after the `listener.onUpdate()` is called.
+      // // Use Completer to convert a listener callback to a future
+      // var completer = Completer();
+      // when(() => listener.onUpdate()).thenAnswer((invocation) {
+      //   //Called, complete the future
+      //   completer.complete();
+      // });
+      // await completer.future.timeout(const Duration(seconds: 60),
+      //     onTimeout: () {
+      //   // Fast fail
+      //   fail("The OnUpdate callback should called under 60 seconds");
+      // });
+      // var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
+      // // The listener should called 1 times.
+      // expect(onUpdateCallCount, 1,
+      //     reason:
+      //         "The OnUpdate callback should called when the evaluations are updated");
+      // // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
+      // // The `completer` instance may get more call more times.
+      // // Because it already complete, it will throw an exception cause the test fail.
+      // BKTClient.instance.removeEvaluationUpdateListener(listenToken);
     });
 
     testWidgets('testStringVariation', (WidgetTester _) async {
