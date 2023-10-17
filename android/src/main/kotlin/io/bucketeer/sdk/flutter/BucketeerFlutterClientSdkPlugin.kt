@@ -144,13 +144,13 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
         if (initializeResult != null) {
           logger.log(Log.WARN, {
-            "BKTClient.fetchEvaluations() failed with error: ${initializeResult}}"
+            "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling."
           }, initializeResult)
         }
         success(methodChannelResult)
       }
     } catch (ex: Exception) {
-      logger.log(Log.WARN, {
+      logger.log(Log.ERROR, {
         "BKTClient.initialize failed with error ${ex}}"
       }, ex)
       fail(methodChannelResult, ex.message)

@@ -77,7 +77,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
-                    logger.warn(message: "BKTClient.fetchEvaluations() failed with error: \(er)")
+                    logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
                 }
                 success(result: result)
             }
@@ -88,7 +88,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
         } catch {
-            logger.warn(message: "BKTClient.initialize failed with error: \(error)")
+            logger.error(message: "BKTClient.initialize failed with error: \(error)", error)
             fail(result: result, message: error.localizedDescription)
         }
     }
