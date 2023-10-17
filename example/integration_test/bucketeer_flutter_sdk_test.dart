@@ -371,6 +371,7 @@ void main() async {
         .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
         .appVersion(appVersion)
         .build();
+    assert(config.featureTag == "");
     final user = BKTUserBuilder().id(userId).customAttributes({}).build();
 
     await BKTClient.initialize(
@@ -382,6 +383,16 @@ void main() async {
             reason: "initialize() failed because ${instanceResult.asFailure.message}");
       },
     );
+
+    /// init without feature tag should retrieves all features
+    final android = await BKTClient.instance.evaluationDetails("feature-android-e2e-string");
+    assert(android != null);
+
+    final golang = await BKTClient.instance.evaluationDetails("feature-go-server-e2e-1");
+    assert(golang != null);
+
+    final javascript = await BKTClient.instance.evaluationDetails("feature-js-e2e-string");
+    assert(javascript != null);
 
     await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
         "BKTClient.instance.destroy should success and should not throw exception"));
