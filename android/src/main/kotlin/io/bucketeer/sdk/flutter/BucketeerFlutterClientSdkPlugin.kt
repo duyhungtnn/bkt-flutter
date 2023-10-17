@@ -31,7 +31,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     const val METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
     const val EVALUATION_UPDATE_EVENT_CHANNEL_NAME =
       "$METHOD_CHANNEL_NAME::evaluation.update.listener"
-    const val TAG = "BKTFlutterClientSdkPlugin"
+    const val TAG = "BucketeerFlutter"
   }
 
   private var applicationContext: Context? = null
@@ -132,7 +132,10 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       } else {
         BKTClient.initialize(applicationContext!!, config, user)
       }
-
+      // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+      BKTClient.getInstance().addEvaluationUpdateListener(
+        evaluationUpdateListener
+      )
       MainScope().launch {
         val initializeResult = withContext(Dispatchers.IO) {
           future.get()
@@ -140,10 +143,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         if (initializeResult != null) {
           fail(methodChannelResult, initializeResult.message)
         } else {
-          // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-          BKTClient.getInstance().addEvaluationUpdateListener(
-            evaluationUpdateListener
-          )
           Log.d(TAG, "BKTClient.initialize okay")
           success(methodChannelResult)
         }

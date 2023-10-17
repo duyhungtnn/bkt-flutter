@@ -70,19 +70,16 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             let bkConfig = try builder.build()
             let userAttributes = arguments?["userAttributes"] as? [String: String] ?? [:]
             let user = try BKTUser.Builder().with(id: userId).with( attributes: userAttributes).build()
+            
+            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
+            
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
                     debugPrint("BKTClient.initialize failed with error: \(er)")
                     fail(result: result, message: er.localizedDescription)
                 } else {
-                    // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-                    do {
-                        try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
-                        success(result: result)
-                    } catch {
-                        debugPrint("BKTClient.initialize failed with error: \(error)")
-                        fail(result: result, message: error.localizedDescription)
-                    }
+                    success(result: result)
                 }
             }
             
