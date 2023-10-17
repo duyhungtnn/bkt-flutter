@@ -19,7 +19,7 @@ void main() {
         .appVersion("1.0.0");
     expect(() => builderMissingAPIEndpoint.build(), throwsA(isA<ArgumentError>()));
 
-    final builderMissingFeatureTag = BKTConfigBuilder()
+    final builderWithEmptyFeatureTag = BKTConfigBuilder()
         .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
         .apiEndpoint("demo.bucketeer.jp")
         .debugging(true)
@@ -28,7 +28,7 @@ void main() {
         .pollingInterval(10000)
         .backgroundPollingInterval(10000)
         .appVersion("1.0.0");
-    expect(() => builderMissingFeatureTag.build(), throwsA(isA<ArgumentError>()));
+    expect(builderWithEmptyFeatureTag.build().featureTag, "");
 
     final builderMissingAppVersion = BKTConfigBuilder()
         .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")

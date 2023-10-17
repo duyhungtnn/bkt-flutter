@@ -27,10 +27,6 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             fail(result: result, message: "apiEndpoint is required")
             return
         }
-        guard let featureTag = arguments?["featureTag"] as? String else {
-            fail(result: result, message: "featureTag is required")
-            return
-        }
         guard let userId = arguments?["userId"] as? String else {
             fail(result: result, message: "userId is required")
             return
@@ -40,6 +36,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             return
         }
         
+        let featureTag = (arguments?["featureTag"] as? String) ?? ""
         let logger = BucketeerPluginLogger()
         do {
             var builder = BKTConfig.Builder()
@@ -72,9 +69,6 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             let userAttributes = arguments?["userAttributes"] as? [String: String] ?? [:]
             let user = try BKTUser.Builder().with(id: userId).with( attributes: userAttributes).build()
             
-            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
-            
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
                     logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
@@ -87,6 +81,9 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             } else {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
+            
+            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
         } catch {
             logger.error(message: "BKTClient.initialize failed with error: \(error)", error)
             fail(result: result, message: error.localizedDescription)
