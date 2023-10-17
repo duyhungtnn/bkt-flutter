@@ -27,10 +27,6 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             fail(result: result, message: "apiEndpoint is required")
             return
         }
-        guard let featureTag = arguments?["featureTag"] as? String else {
-            fail(result: result, message: "featureTag is required")
-            return
-        }
         guard let userId = arguments?["userId"] as? String else {
             fail(result: result, message: "userId is required")
             return
@@ -40,6 +36,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             return
         }
         
+        let featureTag = (arguments?["featureTag"] as? String) ?? ""
         let logger = BucketeerPluginLogger()
         do {
             var builder = BKTConfig.Builder()

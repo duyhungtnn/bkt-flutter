@@ -58,7 +58,12 @@ void main() async {
       await BKTClient.initialize(
         config: config,
         user: user,
-      ).onError((error, stackTrace) => fail("initialize() should success"));
+      ).then(
+        (instanceResult) {
+          expect(instanceResult.isSuccess, true,
+              reason: "initialize() should success");
+        },
+      );
     });
 
     setUp(() async {});
@@ -183,7 +188,7 @@ void main() async {
 
     testWidgets('testTrack', (WidgetTester _) async {
       await BKTClient.instance.track(goalId, value: goalValue).onError(
-              (error, stackTrace) =>
+          (error, stackTrace) =>
               fail("BKTClient.instance.track should success"));
 
       var flushResult = await BKTClient.instance.flush();
@@ -226,7 +231,7 @@ void main() async {
       await BKTClient.instance.updateUserAttributes(
         {'app_version': oldAppVersion},
       ).onError(
-            (error, stackTrace) => fail(
+        (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
       );
 
@@ -271,20 +276,20 @@ void main() async {
       await BKTClient.instance.updateUserAttributes(
         {'app_version': appVersion},
       ).onError(
-            (error, stackTrace) => fail(
+        (error, stackTrace) => fail(
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
       );
 
       var currentUser = await BKTClient.instance.currentUser();
       expect(currentUser != null, true,
           reason:
-          "BKTClient.instance.currentUser() should return non-null user data");
+              "BKTClient.instance.currentUser() should return non-null user data");
       expect(currentUser!.id, "test_id", reason: "user_id should be `test_id`");
       expect(currentUser.attributes, {'app_version': appVersion},
           reason: "user_data should match");
 
       var fetchEvaluationsResult =
-      await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
+          await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
     });
@@ -304,15 +309,13 @@ void main() async {
           .appVersion(appVersion)
           .build();
       final user = BKTUserBuilder().id(userId).customAttributes({}).build();
-
+      // We will not wait for the BKTClient finishing it initialize process
+      // to see if the listener could receive the onUpdate() call
       BKTClient.initialize(
         config: config,
         user: user,
-      ).then((instanceResult) {
-        expect(instanceResult.isSuccess, true,
-            reason: "initialize() should success");
-      });
-
+      ).onError(
+          (error, stackTrace) => fail("initialize() should not throw error"));
     });
 
     setUp(() async {});
@@ -326,37 +329,38 @@ void main() async {
     });
 
     testWidgets('Initialize the SDK and waiting for evaluations data ready',
-            (WidgetTester _) async {
-          final listener = MockEvaluationUpdateListener();
-          final listenToken =
+        (WidgetTester _) async {
+      final listener = MockEvaluationUpdateListener();
+      final listenToken =
           BKTClient.instance.addEvaluationUpdateListener(listener);
-          // Make sure `listener.onUpdate()` called
-          // Wait for all evaluations fetched by the SDK automatically after `initialize`
-          // We will be ready to run specific tests after the `listener.onUpdate()` is called.
-          // Use Completer to convert a listener callback to a future
-          var completer = Completer();
-          when(() => listener.onUpdate()).thenAnswer((invocation) {
-            //Called, complete the future
-            completer.complete();
-          });
-          await completer.future.timeout(const Duration(seconds: 60),
-              onTimeout: () {
-                // Fast fail
-                fail("The OnUpdate callback should called under 60 seconds");
-              });
-          var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
-          // The listener should called 1 times.
-          expect(onUpdateCallCount, 1,
-              reason:
+      // Make sure `listener.onUpdate()` called
+      // Wait for all evaluations fetched by the SDK automatically after `initialize`
+      // We will be ready to run specific tests after the `listener.onUpdate()` is called.
+      // Use Completer to convert a listener callback to a future
+      var completer = Completer();
+      when(() => listener.onUpdate()).thenAnswer((invocation) {
+        //Called, complete the future
+        completer.complete();
+      });
+      await completer.future.timeout(const Duration(seconds: 60),
+          onTimeout: () {
+        // Fast fail
+        fail("The OnUpdate callback should called under 60 seconds");
+      });
+      var onUpdateCallCount = verify(() => listener.onUpdate()).callCount;
+      // The listener should called 1 times.
+      expect(onUpdateCallCount, 1,
+          reason:
               "The OnUpdate callback should called when the evaluations are updated");
-          // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
-          // The `completer` instance may get more call more times.
-          // Because it already complete, it will throw an exception cause the test fail.
-          BKTClient.instance.removeEvaluationUpdateListener(listenToken);
-        });
+      // Check remove the listener. If the `removeEvaluationUpdateListener` fail, the test will fail.
+      // The `completer` instance may get more call more times.
+      // Because it already complete, it will throw an exception cause the test fail.
+      BKTClient.instance.removeEvaluationUpdateListener(listenToken);
+    });
   });
 
-  test('BKTClient.initialize should allow feature_tag to be optional', () async {
+  test('BKTClient should allow feature_tag to be optional',
+      () async {
     final config = BKTConfigBuilder()
         .apiKey(Constants.apiKey)
         .apiEndpoint(Constants.apiEndpoint)
@@ -372,10 +376,14 @@ void main() async {
     await BKTClient.initialize(
       config: config,
       user: user,
-    ).onError((error, stackTrace) => fail("initialize() should success"));
+    ).then(
+      (instanceResult) {
+        expect(instanceResult.isSuccess, true,
+            reason: "initialize() failed because ${instanceResult.asFailure.message}");
+      },
+    );
 
     await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
         "BKTClient.instance.destroy should success and should not throw exception"));
   });
 }
-

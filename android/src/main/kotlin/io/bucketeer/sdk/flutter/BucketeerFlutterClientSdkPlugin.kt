@@ -63,7 +63,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     val userId = call.argument("userId") as? String
     val apiKey = call.argument("apiKey") as? String
     val apiEndpoint = call.argument("apiEndpoint") as? String
-    val featureTag = call.argument("featureTag") as? String
+    val featureTag = (call.argument("featureTag") as? String) ?: ""
     val eventsFlushInterval =
       call.argument("eventsFlushInterval") as? Long
     val eventsMaxQueueSize =
@@ -80,9 +80,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     }
     if (apiEndpoint.isNullOrEmpty()) {
       return fail(methodChannelResult, "apiEndpoint is required")
-    }
-    if (featureTag.isNullOrEmpty()) {
-      return fail(methodChannelResult, "featureTag is required")
     }
     if (userId.isNullOrEmpty()) {
       return fail(methodChannelResult, "userId is required")
