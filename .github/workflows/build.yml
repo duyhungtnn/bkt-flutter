@@ -5,7 +5,7 @@ on:
     branches:
       - main
       # For testing this github Action's setup
-      - feat/ios-update
+      - fix/ci-cd-fail
   workflow_dispatch:
 
 concurrency:
