@@ -14,7 +14,6 @@ concurrency:
 jobs:
   # job responsible for running Flutter tests on iOS devices
   ios:
-    needs: unit-tests
     # Creates a build matrix for your jobs. You can define different variations of an environment to run each job
     strategy:
       matrix:
@@ -58,7 +57,6 @@ jobs:
           flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
 
   build-example-app-ios:
-    needs: unit-tests
     runs-on: macos-13
     timeout-minutes: 45
     steps:
