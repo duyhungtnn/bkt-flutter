@@ -308,7 +308,11 @@ void main() async {
       BKTClient.initialize(
         config: config,
         user: user,
-      ).onError((error, stackTrace) => fail("initialize() should success"));
+      ).then((instanceResult) {
+        expect(instanceResult.isSuccess, true,
+            reason: "initialize() should success");
+      });
+
     });
 
     setUp(() async {});
@@ -351,4 +355,27 @@ void main() async {
           BKTClient.instance.removeEvaluationUpdateListener(listenToken);
         });
   });
+
+  test('BKTClient.initialize should allow feature_tag to be optional', () async {
+    final config = BKTConfigBuilder()
+        .apiKey(Constants.apiKey)
+        .apiEndpoint(Constants.apiEndpoint)
+        .debugging(debugging)
+        .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+        .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+        .pollingInterval(Constants.examplePollingInterval)
+        .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+        .appVersion(appVersion)
+        .build();
+    final user = BKTUserBuilder().id(userId).customAttributes({}).build();
+
+    await BKTClient.initialize(
+      config: config,
+      user: user,
+    ).onError((error, stackTrace) => fail("initialize() should success"));
+
+    await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
+        "BKTClient.instance.destroy should success and should not throw exception"));
+  });
 }
+
