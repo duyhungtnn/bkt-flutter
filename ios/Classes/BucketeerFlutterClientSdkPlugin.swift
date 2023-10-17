@@ -39,7 +39,8 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             fail(result: result, message: "appVersion is required")
             return
         }
-
+        
+        let logger = BucketeerPluginLogger()
         do {
             var builder = BKTConfig.Builder()
                 .with(apiKey: apiKey)
@@ -64,7 +65,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             }
 
             if let debugging = arguments?["debugging"] as? Bool, debugging {
-                builder = builder.with(logger: BucketeerPluginLogger())
+                builder = builder.with(logger: logger)
             }
 
             let bkConfig = try builder.build()
@@ -76,11 +77,9 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
-                    debugPrint("BKTClient.initialize failed with error: \(er)")
-                    fail(result: result, message: er.localizedDescription)
-                } else {
-                    success(result: result)
+                    logger.warn(message: "BKTClient.fetchEvaluations() failed with error: \(er)")
                 }
+                success(result: result)
             }
             
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
@@ -89,7 +88,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
         } catch {
-            debugPrint("BKTClient.initialize failed with error: \(error)")
+            logger.warn(message: "BKTClient.initialize failed with error: \(error)")
             fail(result: result, message: error.localizedDescription)
         }
     }

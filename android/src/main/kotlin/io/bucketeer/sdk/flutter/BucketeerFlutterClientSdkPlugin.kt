@@ -90,6 +90,8 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     if (appVersion.isNullOrEmpty()) {
       return fail(methodChannelResult, "appVersion is required")
     }
+
+    val logger = BucketeerPluginLogger()
     try {
       val config: BKTConfig = BKTConfig.builder()
         .apiKey(apiKey)
@@ -116,7 +118,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           return@let it
         }.let {
           if (debugging) {
-            return@let it.logger(BucketeerPluginLogger())
+            return@let it.logger(logger)
           }
           return@let it
         }
@@ -141,13 +143,16 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           future.get()
         }
         if (initializeResult != null) {
-          fail(methodChannelResult, initializeResult.message)
-        } else {
-          Log.d(TAG, "BKTClient.initialize okay")
-          success(methodChannelResult)
+          logger.log(Log.WARN, {
+            "BKTClient.fetchEvaluations() failed with error: ${initializeResult}}"
+          }, initializeResult)
         }
+        success(methodChannelResult)
       }
     } catch (ex: Exception) {
+      logger.log(Log.WARN, {
+        "BKTClient.initialize failed with error ${ex}}"
+      }, ex)
       fail(methodChannelResult, ex.message)
     }
   }
