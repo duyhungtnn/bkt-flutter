@@ -380,7 +380,7 @@ void main() async {
     ).then(
       (instanceResult) {
         expect(instanceResult.isSuccess, true,
-            reason: "initialize() failed because ${instanceResult.asFailure.message}");
+            reason: "initialize() should success");
       },
     );
 
