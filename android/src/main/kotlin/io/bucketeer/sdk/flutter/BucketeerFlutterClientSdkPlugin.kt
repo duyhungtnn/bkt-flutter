@@ -1,6 +1,7 @@
 package io.bucketeer.sdk.flutter
 
 import android.content.Context
+import android.util.Log
 import io.bucketeer.sdk.android.BKTClient
 import io.bucketeer.sdk.android.BKTConfig
 import io.bucketeer.sdk.android.BKTException
@@ -19,6 +20,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
+import java.util.concurrent.Future
 
 /**
  * BucketeerPlugin
@@ -29,6 +31,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     const val METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
     const val EVALUATION_UPDATE_EVENT_CHANNEL_NAME =
       "$METHOD_CHANNEL_NAME::evaluation.update.listener"
+    const val TAG = "BucketeerFlutter"
   }
 
   private var applicationContext: Context? = null
@@ -55,7 +58,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     methodChannel = null
   }
 
-  private fun initialize(call: MethodCall, result: MethodChannel.Result) {
+  private fun initialize(call: MethodCall, methodChannelResult: MethodChannel.Result) {
     val debugging = (call.argument("debugging") as? Boolean) ?: false
     val userId = call.argument("userId") as? String
     val apiKey = call.argument("apiKey") as? String
@@ -73,20 +76,22 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     val appVersion = call.argument("appVersion") as? String
     val userAttributes = call.argument("userAttributes") as? Map<String, String> ?: mapOf()
     if (apiKey.isNullOrEmpty()) {
-      return fail(result, "apiKey is required")
+      return fail(methodChannelResult, "apiKey is required")
     }
     if (apiEndpoint.isNullOrEmpty()) {
-      return fail(result, "apiEndpoint is required")
+      return fail(methodChannelResult, "apiEndpoint is required")
     }
     if (featureTag.isNullOrEmpty()) {
-      return fail(result, "featureTag is required")
+      return fail(methodChannelResult, "featureTag is required")
     }
     if (userId.isNullOrEmpty()) {
-      return fail(result, "userId is required")
+      return fail(methodChannelResult, "userId is required")
     }
     if (appVersion.isNullOrEmpty()) {
-      return fail(result, "appVersion is required")
+      return fail(methodChannelResult, "appVersion is required")
     }
+
+    val logger = BucketeerPluginLogger()
     try {
       val config: BKTConfig = BKTConfig.builder()
         .apiKey(apiKey)
@@ -113,7 +118,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           return@let it
         }.let {
           if (debugging) {
-            return@let it.logger(BucketeerPluginLogger())
+            return@let it.logger(logger)
           }
           return@let it
         }
@@ -123,7 +128,8 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         .id(userId)
         .customAttributes(userAttributes)
         .build()
-      if (timeoutMillis != null) {
+
+      val future: Future<BKTException?> = if (timeoutMillis != null) {
         BKTClient.initialize(applicationContext!!, config, user, timeoutMillis)
       } else {
         BKTClient.initialize(applicationContext!!, config, user)
@@ -132,9 +138,22 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       BKTClient.getInstance().addEvaluationUpdateListener(
         evaluationUpdateListener
       )
-      success(result)
+      MainScope().launch {
+        val initializeResult = withContext(Dispatchers.IO) {
+          future.get()
+        }
+        if (initializeResult != null) {
+          logger.log(Log.WARN, {
+            "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling."
+          }, initializeResult)
+        }
+        success(methodChannelResult)
+      }
     } catch (ex: Exception) {
-      fail(result, ex.message)
+      logger.log(Log.ERROR, {
+        "BKTClient.initialize failed with error ${ex}}"
+      }, ex)
+      fail(methodChannelResult, ex.message)
     }
   }
 
