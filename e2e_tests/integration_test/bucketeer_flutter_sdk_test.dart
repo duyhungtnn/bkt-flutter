@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:e2e_tests/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:mocktail/mocktail.dart';
+
+import 'constant.dart';
 
 class MockEvaluationUpdateListener extends Mock
     implements BKTEvaluationUpdateListener {}
