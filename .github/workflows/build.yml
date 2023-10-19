@@ -88,7 +88,7 @@ jobs:
           flutter pub get
           cd example && flutter pub get
           cd ..
-          cd e2e_test && flutter pub get
+          cd e2e_tests && flutter pub get
 
       - name: Run integration tests
         run: |
