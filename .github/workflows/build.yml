@@ -29,7 +29,11 @@ jobs:
           architecture: x64
 
       - name: Install Flutter dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+          cd ..
+          cd e2e_test && flutter pub get
 
       - name: Flutter lint
         run: |
@@ -80,7 +84,11 @@ jobs:
           architecture: x64
 
       - name: Install Flutter dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+          cd ..
+          cd e2e_test && flutter pub get
 
       - name: Run integration tests
         run: |
@@ -112,7 +120,11 @@ jobs:
           architecture: x64
 
       - name: Install Flutter dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+          cd ..
+          cd e2e_test && flutter pub get
 
       - name: Run integration tests
         # more info on https://github.com/ReactiveCircus/android-emulator-runner
