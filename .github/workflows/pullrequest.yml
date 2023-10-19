@@ -28,13 +28,19 @@ jobs:
           architecture: x64
 
       - name: Install Flutter dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+          cd ..
+          cd e2e_test && flutter pub get
 
       - name: Flutter lint
         run: |
           flutter analyze
           # lint check the example project
           cd example && flutter analyze
+          cd ..
+          cd e2e_tests && flutter analyze
 
       - name: Run unit tests
         run: flutter test test
