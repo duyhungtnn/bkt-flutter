@@ -33,7 +33,7 @@ jobs:
           flutter pub get
           cd example && flutter pub get
           cd ..
-          cd e2e_test && flutter pub get
+          cd e2e_tests && flutter pub get
 
       - name: Flutter lint
         run: |
@@ -41,7 +41,7 @@ jobs:
           # lint check the example project
           cd example && flutter analyze
           cd ..
-          cd e2e_test && flutter analyze
+          cd e2e_tests && flutter analyze
 
       - name: Run unit tests
         run: flutter test test
@@ -124,7 +124,7 @@ jobs:
           flutter pub get
           cd example && flutter pub get
           cd ..
-          cd e2e_test && flutter pub get
+          cd e2e_tests && flutter pub get
 
       - name: Run integration tests
         # more info on https://github.com/ReactiveCircus/android-emulator-runner
