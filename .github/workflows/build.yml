@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - chore/create-e2e-tests-project
   workflow_dispatch:
 
 concurrency:
@@ -35,6 +36,8 @@ jobs:
           flutter analyze
           # lint check the example project
           cd example && flutter analyze
+          cd ..
+          cd e2e_test && flutter analyze
 
       - name: Run unit tests
         run: flutter test test
@@ -81,7 +84,7 @@ jobs:
 
       - name: Run integration tests
         run: |
-          cd example
+          cd e2e_tests
           flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
 
   # job responsible for running Flutter tests on Android devices
@@ -124,7 +127,7 @@ jobs:
           disable-animations: false
           channel: stable
           profile: Nexus 6
-          script: cd example && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
+          script: cd e2e_tests && flutter test --dart-define=API_KEY=${{ secrets.BKT_API_KEY }} --dart-define=API_ENDPOINT=${{ secrets.BKT_API_ENDPOINT }} integration_test
 
   build-example-app-android:
     needs: unit-tests
