@@ -1,0 +1,35 @@
+PODS:
+  - Bucketeer (2.1.1)
+  - bucketeer_flutter_client_sdk (2.0.0):
+    - Bucketeer (= 2.1.1)
+    - Flutter
+  - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - bucketeer_flutter_client_sdk (from `.symlinks/plugins/bucketeer_flutter_client_sdk/ios`)
+  - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Bucketeer
+
+EXTERNAL SOURCES:
+  bucketeer_flutter_client_sdk:
+    :path: ".symlinks/plugins/bucketeer_flutter_client_sdk/ios"
+  Flutter:
+    :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+SPEC CHECKSUMS:
+  Bucketeer: 0af62c37439108908e90c78e9a1310a60dd92321
+  bucketeer_flutter_client_sdk: 919f854cf26cfa9b4e94f658ef7d23f61e72fb75
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  integration_test: 13825b8a9334a850581300559b8839134b124670
+
+PODFILE CHECKSUM: d08e30077a700e78308d8611dd3c9a470302f88a
+
+COCOAPODS: 1.13.0
