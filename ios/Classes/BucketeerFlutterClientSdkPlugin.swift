@@ -76,14 +76,15 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 success(result: result)
             }
             
+            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
+            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
+            
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
                 try BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis, completion: completion)
             } else {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
-            
-            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
+
         } catch {
             logger.error(message: "BKTClient.initialize failed with error: \(error)", error)
             fail(result: result, message: error.localizedDescription)
