@@ -132,9 +132,8 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         BKTClient.initialize(applicationContext!!, config, user)
       }
       // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-      BKTClient.getInstance().addEvaluationUpdateListener(
-        evaluationUpdateListener
-      )
+      registerProxyEvaluationUpdateListener(logger)
+
       MainScope().launch {
         val initializeResult = withContext(Dispatchers.IO) {
           future.get()
@@ -151,6 +150,18 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         "BKTClient.initialize failed with error ${ex}}"
       }, ex)
       fail(methodChannelResult, ex.message)
+    }
+  }
+
+  private fun registerProxyEvaluationUpdateListener(logger: BucketeerPluginLogger) {
+    try {
+      BKTClient.getInstance().addEvaluationUpdateListener(
+        evaluationUpdateListener
+      )
+    } catch (ex: Exception) {
+      logger.log(Log.WARN, {
+        "BKTClient.initialize failed with register default listener ${ex}}"
+      }, ex)
     }
   }
 
