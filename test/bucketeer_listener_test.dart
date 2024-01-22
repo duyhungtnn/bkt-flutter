@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:bucketeer_flutter_client_sdk/src/evaluation_update_listener_dispatcher.dart';
+import 'package:bucketeer_flutter_client_sdk/src/proxy_evaluation_update_listener.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,7 +12,17 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   final eventController = StreamController<bool>.broadcast();
 
-  test('EvaluationUpdateListener Tests', () async {
+  test('ProxyEvaluationUpdateListenToken tests', () async {
+    expect(ProxyEvaluationUpdateListenToken.getToken(), null);
+    ProxyEvaluationUpdateListenToken.setToken("token001");
+    expect(ProxyEvaluationUpdateListenToken.getToken(), "token001");
+    ProxyEvaluationUpdateListenToken.clearToken();
+    expect(ProxyEvaluationUpdateListenToken.getToken(), null);
+    ProxyEvaluationUpdateListenToken.setToken("token002");
+    expect(ProxyEvaluationUpdateListenToken.getToken(), "token002");
+  });
+
+  test('EvaluationUpdateListener tests', () async {
     final dispatcher = EvaluationUpdateListenerDispatcher(eventController.stream);
     final mockListener = MockEvaluationUpdateListener();
     final neverCalledMockListener = MockEvaluationUpdateListener();

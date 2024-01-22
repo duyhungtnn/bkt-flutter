@@ -9,6 +9,7 @@ export 'src/config.dart';
 import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'src/proxy_evaluation_update_listener.dart';
 import 'src/user.dart';
 import 'src/call_methods.dart';
 import 'src/constants.dart';
@@ -186,10 +187,10 @@ class BKTClient {
 
   Future<void> updateUserAttributes(Map<String, String> userAttributes) async {
     await _statusGuard(
-        await _invokeMethod(
-          CallMethods.updateUserAttributes.name,
-          argument: userAttributes,
-        ),
+      await _invokeMethod(
+        CallMethods.updateUserAttributes.name,
+        argument: userAttributes,
+      ),
     ).then((value) {}, onError: (error) {
       debugPrint("updateUserAttributes fail ${error?.toString()}");
     });
@@ -216,13 +217,14 @@ class BKTClient {
 
   Future<void> destroy() async {
     await _statusGuard(
-        await _invokeMethod(CallMethods.destroy.name).then(
-              (value) async {
-            // Remove all listener for the current client
-            clearEvaluationUpdateListeners();
-            return value;
-          },
-        ),
+      await _invokeMethod(CallMethods.destroy.name).then(
+        (value) async {
+          // Remove all listener for the current client
+          ProxyEvaluationUpdateListenToken.clearToken();
+          clearEvaluationUpdateListeners();
+          return value;
+        },
+      ),
     ).then((value) {}, onError: (error) {
       debugPrint("destroy fail ${error?.toString()}");
     });
@@ -252,7 +254,33 @@ class BKTClient {
     });
   }
 
-  String addEvaluationUpdateListener(BKTEvaluationUpdateListener listener) {
+  Future<String?> _addProxyEvaluationUpdateListener() async {
+    return _valueGuard<String?>(
+      await _invokeMethod(
+        CallMethods.addProxyEvaluationUpdateListener.name,
+        argument: {},
+      ),
+    ).onError((error, stackTrace) {
+      debugPrint("_addProxyEvaluationUpdateListener fail ${error?.toString()}");
+      return null;
+    });
+  }
+
+  Future<void> _checkProxyListenerReady() async {
+    // If not ready, register new one
+    if ( ProxyEvaluationUpdateListenToken.getToken() == null) {
+      await _addProxyEvaluationUpdateListener()
+          .then((value) {
+        if (value != null) {
+          ProxyEvaluationUpdateListenToken.setToken(value);
+        }
+      });
+    }
+  }
+
+  Future<String> addEvaluationUpdateListener(
+      BKTEvaluationUpdateListener listener) async {
+    await _checkProxyListenerReady();
     return _dispatcher.addEvaluationUpdateListener(listener);
   }
 

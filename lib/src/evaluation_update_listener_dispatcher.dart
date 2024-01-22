@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'evaluation_update_listener.dart';
 
 class EvaluationUpdateListenerDispatcher {
+  // The native SDK listen token
+  static String? _proxyEvaluationUpdateListenToken;
+
   final _listeners = <String, BKTEvaluationUpdateListener>{};
 
   EvaluationUpdateListenerDispatcher(Stream<dynamic> eventStream) {

@@ -332,7 +332,7 @@ void main() async {
         (WidgetTester _) async {
       final listener = MockEvaluationUpdateListener();
       final listenToken =
-          BKTClient.instance.addEvaluationUpdateListener(listener);
+          await BKTClient.instance.addEvaluationUpdateListener(listener);
       // Make sure `listener.onUpdate()` called
       // Wait for all evaluations fetched by the SDK automatically after `initialize`
       // We will be ready to run specific tests after the `listener.onUpdate()` is called.
@@ -359,8 +359,7 @@ void main() async {
     });
   });
 
-  test('BKTClient should allow feature_tag to be optional',
-      () async {
+  test('BKTClient should allow feature_tag to be optional', () async {
     final config = BKTConfigBuilder()
         .apiKey(Constants.apiKey)
         .apiEndpoint(Constants.apiEndpoint)
@@ -385,13 +384,16 @@ void main() async {
     );
 
     /// init without feature tag should retrieves all features
-    final android = await BKTClient.instance.evaluationDetails("feature-android-e2e-string");
+    final android = await BKTClient.instance
+        .evaluationDetails("feature-android-e2e-string");
     assert(android != null);
 
-    final golang = await BKTClient.instance.evaluationDetails("feature-go-server-e2e-1");
+    final golang =
+        await BKTClient.instance.evaluationDetails("feature-go-server-e2e-1");
     assert(golang != null);
 
-    final javascript = await BKTClient.instance.evaluationDetails("feature-js-e2e-string");
+    final javascript =
+        await BKTClient.instance.evaluationDetails("feature-js-e2e-string");
     assert(javascript != null);
 
     await BKTClient.instance.destroy().onError((error, stackTrace) => fail(

@@ -78,7 +78,7 @@ class _AppState extends State<MyApp>
           BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
       final result = await BKTClient.initialize(config: config, user: user);
       if (result.isSuccess) {
-        _listenToken = BKTClient.instance.addEvaluationUpdateListener(this);
+        _listenToken = await BKTClient.instance.addEvaluationUpdateListener(this);
       } else if (result.isFailure) {
         final errorMessage = result.asFailure.message;
         debugPrint(errorMessage);
