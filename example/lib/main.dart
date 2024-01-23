@@ -111,7 +111,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final flagController =
-      TextEditingController(text: Constants.exampleFeatureTag);
+      TextEditingController(text: Constants.exampleFeatureId);
   final goalController = TextEditingController(text: 'bucketeer-goal-id');
   final userIdController = TextEditingController(text: Constants.exampleUserId);
 
