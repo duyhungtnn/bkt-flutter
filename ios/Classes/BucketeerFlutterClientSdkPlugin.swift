@@ -288,6 +288,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                 success(result: result, response: listenToken)
             } else {
                 let newListenToken = try BKTClient.shared.addEvaluationUpdateListener(listener: proxyEvaluationListener)
+                proxyEvaluationListenToken = newListenToken
                 success(result: result, response: newListenToken)
             }
         } catch {
@@ -345,6 +346,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             do {
                 if let listenToken = proxyEvaluationListenToken {
                     try BKTClient.shared.removeEvaluationUpdateListener(key: listenToken)
+                    proxyEvaluationListenToken = nil
                 }
                 try BKTClient.destroy()
                 success(result: result)
