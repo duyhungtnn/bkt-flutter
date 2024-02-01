@@ -73,9 +73,15 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
-                    logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
+                    if case .timeout(_, _, _) = err {
+                        logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
+                    } else {
+                        logger.error(message: "BKTClient.initialize failed with error: \(er)", er)
+                        fail(result: result, message: er.localizedDescription)
+                    }
+                } else {
+                    success(result: result)
                 }
-                success(result: result)
             }
                         
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {

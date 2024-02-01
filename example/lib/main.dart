@@ -182,14 +182,20 @@ class _MyHomePageState extends State<MyHomePage> {
         BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
 
     await BKTClient.instance.destroy();
-    await BKTClient.initialize(
+
+    final result = await BKTClient.initialize(
       config: config,
       user: user,
     );
-    await BKTClient.instance.updateUserAttributes(
-      {'app_version': "1.2.4"},
-    );
-    showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
+    if (result.isSuccess) {
+      await BKTClient.instance.updateUserAttributes(
+        {'app_version': "1.2.4"},
+      );
+      showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
+    } else {
+      /// Print the error
+      showSnackbar(title: 'initialize', message: 'Failed with error ${result.asFailure.message}');
+    }
   }
 
   Future<void> _getCurrentUser() async {

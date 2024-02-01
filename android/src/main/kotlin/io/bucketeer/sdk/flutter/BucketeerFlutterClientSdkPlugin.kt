@@ -137,12 +137,18 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         val initializeResult = withContext(Dispatchers.IO) {
           future.get()
         }
-        if (initializeResult != null) {
-          logger.log(Log.WARN, {
-            "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling."
-          }, initializeResult)
+        when (initializeResult?.cause) {
+          is BKTException.TimeoutException -> {
+            logger.log(Log.WARN, {
+              "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling."
+            }, initializeResult)
+            success(methodChannelResult)
+          }
+          null -> {
+            success(methodChannelResult)
+          }
+          else -> fail(methodChannelResult, initializeResult.cause?.message)
         }
-        success(methodChannelResult)
       }
     } catch (ex: Exception) {
       logger.log(Log.ERROR, {
