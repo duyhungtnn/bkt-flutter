@@ -187,8 +187,11 @@ class _MyHomePageState extends State<MyHomePage> {
       config: config,
       user: user,
     );
-    if (result.isSuccess) {
-      await BKTClient.instance.updateUserAttributes(
+
+    if (result.isSuccess || result.asFailure.exception is BKTTimeoutException) {
+      /// BKTClient.initialize success
+      const client = BKTClient.instance;
+      await client.updateUserAttributes(
         {'app_version': "1.2.4"},
       );
       showSnackbar(title: 'setUser', message: 'Successful the switchUser.');

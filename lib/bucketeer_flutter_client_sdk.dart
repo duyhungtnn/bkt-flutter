@@ -5,6 +5,7 @@ export 'src/user.dart';
 export 'src/result.dart';
 export 'src/evaluation_update_listener.dart';
 export 'src/config.dart';
+export 'src/exception.dart';
 
 import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/foundation.dart';
