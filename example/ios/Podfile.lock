@@ -4,6 +4,8 @@ PODS:
     - Bucketeer (= 2.1.1)
     - Flutter
   - Flutter (1.0.0)
+  - integration_test (0.0.1):
+    - Flutter
   - shared_preferences_ios (0.0.1):
     - Flutter
   - ua_client_hints (1.1.3):
@@ -12,6 +14,7 @@ PODS:
 DEPENDENCIES:
   - bucketeer_flutter_client_sdk (from `.symlinks/plugins/bucketeer_flutter_client_sdk/ios`)
   - Flutter (from `Flutter`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - ua_client_hints (from `.symlinks/plugins/ua_client_hints/ios`)
 
@@ -24,6 +27,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/bucketeer_flutter_client_sdk/ios"
   Flutter:
     :path: Flutter
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   shared_preferences_ios:
     :path: ".symlinks/plugins/shared_preferences_ios/ios"
   ua_client_hints:
@@ -33,6 +38,7 @@ SPEC CHECKSUMS:
   Bucketeer: 0af62c37439108908e90c78e9a1310a60dd92321
   bucketeer_flutter_client_sdk: 919f854cf26cfa9b4e94f658ef7d23f61e72fb75
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  integration_test: 13825b8a9334a850581300559b8839134b124670
   shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
   ua_client_hints: d8d0ce034e13b28242fa75c7c339f2e3b1942d6b
 

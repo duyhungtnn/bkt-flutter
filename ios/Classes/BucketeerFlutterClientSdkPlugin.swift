@@ -7,7 +7,9 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
     private static let METHOD_CHANNEL_NAME = "io.bucketeer.sdk.plugin.flutter"
     private static let EVALUATION_UPDATE_EVENT_CHANNEL_NAME = "\(METHOD_CHANNEL_NAME)::evaluation.update.listener"
 
-    let evaluationListener = BucketeerPluginEvaluationUpdateListener()
+    private let logger = BucketeerPluginLogger()
+    private let proxyEvaluationListener = BucketeerPluginEvaluationUpdateListener()
+    private var proxyEvaluationListenToken: String?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: METHOD_CHANNEL_NAME, binaryMessenger: registrar.messenger())
@@ -15,7 +17,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         registrar.addMethodCallDelegate(instance, channel: channel)
         let eventChannel = FlutterEventChannel(name: EVALUATION_UPDATE_EVENT_CHANNEL_NAME,
                                                binaryMessenger: registrar.messenger())
-        eventChannel.setStreamHandler(instance.evaluationListener)
+        eventChannel.setStreamHandler(instance.proxyEvaluationListener)
     }
 
     private func initialize(_ arguments: [String: Any]?, _ result: @escaping FlutterResult) {
@@ -37,7 +39,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         }
         
         let featureTag = (arguments?["featureTag"] as? String) ?? ""
-        let logger = BucketeerPluginLogger()
+        
         do {
             var builder = BKTConfig.Builder()
                 .with(apiKey: apiKey)
@@ -71,19 +73,23 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
-                    logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
+                    if case .timeout(_, _, _) = err {
+                        logger.warn(message: "Fetch evaluations failed during the initialize process. It will try to fetch again in the next polling.")
+                    } else {
+                        logger.error(message: "BKTClient.initialize failed with error: \(er)", er)
+                        fail(result: result, message: er.localizedDescription)
+                    }
+                } else {
+                    success(result: result)
                 }
-                success(result: result)
             }
-            
+                        
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
                 try BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis, completion: completion)
             } else {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
-            
-            // Set default EvaluationUpdateListener. It will forward event to the Flutter side for handle
-            try BKTClient.shared.addEvaluationUpdateListener(listener: evaluationListener)
+
         } catch {
             logger.error(message: "BKTClient.initialize failed with error: \(error)", error)
             fail(result: result, message: error.localizedDescription)
@@ -282,6 +288,20 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             ])
     }
 
+    private func addProxyEvaluationUpdateListener(_ result: @escaping FlutterResult) {
+        do {
+            if let listenToken = proxyEvaluationListenToken {
+                success(result: result, response: listenToken)
+            } else {
+                let newListenToken = try BKTClient.shared.addEvaluationUpdateListener(listener: proxyEvaluationListener)
+                proxyEvaluationListenToken = newListenToken
+                success(result: result, response: newListenToken)
+            }
+        } catch {
+            fail(result: result, message: error.localizedDescription)
+        }
+    }
+    
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 
         let arguments = call.arguments as? [String: Any]
@@ -323,13 +343,17 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         case .evaluationDetails:
             evaluationDetails(arguments, result)
 
-        case .addEvaluationUpdateListener, .removeEvaluationUpdateListener, .clearEvaluationUpdateListeners:
+        case .addProxyEvaluationUpdateListener:
             // note: will handle in Flutter only. We don't implement native code for these methods
             // see: BucketeerPluginEvaluationUpdateListener.swift
-            result(FlutterMethodNotImplemented)
+            addProxyEvaluationUpdateListener(result)
 
         case .destroy:
             do {
+                if let listenToken = proxyEvaluationListenToken {
+                    try BKTClient.shared.removeEvaluationUpdateListener(key: listenToken)
+                    proxyEvaluationListenToken = nil
+                }
                 try BKTClient.destroy()
                 success(result: result)
             } catch {
