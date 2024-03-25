@@ -10,6 +10,7 @@ export 'src/exception.dart';
 import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'bucketeer_flutter_client_sdk.dart';
 import 'src/proxy_evaluation_update_listener.dart';
 import 'src/user.dart';
 import 'src/call_methods.dart';
@@ -152,11 +153,11 @@ class BKTClient {
     });
   }
 
-  Future<void> track(
+  Future<BKTResult<void>> track(
     String goalId, {
     double? value,
   }) async {
-    await _statusGuard(
+    return await _statusGuard(
       await _invokeMethod(
         CallMethods.track.name,
         argument: {
@@ -164,8 +165,17 @@ class BKTClient {
           'value': value,
         },
       ),
-    ).then((value) {}, onError: (error) {
-      debugPrint("track fail ${error?.toString()}");
+    ).then((value) {
+      return const BKTResult<void>.success();
+    }, onError: (Object error, StackTrace st) {
+      debugPrint("track fail ${error.toString()}");
+      if (error is Exception) {
+        return BKTResult<void>.failure(error.toString(),
+            exception: BKTUnknownException(
+                message: error.toString(), exception: error));
+      }
+      return BKTResult<void>.failure('unknown',
+          exception: BKTUnknownException(message: 'unknown', exception: null));
     });
   }
 
@@ -269,9 +279,8 @@ class BKTClient {
 
   Future<void> _checkProxyListenerReady() async {
     // If not ready, register new one
-    if ( ProxyEvaluationUpdateListenToken.getToken() == null) {
-      await _addProxyEvaluationUpdateListener()
-          .then((value) {
+    if (ProxyEvaluationUpdateListenToken.getToken() == null) {
+      await _addProxyEvaluationUpdateListener().then((value) {
         if (value != null) {
           ProxyEvaluationUpdateListenToken.setToken(value);
         }
@@ -302,27 +311,33 @@ class BKTClient {
       {T Function(Map<String, dynamic>)? customMapping}) async {
     if (result['status']) {
       if (result['response'] != null) {
-        if (customMapping != null) {
-          // throw runtime exception
-          return customMapping(
-            Map<String, dynamic>.from(result['response']),
-          );
-        } else {
-          // throw runtime exception
-          return result['response'] as T;
+        try {
+          if (customMapping != null) {
+            // throw runtime exception
+            return customMapping(
+              Map<String, dynamic>.from(result['response']),
+            );
+          } else {
+            // throw runtime exception
+            return result['response'] as T;
+          }
+        } catch (ex) {
+          throw BKTUnknownException(
+              message: ex.toString(), exception: ex is Exception ? ex : null);
         }
       } else {
-        throw Exception('unknown error: missing result response');
+        throw BKTUnknownException(
+            message: 'missing result response');
       }
     } else {
-      throw Exception(result['errorMessage'] as String);
+      throw result.parseBKTException();
     }
   }
 
   // _statusGuard checking and parser the status only
   Future<void> _statusGuard<T>(Map<String, dynamic> result) async {
     if (!result['status']) {
-      throw Exception(result['errorMessage'] as String);
+      throw result.parseBKTException();
     }
   }
 
@@ -345,11 +360,14 @@ class BKTClient {
           return const BKTResult.success();
         }
       } else {
-        return BKTResult.failure(result['errorMessage']);
+        final exception = result.parseBKTException();
+        return BKTResult.failure(exception.message, exception: exception);
       }
     } catch (ex) {
       // catch runtime exception when parse the result
-      return BKTResult.failure(ex.toString());
+      final exception = BKTUnknownException(
+          message: ex.toString(), exception: ex is Exception ? ex : null);
+      return BKTResult.failure(exception.message, exception: exception);
     }
   }
 
@@ -367,6 +385,56 @@ class BKTClient {
         "status": false,
         "errorMessage": ex.toString(),
       };
+    }
+  }
+}
+
+extension ParseBKTException on Map<String, dynamic> {
+  BKTException parseBKTException() {
+    final errorCode = this['errorCode'];
+    final errorMessage = this['errorMessage'] as String;
+    if (errorCode is int) {
+      return errorCode.errorCodeToBKTException(errorMessage);
+    }
+    return BKTUnknownException(message: errorMessage);
+  }
+}
+
+extension IntToBKTException on int {
+  BKTException errorCodeToBKTException(String errorMessage) {
+    switch (this) {
+      case 1:
+        return RedirectRequestException(message: errorMessage);
+      case 2:
+        return BKTBadRequestException(message: errorMessage);
+      case 3:
+        return BKTUnauthorizedException(message: errorMessage);
+      case 4:
+        return BKTForbiddenException(message: errorMessage);
+      case 5:
+        return BKTFeatureNotFoundException(message: errorMessage);
+      case 6:
+        return BKTClientClosedRequestException(message: errorMessage);
+      case 7:
+        return BKTInvalidHttpMethodException(message: errorMessage);
+      case 8:
+        return PayloadTooLargeException(message: errorMessage);
+      case 9:
+        return BKTInternalServerErrorException(message: errorMessage);
+      case 10:
+        return BKTServiceUnavailableException(message: errorMessage);
+      case 11:
+        return BKTTimeoutException(message: errorMessage);
+      case 12:
+        return BKTNetworkException(message: errorMessage);
+      case 13:
+        return BKTIllegalArgumentException(message: errorMessage);
+      case 14:
+        return BKTIllegalStateException(message: errorMessage);
+      case 15:
+        return BKTUnknownException(message: errorMessage);
+      default:
+        return BKTUnknownException(message: errorMessage);
     }
   }
 }
