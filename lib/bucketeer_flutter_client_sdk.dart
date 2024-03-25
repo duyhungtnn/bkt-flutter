@@ -165,7 +165,7 @@ class BKTClient {
           'value': value,
         },
       ),
-    ).onError((Object error, stackTrace){
+    ).onError((Object error, stackTrace) {
       debugPrint("track fail ${error.toString()}");
       return error.toBKTResultFailure();
     });
@@ -399,11 +399,14 @@ extension ObjectToBKTException on Object {
 extension ParseBKTException on Map<String, dynamic> {
   BKTException parseBKTException() {
     final errorCode = this['errorCode'];
-    final errorMessage = this['errorMessage'] as String;
+    final errorMessage = this['errorMessage'] ?? "unknown";
+    final typedErrorMessage = errorMessage is String
+        ? errorMessage
+        : errorMessage.toString();
     if (errorCode is int) {
-      return errorCode.toBKTException(errorMessage);
+      return errorCode.toBKTException(typedErrorMessage);
     }
-    return BKTUnknownException(message: errorMessage);
+    return BKTUnknownException(message: typedErrorMessage);
   }
 }
 
