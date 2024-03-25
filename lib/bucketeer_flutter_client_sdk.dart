@@ -165,17 +165,9 @@ class BKTClient {
           'value': value,
         },
       ),
-    ).then((value) {
-      return const BKTResult<void>.success();
-    }, onError: (Object error, StackTrace st) {
+    ).onError((Object error, stackTrace){
       debugPrint("track fail ${error.toString()}");
-      if (error is Exception) {
-        return BKTResult<void>.failure(error.toString(),
-            exception: BKTUnknownException(
-                message: error.toString(), exception: error));
-      }
-      return BKTResult<void>.failure('unknown',
-          exception: BKTUnknownException(message: 'unknown', exception: null));
+      return error.toBKTResultFailure();
     });
   }
 
@@ -196,14 +188,16 @@ class BKTClient {
     });
   }
 
-  Future<void> updateUserAttributes(Map<String, String> userAttributes) async {
-    await _statusGuard(
+  Future<BKTResult<void>> updateUserAttributes(
+      Map<String, String> userAttributes) async {
+    return await _statusGuard(
       await _invokeMethod(
         CallMethods.updateUserAttributes.name,
         argument: userAttributes,
       ),
-    ).then((value) {}, onError: (error) {
-      debugPrint("updateUserAttributes fail ${error?.toString()}");
+    ).onError((Object error, stackTrace) {
+      debugPrint("updateUserAttributes fail ${error.toString()}");
+      return error.toBKTResultFailure();
     });
   }
 
@@ -226,8 +220,8 @@ class BKTClient {
     );
   }
 
-  Future<void> destroy() async {
-    await _statusGuard(
+  Future<BKTResult<void>> destroy() async {
+    return await _statusGuard(
       await _invokeMethod(CallMethods.destroy.name).then(
         (value) async {
           // Remove all listener for the current client
@@ -236,8 +230,9 @@ class BKTClient {
           return value;
         },
       ),
-    ).then((value) {}, onError: (error) {
-      debugPrint("destroy fail ${error?.toString()}");
+    ).onError((Object error, stackTrace) {
+      debugPrint("destroy fail ${error.toString()}");
+      return error.toBKTResultFailure();
     });
   }
 
@@ -326,8 +321,7 @@ class BKTClient {
               message: ex.toString(), exception: ex is Exception ? ex : null);
         }
       } else {
-        throw BKTUnknownException(
-            message: 'missing result response');
+        throw BKTUnknownException(message: 'missing result response');
       }
     } else {
       throw result.parseBKTException();
@@ -335,10 +329,11 @@ class BKTClient {
   }
 
   // _statusGuard checking and parser the status only
-  Future<void> _statusGuard<T>(Map<String, dynamic> result) async {
+  Future<BKTResult<void>> _statusGuard<T>(Map<String, dynamic> result) async {
     if (!result['status']) {
       throw result.parseBKTException();
     }
+    return const BKTResult<void>.success();
   }
 
   // _resultGuard for handle any native func will throw the BKTException
@@ -389,19 +384,31 @@ class BKTClient {
   }
 }
 
+extension ObjectToBKTException on Object {
+  BKTResult<T> toBKTResultFailure<T>() {
+    if (this is BKTException) {
+      return BKTResult<T>.failure(toString(), exception: this as BKTException);
+    }
+    final exception = BKTUnknownException(
+        message: toString(),
+        exception: this is Exception ? this as Exception : null);
+    return BKTResult<T>.failure(exception.message, exception: exception);
+  }
+}
+
 extension ParseBKTException on Map<String, dynamic> {
   BKTException parseBKTException() {
     final errorCode = this['errorCode'];
     final errorMessage = this['errorMessage'] as String;
     if (errorCode is int) {
-      return errorCode.errorCodeToBKTException(errorMessage);
+      return errorCode.toBKTException(errorMessage);
     }
     return BKTUnknownException(message: errorMessage);
   }
 }
 
 extension IntToBKTException on int {
-  BKTException errorCodeToBKTException(String errorMessage) {
+  BKTException toBKTException(String errorMessage) {
     switch (this) {
       case 1:
         return RedirectRequestException(message: errorMessage);
