@@ -75,7 +75,10 @@ void main() {
             }
           };
         case CallMethods.addProxyEvaluationUpdateListener:
-          return {'status': true, 'response': '00673eaf-364f-49a7-84cb-b4d723a6ac5d'};
+          return {
+            'status': true,
+            'response': '00673eaf-364f-49a7-84cb-b4d723a6ac5d'
+          };
         case CallMethods.unknown:
           return null;
       }
@@ -111,7 +114,9 @@ void main() {
     );
 
     expectLater(
-      BKTClient.instance.addEvaluationUpdateListener(MockEvaluationUpdateListener()).then((value){
+      BKTClient.instance
+          .addEvaluationUpdateListener(MockEvaluationUpdateListener())
+          .then((value) {
         return ProxyEvaluationUpdateListenToken.getToken();
       }),
       completion(
@@ -137,12 +142,13 @@ void main() {
       BKTClient.instance.currentUser(),
       completion(
         equals(
-          BKTUserBuilder().id('userId').customAttributes(
+          BKTResult<BKTUser>.success(
+              data: BKTUserBuilder().id('userId').customAttributes(
             {
               'appVersion': '9.9.9',
               'platform': 'iOS',
             },
-          ).build(),
+          ).build()),
         ),
       ),
     );
@@ -264,15 +270,8 @@ void main() {
     expect(flushFailRs.isFailure, equals(true));
 
     /// Should get `null`
-    expectLater(
-      BKTClient.instance.currentUser(),
-      completion(
-        equals(
-          null,
-        ),
-      ),
-      reason: "BKTClient.instance.currentUser should return null",
-    );
+    final currentUserRs = await BKTClient.instance.currentUser();
+    expect(currentUserRs.isFailure, equals(true));
 
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
