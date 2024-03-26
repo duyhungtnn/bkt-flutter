@@ -7,18 +7,13 @@ export 'src/evaluation_update_listener.dart';
 export 'src/config.dart';
 export 'src/exception.dart';
 
-import 'package:bucketeer_flutter_client_sdk/src/config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'bucketeer_flutter_client_sdk.dart';
 import 'src/proxy_evaluation_update_listener.dart';
-import 'src/user.dart';
 import 'src/call_methods.dart';
 import 'src/constants.dart';
-import 'src/evaluation.dart';
-import 'src/evaluation_update_listener.dart';
 import 'src/evaluation_update_listener_dispatcher.dart';
-import 'src/result.dart';
 
 /// Bucketeer Flutter SDK
 class BKTClient {
