@@ -29,10 +29,12 @@ class BKTResult<T> {
     }
   }
 
-  void ifFailure(void Function(String message) action) {
+  void ifFailure(void Function(String message, Exception? exception) action) {
     if (isFailure) {
-      final message = (_result as Failure).message;
-      action(message);
+      final failure = _result as Failure;
+      final message = failure.message;
+      final exception = failure.exception;
+      action(message, exception);
     }
   }
 

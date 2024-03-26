@@ -166,8 +166,8 @@ class BKTClient {
     });
   }
 
-  Future<BKTUser?> currentUser() async {
-    return _valueGuard<BKTUser?>(
+  Future<BKTResult<BKTUser>> currentUser() async {
+    return _valueGuard<BKTUser>(
       await _invokeMethod(CallMethods.currentUser.name),
       customMapping: (response) {
         return BKTUserBuilder()
@@ -177,9 +177,11 @@ class BKTClient {
             )
             .build();
       },
-    ).onError((error, stackTrace) {
-      debugPrint("get currentUser fail ${error?.toString()}");
-      return null;
+    )
+        .then((value) => BKTResult.success(data: value))
+        .onError((Object error, stackTrace) {
+      debugPrint("get currentUser fail ${error.toString()}");
+      return error.toBKTResultFailure();
     });
   }
 
@@ -395,9 +397,8 @@ extension ParseBKTException on Map<String, dynamic> {
   BKTException parseBKTException() {
     final errorCode = this['errorCode'];
     final errorMessage = this['errorMessage'] ?? "unknown";
-    final typedErrorMessage = errorMessage is String
-        ? errorMessage
-        : errorMessage.toString();
+    final typedErrorMessage =
+        errorMessage is String ? errorMessage : errorMessage.toString();
     if (errorCode is int) {
       return errorCode.toBKTException(typedErrorMessage);
     }

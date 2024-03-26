@@ -202,10 +202,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getCurrentUser() async {
-    final user = await BKTClient.instance.currentUser();
-    if (user != null) {
+    final userRs = await BKTClient.instance.currentUser();
+    userRs.ifSuccess((user) {
       showSnackbar(title: 'getUser(${user.id})', message: user.attributes.toString());
-    }
+    });
+    userRs.ifFailure((message, exception) {
+      showSnackbar(title: 'currentUser', message: 'Failed with error $message');
+    });
   }
 
   @override

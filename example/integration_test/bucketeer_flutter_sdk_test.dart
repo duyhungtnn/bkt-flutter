@@ -196,13 +196,17 @@ void main() async {
     });
 
     testWidgets('testUpdateUserAttributes', (WidgetTester _) async {
-      var user = await BKTClient.instance.currentUser();
+      var userRs = await BKTClient.instance.currentUser();
+      expect(userRs.isSuccess, true);
+      var user = userRs.asSuccess.data;
       expect(user, BKTUserBuilder().id(userId).customAttributes({}).build());
       await BKTClient.instance.updateUserAttributes(
         {'app_version': appVersion},
       ).onError((error, stackTrace) => fail(
           "BKTClient.instance.updateUserAttributes should success and should not throw exception"));
-      user = await BKTClient.instance.currentUser();
+      userRs = await BKTClient.instance.currentUser();
+      expect(userRs.isSuccess, true);
+      user = userRs.asSuccess.data;
       expect(
           user,
           BKTUserBuilder()
@@ -280,11 +284,11 @@ void main() async {
             "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
       );
 
-      var currentUser = await BKTClient.instance.currentUser();
-      expect(currentUser != null, true,
-          reason:
-              "BKTClient.instance.currentUser() should return non-null user data");
-      expect(currentUser!.id, "test_id", reason: "user_id should be `test_id`");
+      var currentUserRs = await BKTClient.instance.currentUser();
+      expect(currentUserRs.isSuccess, true, reason:
+        "BKTClient.instance.currentUser() should return user data");
+      final currentUser = currentUserRs.asSuccess.data;
+      expect(currentUser.id, "test_id", reason: "user_id should be `test_id`");
       expect(currentUser.attributes, {'app_version': appVersion},
           reason: "user_data should match");
 
