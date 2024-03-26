@@ -269,9 +269,8 @@ void main() {
     final flushFailRs = await BKTClient.instance.flush();
     expect(flushFailRs.isFailure, equals(true));
 
-    /// Should get `null`
     final currentUserRs = await BKTClient.instance.currentUser();
-    expect(currentUserRs.isFailure, equals(true));
+    expect(currentUserRs.isFailure, equals(true), reason: "BKTClient.instance.currentUser().isFailure should be true");
 
     /// Void method should not throw exception
     BKTClient.instance.updateUserAttributes(
