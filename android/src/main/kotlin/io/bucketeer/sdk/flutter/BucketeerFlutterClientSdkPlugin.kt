@@ -387,9 +387,15 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     }
   }
 
-  @Throws(IllegalStateException::class)
+  @Throws(Exception::class)
   private fun assertInitialize() {
-    BKTClient.getInstance()
+    try {
+      BKTClient.getInstance()
+    } catch (ex: BKTException.IllegalStateException) {
+      throw  ex
+    } catch (ex: IllegalStateException) {
+      throw  BKTException.IllegalStateException(message =  ex.message ?: "")
+    }
   }
 
   private fun success(result: MethodChannel.Result?, response: Any? = null) {
