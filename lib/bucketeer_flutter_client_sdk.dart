@@ -55,7 +55,7 @@ class BKTClient {
       },
     );
     // The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return resultGuard(rs);
+    return statusGuard(rs);
   }
 
   Future<String> stringVariation(
@@ -203,7 +203,7 @@ class BKTClient {
 
   Future<BKTResult<void>> fetchEvaluations({int? timeoutMillis}) async {
     /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return resultGuard(
+    return statusGuard(
       await _invokeMethod(
         CallMethods.fetchEvaluations.name,
         argument: {
@@ -215,7 +215,7 @@ class BKTClient {
 
   Future<BKTResult<void>> flush() async {
     /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return resultGuard(
+    return statusGuard(
       await _invokeMethod(CallMethods.flush.name),
     );
   }

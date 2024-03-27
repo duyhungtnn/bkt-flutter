@@ -2,11 +2,6 @@ import 'exception_parser.dart';
 import 'exception.dart';
 import 'result.dart';
 
-// _valueGuard should use to parse the response for single value
-// it will parse the response from the native side
-// The response format {'status':true, 'response': value}
-// this func could call _resultGuard underlying
-// but I want `_valueGuard` has its own logic for more simple
 Future<T> valueGuard<T>(Map<String, dynamic> result,
     {T Function(Map<String, dynamic>)? customMapping}) async {
   if (result['status']) {
@@ -31,14 +26,6 @@ Future<T> valueGuard<T>(Map<String, dynamic> result,
   } else {
     throw result.parseBKTException();
   }
-}
-
-// _statusGuard checking and parser the status only
-Future<BKTResult<void>> statusGuard<T>(Map<String, dynamic> result) async {
-  if (!result['status']) {
-    throw result.parseBKTException();
-  }
-  return const BKTResult<void>.success();
 }
 
 // _resultGuard for handle any native func will throw the BKTException
@@ -69,4 +56,12 @@ BKTResult<T> resultGuard<T>(Map<String, dynamic> result,
         message: ex.toString(), exception: ex is Exception ? ex : null);
     return BKTResult.failure(exception.message, exception: exception);
   }
+}
+
+// _statusGuard checking and parser the status only
+Future<BKTResult<void>> statusGuard<T>(Map<String, dynamic> result) async {
+  if (!result['status']) {
+    return result.parseBKTException().toBKTResultFailure();
+  }
+  return const BKTResult<void>.success();
 }

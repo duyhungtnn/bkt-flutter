@@ -2,6 +2,15 @@ abstract class BKTException implements Exception {
   final String message;
 
   BKTException({required this.message});
+
+  @override
+  int get hashCode => runtimeType.hashCode ^ message.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      other.hashCode == hashCode &&
+      other is BKTException &&
+      other.message == message;
 }
 
 class RedirectRequestException extends BKTException {
@@ -21,15 +30,18 @@ class BKTForbiddenException extends BKTException {
 }
 
 class BKTFeatureNotFoundException extends BKTException {
-  BKTFeatureNotFoundException({required String message}) : super(message: message);
+  BKTFeatureNotFoundException({required String message})
+      : super(message: message);
 }
 
 class BKTClientClosedRequestException extends BKTException {
-  BKTClientClosedRequestException({required String message}) : super(message: message);
+  BKTClientClosedRequestException({required String message})
+      : super(message: message);
 }
 
 class BKTInvalidHttpMethodException extends BKTException {
-  BKTInvalidHttpMethodException({required String message}) : super(message: message);
+  BKTInvalidHttpMethodException({required String message})
+      : super(message: message);
 }
 
 class PayloadTooLargeException extends BKTException {
@@ -37,11 +49,13 @@ class PayloadTooLargeException extends BKTException {
 }
 
 class BKTInternalServerErrorException extends BKTException {
-  BKTInternalServerErrorException({required String message}) : super(message: message);
+  BKTInternalServerErrorException({required String message})
+      : super(message: message);
 }
 
 class BKTServiceUnavailableException extends BKTException {
-  BKTServiceUnavailableException({required String message}) : super(message: message);
+  BKTServiceUnavailableException({required String message})
+      : super(message: message);
 }
 
 class BKTTimeoutException extends BKTException {
@@ -53,7 +67,8 @@ class BKTNetworkException extends BKTException {
 }
 
 class BKTIllegalArgumentException extends BKTException {
-  BKTIllegalArgumentException({required String message}) : super(message: message);
+  BKTIllegalArgumentException({required String message})
+      : super(message: message);
 }
 
 class BKTIllegalStateException extends BKTException {
@@ -61,7 +76,6 @@ class BKTIllegalStateException extends BKTException {
 }
 
 class BKTUnknownException extends BKTException {
-  BKTUnknownException({required String message, Exception? exception}) : super(message: message);
+  BKTUnknownException({required String message, Exception? exception})
+      : super(message: message);
 }
-
-

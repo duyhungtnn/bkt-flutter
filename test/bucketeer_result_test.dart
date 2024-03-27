@@ -8,9 +8,10 @@ void main() {
     expect(success.isFailure, equals(false));
     expect(success.asSuccess.data, equals('Success'));
 
-    final failure = BKTResult.failure('Failed');
+    final failure = BKTResult.failure('Failed', exception: BKTForbiddenException(message: "unknown"));
     expect(failure.isFailure, equals(true));
     expect(failure.isSuccess, equals(false));
     expect(failure.asFailure.message, equals('Failed'));
+    expect(failure.asFailure.exception, isA<BKTForbiddenException>());
   });
 }

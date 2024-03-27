@@ -1,11 +1,11 @@
-
 import 'exception.dart';
 import 'result.dart';
 
 extension ObjectToBKTException on Object {
   BKTResult<T> toBKTResultFailure<T>() {
     if (this is BKTException) {
-      return BKTResult<T>.failure((this as BKTException).message, exception: this as BKTException);
+      return BKTResult<T>.failure((this as BKTException).message,
+          exception: this as BKTException);
     }
     final exception = BKTUnknownException(
         message: toString(),
@@ -19,7 +19,7 @@ extension ParseBKTException on Map<String, dynamic> {
     final errorCode = this['errorCode'];
     final errorMessage = this['errorMessage'] ?? "unknown";
     final typedErrorMessage =
-    errorMessage is String ? errorMessage : errorMessage.toString();
+        errorMessage is String ? errorMessage : errorMessage.toString();
     if (errorCode is int) {
       return errorCode.toBKTException(typedErrorMessage);
     }
@@ -27,38 +27,65 @@ extension ParseBKTException on Map<String, dynamic> {
   }
 }
 
+enum BKTExceptionType {
+  unknown, ///0
+  redirectRequest, ///1
+  badRequest, ///2
+  unauthorized, ///3
+  forbidden, ///4
+  featureNotFound, ///5
+  clientClosedRequest, ///6
+  invalidHttpMethod, ///7
+  payloadTooLarge, ///8
+  internalServerError, ///9
+  serviceUnavailable, ///10
+  timeout, ///11
+  network, ///12
+  illegalArgumentException, ///13
+  illegalStateException, ///14
+  nativeUnknownException; ///15
+
+  static BKTExceptionType fromInt(int value) {
+    if (value <= 0 || value >= BKTExceptionType.values.length) {
+      return BKTExceptionType.unknown;
+    }
+    return BKTExceptionType.values[value];
+  }
+}
+
 extension IntToBKTException on int {
   BKTException toBKTException(String errorMessage) {
-    switch (this) {
-      case 1:
+    final type = BKTExceptionType.fromInt(this);
+    switch (type) {
+      case BKTExceptionType.redirectRequest:
         return RedirectRequestException(message: errorMessage);
-      case 2:
+      case BKTExceptionType.badRequest:
         return BKTBadRequestException(message: errorMessage);
-      case 3:
+      case BKTExceptionType.unauthorized:
         return BKTUnauthorizedException(message: errorMessage);
-      case 4:
+      case BKTExceptionType.forbidden:
         return BKTForbiddenException(message: errorMessage);
-      case 5:
+      case BKTExceptionType.featureNotFound:
         return BKTFeatureNotFoundException(message: errorMessage);
-      case 6:
+      case BKTExceptionType.clientClosedRequest:
         return BKTClientClosedRequestException(message: errorMessage);
-      case 7:
+      case BKTExceptionType.invalidHttpMethod:
         return BKTInvalidHttpMethodException(message: errorMessage);
-      case 8:
+      case BKTExceptionType.payloadTooLarge:
         return PayloadTooLargeException(message: errorMessage);
-      case 9:
+      case BKTExceptionType.internalServerError:
         return BKTInternalServerErrorException(message: errorMessage);
-      case 10:
+      case BKTExceptionType.serviceUnavailable:
         return BKTServiceUnavailableException(message: errorMessage);
-      case 11:
+      case BKTExceptionType.timeout:
         return BKTTimeoutException(message: errorMessage);
-      case 12:
+      case BKTExceptionType.network:
         return BKTNetworkException(message: errorMessage);
-      case 13:
+      case BKTExceptionType.illegalArgumentException:
         return BKTIllegalArgumentException(message: errorMessage);
-      case 14:
+      case BKTExceptionType.illegalStateException:
         return BKTIllegalStateException(message: errorMessage);
-      case 15:
+      case BKTExceptionType.nativeUnknownException:
         return BKTUnknownException(message: errorMessage);
       default:
         return BKTUnknownException(message: errorMessage);

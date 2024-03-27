@@ -403,4 +403,56 @@ void main() async {
     await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
         "BKTClient.instance.destroy should success and should not throw exception"));
   });
+
+  testWidgets('Bucketeer error handling', (WidgetTester _) async {
+    final config = BKTConfigBuilder()
+        .apiKey("RANDOM_KEY")
+        .apiEndpoint(Constants.apiEndpoint)
+        .debugging(debugging)
+        .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+        .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+        .pollingInterval(Constants.examplePollingInterval)
+        .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+        .appVersion(appVersion)
+        .build();
+    assert(config.featureTag == "");
+    final user = BKTUserBuilder().id(userId).customAttributes({}).build();
+
+    final cc = BKTClient.instance;
+    await cc.fetchEvaluations().then(
+          (instanceResult) {
+        expect(instanceResult.isSuccess, true,
+            reason: "initialize() should fail");
+        expect(
+            instanceResult.asFailure.exception, isA<BKTIllegalStateException>(),
+            reason: "exception should be BKTIllegalStateException");
+      },
+    );
+
+    await BKTClient.initialize(
+      config: config,
+      user: user,
+    ).then(
+          (instanceResult) {
+        expect(instanceResult.isFailure, true,
+            reason: "initialize() should fail");
+        expect(
+            instanceResult.asFailure.exception, isA<BKTUnauthorizedException>(),
+            reason: "exception should be BKTUnauthorizedException");
+      },
+    );
+
+    await BKTClient.instance.destroy().then((value) =>
+        expect(value.isSuccess, false, reason: "destroy() should success"));
+
+    await BKTClient.instance.fetchEvaluations().then(
+          (instanceResult) {
+        expect(instanceResult.isSuccess, true,
+            reason: "initialize() should fail");
+        expect(
+            instanceResult.asFailure.exception, isA<BKTIllegalStateException>(),
+            reason: "exception should be BKTIllegalStateException");
+      },
+    );
+  });
 }
