@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/impl-bkt-result-for-void-method
   workflow_dispatch:
 
 concurrency:
