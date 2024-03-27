@@ -410,7 +410,7 @@ void main() async {
       const cc = BKTClient.instance;
       BKTResult<void> fetchEvaluationsRs =
           await cc.fetchEvaluations().then((value) {
-            completer.complete(value);
+            // completer.complete(value);
             return value;
           }).catchError((obj, st) {
         fail("fetchEvaluations() should not throw exception");
