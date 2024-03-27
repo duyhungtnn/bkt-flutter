@@ -5,7 +5,7 @@ import 'result.dart';
 extension ObjectToBKTException on Object {
   BKTResult<T> toBKTResultFailure<T>() {
     if (this is BKTException) {
-      return BKTResult<T>.failure(toString(), exception: this as BKTException);
+      return BKTResult<T>.failure((this as BKTException).message, exception: this as BKTException);
     }
     final exception = BKTUnknownException(
         message: toString(),
