@@ -7,6 +7,8 @@ export 'src/evaluation_update_listener.dart';
 export 'src/config.dart';
 export 'src/exception.dart';
 
+import 'src/native_channel_result_parser.dart';
+import 'src/exception_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'bucketeer_flutter_client_sdk.dart';
@@ -14,6 +16,7 @@ import 'src/proxy_evaluation_update_listener.dart';
 import 'src/call_methods.dart';
 import 'src/constants.dart';
 import 'src/evaluation_update_listener_dispatcher.dart';
+
 
 /// Bucketeer Flutter SDK
 class BKTClient {
@@ -52,14 +55,14 @@ class BKTClient {
       },
     );
     // The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return instance._resultGuard(rs);
+    return resultGuard(rs);
   }
 
   Future<String> stringVariation(
     String featureId, {
     required String defaultValue,
   }) async {
-    return _valueGuard<String>(
+    return valueGuard<String>(
       await _invokeMethod(
         CallMethods.stringVariation.name,
         argument: {
@@ -77,7 +80,7 @@ class BKTClient {
     String featureId, {
     required int defaultValue,
   }) async {
-    return _valueGuard<int>(
+    return valueGuard<int>(
       await _invokeMethod(
         CallMethods.intVariation.name,
         argument: {
@@ -95,7 +98,7 @@ class BKTClient {
     String featureId, {
     required double defaultValue,
   }) async {
-    return _valueGuard<double>(
+    return valueGuard<double>(
       await _invokeMethod(
         CallMethods.doubleVariation.name,
         argument: {
@@ -113,7 +116,7 @@ class BKTClient {
     String featureId, {
     required bool defaultValue,
   }) async {
-    return _valueGuard<bool>(
+    return valueGuard<bool>(
       await _invokeMethod(
         CallMethods.boolVariation.name,
         argument: {
@@ -131,7 +134,7 @@ class BKTClient {
     String featureId, {
     required Map<String, dynamic> defaultValue,
   }) async {
-    return _valueGuard<Map<String, dynamic>>(
+    return valueGuard<Map<String, dynamic>>(
       await _invokeMethod(
         CallMethods.jsonVariation.name,
         argument: {
@@ -152,7 +155,7 @@ class BKTClient {
     String goalId, {
     double? value,
   }) async {
-    return await _statusGuard(
+    return await statusGuard(
       await _invokeMethod(
         CallMethods.track.name,
         argument: {
@@ -167,7 +170,7 @@ class BKTClient {
   }
 
   Future<BKTResult<BKTUser>> currentUser() async {
-    return _valueGuard<BKTUser>(
+    return valueGuard<BKTUser>(
       await _invokeMethod(CallMethods.currentUser.name),
       customMapping: (response) {
         return BKTUserBuilder()
@@ -187,7 +190,7 @@ class BKTClient {
 
   Future<BKTResult<void>> updateUserAttributes(
       Map<String, String> userAttributes) async {
-    return await _statusGuard(
+    return await statusGuard(
       await _invokeMethod(
         CallMethods.updateUserAttributes.name,
         argument: userAttributes,
@@ -200,7 +203,7 @@ class BKTClient {
 
   Future<BKTResult<void>> fetchEvaluations({int? timeoutMillis}) async {
     /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return _resultGuard(
+    return resultGuard(
       await _invokeMethod(
         CallMethods.fetchEvaluations.name,
         argument: {
@@ -212,13 +215,13 @@ class BKTClient {
 
   Future<BKTResult<void>> flush() async {
     /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
-    return _resultGuard(
+    return resultGuard(
       await _invokeMethod(CallMethods.flush.name),
     );
   }
 
   Future<BKTResult<void>> destroy() async {
-    return await _statusGuard(
+    return await statusGuard(
       await _invokeMethod(CallMethods.destroy.name).then(
         (value) async {
           // Remove all listener for the current client
@@ -234,7 +237,7 @@ class BKTClient {
   }
 
   Future<BKTEvaluation?> evaluationDetails(String featureId) async {
-    return _valueGuard<BKTEvaluation?>(
+    return valueGuard<BKTEvaluation?>(
       await _invokeMethod(CallMethods.evaluationDetails.name, argument: {
         'featureId': featureId,
       }),
@@ -258,7 +261,7 @@ class BKTClient {
   }
 
   Future<String?> _addProxyEvaluationUpdateListener() async {
-    return _valueGuard<String?>(
+    return valueGuard<String?>(
       await _invokeMethod(
         CallMethods.addProxyEvaluationUpdateListener.name,
         argument: {},
@@ -294,75 +297,6 @@ class BKTClient {
     _dispatcher.clearEvaluationUpdateListeners();
   }
 
-  // _valueGuard should use to parse the response for single value
-  // it will parse the response from the native side
-  // The response format {'status':true, 'response': value}
-  // this func could call _resultGuard underlying
-  // but I want `_valueGuard` has its own logic for more simple
-  Future<T> _valueGuard<T>(Map<String, dynamic> result,
-      {T Function(Map<String, dynamic>)? customMapping}) async {
-    if (result['status']) {
-      if (result['response'] != null) {
-        try {
-          if (customMapping != null) {
-            // throw runtime exception
-            return customMapping(
-              Map<String, dynamic>.from(result['response']),
-            );
-          } else {
-            // throw runtime exception
-            return result['response'] as T;
-          }
-        } catch (ex) {
-          throw BKTUnknownException(
-              message: ex.toString(), exception: ex is Exception ? ex : null);
-        }
-      } else {
-        throw BKTUnknownException(message: 'missing result response');
-      }
-    } else {
-      throw result.parseBKTException();
-    }
-  }
-
-  // _statusGuard checking and parser the status only
-  Future<BKTResult<void>> _statusGuard<T>(Map<String, dynamic> result) async {
-    if (!result['status']) {
-      throw result.parseBKTException();
-    }
-    return const BKTResult<void>.success();
-  }
-
-  // _resultGuard for handle any native func will throw the BKTException
-  BKTResult<T> _resultGuard<T>(Map<String, dynamic> result,
-      {T Function(Map<String, dynamic>)? customMapping}) {
-    try {
-      if (result['status']) {
-        if (result['response'] != null) {
-          if (customMapping != null) {
-            return BKTResult<T>.success(
-              data: customMapping(
-                Map<String, dynamic>.from(result['response']),
-              ),
-            );
-          } else {
-            return BKTResult<T>.success(data: result['response']);
-          }
-        } else {
-          return const BKTResult.success();
-        }
-      } else {
-        final exception = result.parseBKTException();
-        return BKTResult.failure(exception.message, exception: exception);
-      }
-    } catch (ex) {
-      // catch runtime exception when parse the result
-      final exception = BKTUnknownException(
-          message: ex.toString(), exception: ex is Exception ? ex : null);
-      return BKTResult.failure(exception.message, exception: exception);
-    }
-  }
-
   Future<Map<String, dynamic>> _invokeMethod(
     String method, {
     Map<String, dynamic> argument = const {},
@@ -377,70 +311,6 @@ class BKTClient {
         "status": false,
         "errorMessage": ex.toString(),
       };
-    }
-  }
-}
-
-extension ObjectToBKTException on Object {
-  BKTResult<T> toBKTResultFailure<T>() {
-    if (this is BKTException) {
-      return BKTResult<T>.failure(toString(), exception: this as BKTException);
-    }
-    final exception = BKTUnknownException(
-        message: toString(),
-        exception: this is Exception ? this as Exception : null);
-    return BKTResult<T>.failure(exception.message, exception: exception);
-  }
-}
-
-extension ParseBKTException on Map<String, dynamic> {
-  BKTException parseBKTException() {
-    final errorCode = this['errorCode'];
-    final errorMessage = this['errorMessage'] ?? "unknown";
-    final typedErrorMessage =
-        errorMessage is String ? errorMessage : errorMessage.toString();
-    if (errorCode is int) {
-      return errorCode.toBKTException(typedErrorMessage);
-    }
-    return BKTUnknownException(message: typedErrorMessage);
-  }
-}
-
-extension IntToBKTException on int {
-  BKTException toBKTException(String errorMessage) {
-    switch (this) {
-      case 1:
-        return RedirectRequestException(message: errorMessage);
-      case 2:
-        return BKTBadRequestException(message: errorMessage);
-      case 3:
-        return BKTUnauthorizedException(message: errorMessage);
-      case 4:
-        return BKTForbiddenException(message: errorMessage);
-      case 5:
-        return BKTFeatureNotFoundException(message: errorMessage);
-      case 6:
-        return BKTClientClosedRequestException(message: errorMessage);
-      case 7:
-        return BKTInvalidHttpMethodException(message: errorMessage);
-      case 8:
-        return PayloadTooLargeException(message: errorMessage);
-      case 9:
-        return BKTInternalServerErrorException(message: errorMessage);
-      case 10:
-        return BKTServiceUnavailableException(message: errorMessage);
-      case 11:
-        return BKTTimeoutException(message: errorMessage);
-      case 12:
-        return BKTNetworkException(message: errorMessage);
-      case 13:
-        return BKTIllegalArgumentException(message: errorMessage);
-      case 14:
-        return BKTIllegalStateException(message: errorMessage);
-      case 15:
-        return BKTUnknownException(message: errorMessage);
-      default:
-        return BKTUnknownException(message: errorMessage);
     }
   }
 }
