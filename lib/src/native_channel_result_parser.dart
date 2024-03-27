@@ -57,7 +57,7 @@ BKTResult<T> resultGuard<T>(Map<String, dynamic> result,
           return BKTResult<T>.success(data: result['response']);
         }
       } else {
-        return const BKTResult.success();
+        throw BKTUnknownException(message: 'missing result response');
       }
     } else {
       final exception = result.parseBKTException();
