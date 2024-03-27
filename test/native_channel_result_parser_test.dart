@@ -111,7 +111,7 @@ void main() {
     test('valueGuard function should return correct result when status is true', () {
       final result = {
         'status': true,
-        'response': 'some_data', // Modify this according to your test case
+        'response': 'some_data',
       };
 
       expect(() async {
@@ -123,7 +123,7 @@ void main() {
     test('valueGuard function should throw BKTUnknownException when custom mapping throws exception', () {
       final result = {
         'status': true,
-        'response': 'some_data', // Modify this according to your test case
+        'response': 'some_data',
       };
 
       expect(() async {
@@ -151,7 +151,7 @@ void main() {
       final result = {
         'status': false,
         'errorCode': 'Forbidden',
-        'errorMessage': 2, // Modify this according to your test case
+        'errorMessage': 2,
       };
 
       expect(() async {
@@ -163,7 +163,7 @@ void main() {
       final result = {
         'status': false,
         'errorCode': 2,
-        'errorMessage': 'Forbidden', // Modify this according to your test case
+        'errorMessage': 'Forbidden',
       };
 
       expect(() async {
