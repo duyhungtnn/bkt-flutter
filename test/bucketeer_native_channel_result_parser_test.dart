@@ -10,17 +10,23 @@ void main() {
       expect(result.isSuccess, true);
     });
 
-    test('should throw exception if status is false', () {
-      expect(() => statusGuard<void>({'status': false}), throwsA(isA<BKTException>()));
+    test('should return Failure if status is false', () async {
+      final result = await statusGuard<void>({'status': false});
+      expect(result.isSuccess, false);
+      expect(result.asFailure.exception, isA<BKTUnknownException>());
     });
 
     // Add more test cases as needed
-    test('should throw RedirectRequestException if status is a redirect', () {
-      expect(() => statusGuard<void>({'status': false, 'errorCode': 1}), throwsA(isA<RedirectRequestException>()));
+    test('should return Failure if status is a redirect', () async {
+      final result = await statusGuard<void>({'status': false, 'errorCode': 1});
+      expect(result.isSuccess, false);
+      expect(result.asFailure.exception, isA<RedirectRequestException>());
     });
 
-    test('should throw BKTBadRequestException if status is a bad request', () {
-      expect(() => statusGuard<void>({'status': false, 'errorCode': 2}), throwsA(isA<BKTBadRequestException>()));
+    test('should return Failure if status is a bad request', () async {
+      final result = await statusGuard<void>({'status': false, 'errorCode': 2});
+      expect(result.isSuccess, false);
+      expect(result.asFailure.exception, isA<BKTBadRequestException>());
     });
   });
 
@@ -168,7 +174,7 @@ void main() {
 
       expect(() async {
         await valueGuard<String>(result);
-      }, throwsA(isA<BKTForbiddenException>()));
+      }, throwsA(isA<BKTBadRequestException>()));
     });
 
     // Add more tests as needed for different scenarios
