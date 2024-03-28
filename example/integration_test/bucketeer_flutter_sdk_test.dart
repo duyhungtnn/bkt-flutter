@@ -378,7 +378,52 @@ void main() async {
     });
   });
 
-  test('BKTClient should allow feature_tag to be optional', () async {
+  group('Bucketeer allow some configs to be optional', () {
+    setUp(() {
+
+    });
+
+    test('BKTClient should allow feature_tag to be optional', () async {
+      final config = BKTConfigBuilder()
+          .apiKey(Constants.apiKey)
+          .apiEndpoint(Constants.apiEndpoint)
+          .debugging(debugging)
+          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+          .pollingInterval(Constants.examplePollingInterval)
+          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+          .appVersion(appVersion)
+          .build();
+      assert(config.featureTag == "");
+      final user = BKTUserBuilder().id(userId).customAttributes({}).build();
+
+      await BKTClient.initialize(
+        config: config,
+        user: user,
+      ).then((instanceResult) {
+        expect(instanceResult.isInitializeSuccess(), true,
+            reason: "initialize() should success");
+      }, onError: (obj, st) {
+        fail('initialize() should not throw exception');
+      });
+
+      /// init without feature tag should retrieves all features
+      final android = await BKTClient.instance
+          .evaluationDetails("feature-android-e2e-string");
+      expect(android != null, true,
+          reason: "evaluationDetails should not be null");
+
+      final golang =
+      await BKTClient.instance.evaluationDetails("feature-go-server-e2e-1");
+      expect(golang != null, true,
+          reason: "evaluationDetails should not be null");
+
+      final javascript =
+      await BKTClient.instance.evaluationDetails("feature-js-e2e-string");
+      expect(javascript != null, true,
+          reason: "evaluationDetails should not be null");
+    });
+
     tearDown(() async {
       await BKTClient.instance.destroy().then((value) {
         expect(value.isSuccess, true, reason: "destroy() should success");
@@ -386,45 +431,6 @@ void main() async {
         fail("destroy() should success and should not throw exception");
       });
     });
-
-    final config = BKTConfigBuilder()
-        .apiKey(Constants.apiKey)
-        .apiEndpoint(Constants.apiEndpoint)
-        .debugging(debugging)
-        .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
-        .eventsFlushInterval(Constants.exampleEventsFlushInterval)
-        .pollingInterval(Constants.examplePollingInterval)
-        .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
-        .appVersion(appVersion)
-        .build();
-    assert(config.featureTag == "");
-    final user = BKTUserBuilder().id(userId).customAttributes({}).build();
-
-    await BKTClient.initialize(
-      config: config,
-      user: user,
-    ).then((instanceResult) {
-      expect(instanceResult.isInitializeSuccess(), true,
-          reason: "initialize() should success");
-    }, onError: (obj, st) {
-      fail('initialize() should not throw exception');
-    });
-
-    /// init without feature tag should retrieves all features
-    final android = await BKTClient.instance
-        .evaluationDetails("feature-android-e2e-string");
-    expect(android != null, true,
-        reason: "evaluationDetails should not be null");
-
-    final golang =
-        await BKTClient.instance.evaluationDetails("feature-go-server-e2e-1");
-    expect(golang != null, true,
-        reason: "evaluationDetails should not be null");
-
-    final javascript =
-        await BKTClient.instance.evaluationDetails("feature-js-e2e-string");
-    expect(javascript != null, true,
-        reason: "evaluationDetails should not be null");
   });
 
   group('Bucketeer error handling', () {
