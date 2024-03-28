@@ -279,7 +279,20 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     val timeoutMillis = args["timeoutMillis"] as? Long
     MainScope().launch {
       val err = withContext(Dispatchers.IO) {
-        return@withContext BKTClient.getInstance().fetchEvaluations(timeoutMillis).get()
+        val rs = runCatching {
+          return@runCatching BKTClient.getInstance().fetchEvaluations(timeoutMillis).get()
+        }
+        rs.fold(
+          onSuccess = {
+            return@withContext null
+          },
+          onFailure = {
+            if (it is Exception) {
+              return@withContext it
+            }
+            return@withContext BKTException.UnknownException(message = "unknown", cause = it)
+          }
+        )
       }
       if (err != null) {
         fail(result, err.message, exception = err)
@@ -292,7 +305,20 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   private fun flush(result: MethodChannel.Result) {
     MainScope().launch {
       val err = withContext(Dispatchers.IO) {
-        return@withContext BKTClient.getInstance().flush().get()
+        val rs = runCatching {
+          return@runCatching BKTClient.getInstance().flush().get()
+        }
+        rs.fold(
+          onSuccess = {
+            return@withContext null
+          },
+          onFailure = {
+            if (it is Exception) {
+              return@withContext it
+            }
+            return@withContext BKTException.UnknownException(message = "unknown", cause = it)
+          }
+        )
       }
       if (err != null) {
         fail(result, err.message, exception = err)

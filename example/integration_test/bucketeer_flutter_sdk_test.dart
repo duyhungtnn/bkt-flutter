@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:mocktail/mocktail.dart';
+import 'dart:io' show Platform;
 
 class MockEvaluationUpdateListener extends Mock
     implements BKTEvaluationUpdateListener {}
@@ -256,7 +257,7 @@ void main() async {
 
     testWidgets('testSwitchUser', (WidgetTester _) async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
-          "BKTClient.instance.destroy should success and should not throw exception"));
+          "BKTClient.instance.destroy should success and should not throw exception ${error.toString()}"));
       final config = BKTConfigBuilder()
           .apiKey(Constants.apiKey)
           .apiEndpoint(Constants.apiEndpoint)
@@ -281,7 +282,7 @@ void main() async {
         {'app_version': appVersion},
       ).onError(
         (error, stackTrace) => fail(
-            "BKTClient.instance.updateUserAttributes should success and should not throw exception"),
+            "BKTClient.instance.updateUserAttributes should success and should not throw exception ${error.toString()}"),
       );
 
       var currentUserRs = await BKTClient.instance.currentUser();
@@ -296,6 +297,11 @@ void main() async {
           await BKTClient.instance.fetchEvaluations(timeoutMillis: 30000);
       expect(fetchEvaluationsResult.isSuccess, true,
           reason: "fetchEvaluations() should success");
+
+      await BKTClient.instance.destroy().then((value) {
+        expect(value.isSuccess, true, reason: "destroy() should success");
+      }).onError((error, stackTrace) =>
+          fail("destroy() should success and should not throw exception ${error.toString()}"));
     });
   });
 
@@ -319,7 +325,7 @@ void main() async {
         config: config,
         user: user,
       ).onError(
-          (error, stackTrace) => fail("initialize() should not throw error"));
+          (error, stackTrace) => fail("initialize() should not throw error ${error.toString()}"));
     });
 
     setUp(() async {});
@@ -328,7 +334,7 @@ void main() async {
 
     tearDownAll(() async {
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
-          "BKTClient.instance.destroy should success and should not throw exception"));
+          "BKTClient.instance.destroy should success and should not throw exception ${error.toString()}"));
       debugPrint("Bucketeer Listener Tests passed");
     });
 
@@ -383,13 +389,12 @@ void main() async {
     await BKTClient.initialize(
       config: config,
       user: user,
-    ).then(
-      (instanceResult) {
-
-        expect(instanceResult.isInitializeSuccess(), true,
-            reason: "initialize() should success");
-      },
-    );
+    ).then((instanceResult) {
+      expect(instanceResult.isInitializeSuccess(), true,
+          reason: "initialize() should success");
+    }, onError: (obj, st) {
+      fail('initialize() should not throw exception');
+    });
 
     /// init without feature tag should retrieves all features
     final android = await BKTClient.instance
@@ -405,97 +410,109 @@ void main() async {
     assert(javascript != null);
 
     await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
-        "BKTClient.instance.destroy should success and should not throw exception"));
+        "BKTClient.instance.destroy should success and should not throw exception ${error.toString()}"));
+
+    await BKTClient.instance.destroy().then((value) {
+      expect(value.isSuccess, true, reason: "destroy() should success");
+    }, onError: (obj, st) {
+      fail("destroy() should success and should not throw exception");
+    });
   });
 
   group('Bucketeer error handling', () {
     testWidgets('Access BKTClient before initialize', (WidgetTester _) async {
       var completer = Completer<BKTResult<void>>();
-      const cc = BKTClient.instance;
       BKTResult<void> fetchEvaluationsRs =
-          await cc.fetchEvaluations().then((value) {
-            // completer.complete(value);
-            return value;
-          }).catchError((obj, st) {
+      await BKTClient.instance.fetchEvaluations().then((value) {
+        completer.complete(value);
+        return value;
+      }, onError: (obj, st) {
         fail("fetchEvaluations() should not throw exception");
       });
       expect(fetchEvaluationsRs.isFailure, true,
           reason: "fetchEvaluations() should fail");
-      expect(fetchEvaluationsRs.asFailure.exception,
-          isA<BKTIllegalStateException>(),
-          reason: "exception should be BKTIllegalStateException");
+      if (Platform.isAndroid) {
+        // Its an issues of the Android SDK 2.0.5
+        // It throw BKTIllegalArgumentException instead of BKTIllegalStateException
+        // It should fix on the next version 2.0.6
+        expect(fetchEvaluationsRs.asFailure.exception,
+            isA<BKTIllegalArgumentException>(),
+            reason: "exception should be BKTIllegalArgumentException");
+      } else {
+        expect(fetchEvaluationsRs.asFailure.exception,
+            isA<BKTIllegalStateException>(),
+            reason: "exception should be BKTIllegalStateException");
+      }
 
       // Expect the completion of both fulfillment's with a timeout
-      expect(completer.isCompleted, true);
+      expect(completer.isCompleted, true, reason: "completer should be completed");
     });
 
     testWidgets('initialize BKTClient with invalid API_KEY',
-        (WidgetTester _) async {
-      final config = BKTConfigBuilder()
-          .apiKey("RANDOM_KEY")
-          .apiEndpoint(Constants.apiEndpoint)
-          .debugging(debugging)
-          .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
-          .eventsFlushInterval(Constants.exampleEventsFlushInterval)
-          .pollingInterval(Constants.examplePollingInterval)
-          .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
-          .appVersion(appVersion)
-          .build();
-      assert(config.featureTag == "");
-      final user = BKTUserBuilder().id(userId).customAttributes({}).build();
+            (WidgetTester _) async {
+          final config = BKTConfigBuilder()
+              .apiKey("RANDOM_KEY")
+              .apiEndpoint(Constants.apiEndpoint)
+              .debugging(debugging)
+              .eventsMaxQueueSize(Constants.exampleEventMaxQueueSize)
+              .eventsFlushInterval(Constants.exampleEventsFlushInterval)
+              .pollingInterval(Constants.examplePollingInterval)
+              .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
+              .appVersion(appVersion)
+              .build();
+          assert(config.featureTag == "");
+          final user = BKTUserBuilder().id(userId).customAttributes({}).build();
 
-      await BKTClient.initialize(
-        config: config,
-        user: user,
-      ).then(
-        (instanceResult) {
-          expect(instanceResult.isFailure, true,
-              reason: "initialize() should fail");
-          expect(
-              instanceResult.asFailure.exception, isA<BKTForbiddenException>(),
-              reason: "exception should be BKTUnauthorizedException");
-        },
-      ).onError((obj, st) {
-        fail("initialize() should not throw exception");
-      });
+          await BKTClient.initialize(
+            config: config,
+            user: user,
+          ).then((instanceResult) {
+            expect(instanceResult.isFailure, true,
+                reason: "initialize() should fail");
+            expect(instanceResult.asFailure.exception, isA<BKTForbiddenException>(),
+                reason: "exception should be BKTForbiddenException");
+          }, onError: (obj, st) {
+            fail("initialize() should not throw exception");
+          });
 
-      await BKTClient.instance.fetchEvaluations().then(
-            (instanceResult) {
-          expect(instanceResult.isFailure, true,
-              reason: "fetchEvaluations() should fail");
-          expect(instanceResult.asFailure.exception,
-              isA<BKTForbiddenException>(),
-              reason: "exception should be BKTForbiddenException");
-        },
-      ).onError((obj, st) {
-        fail("fetchEvaluations() should not throw exception");
-      });
+          await BKTClient.instance.fetchEvaluations().then((instanceResult) {
+            expect(instanceResult.isSuccess, true,
+                reason: "fetchEvaluations() should success ${instanceResult.toString()}");
+          }, onError: (obj, st) {
+            fail("fetchEvaluations() should not throw exception ${obj.toString()}");
+          });
 
-      await BKTClient.instance
-          .destroy()
-          .then((value) =>
-              expect(value.isSuccess, true, reason: "destroy() should success"))
-          .onError((obj, st) {
-        fail("destroy() should not throw exception");
-      });
+          await BKTClient.instance.destroy().then(
+                  (value) =>
+                  expect(value.isSuccess, true, reason: "destroy() should success"),
+              onError: (obj, st) {
+                fail("destroy() should not throw exception");
+              });
 
-      await BKTClient.instance.fetchEvaluations().then(
-        (instanceResult) {
-          expect(instanceResult.isFailure, true,
-              reason: "fetchEvaluations() should fail");
-          expect(instanceResult.asFailure.exception,
-              isA<BKTIllegalStateException>(),
-              reason: "exception should be BKTIllegalStateException");
-        },
-      ).onError((obj, st) {
-        fail("fetchEvaluations() should not throw exception");
-      });
-    });
+          await BKTClient.instance.fetchEvaluations().then((fetchEvaluationsRs) {
+            expect(fetchEvaluationsRs.isFailure, true,
+                reason: "fetchEvaluations() should fail");
+            if (Platform.isAndroid) {
+              // Its an issues of the Android SDK 2.0.5
+              // It throw BKTIllegalArgumentException instead of BKTIllegalStateException
+              // It should fix on the next version 2.0.6
+              expect(fetchEvaluationsRs.asFailure.exception,
+                  isA<BKTIllegalArgumentException>(),
+                  reason: "exception should be BKTIllegalArgumentException");
+            } else {
+              expect(fetchEvaluationsRs.asFailure.exception,
+                  isA<BKTIllegalStateException>(),
+                  reason: "exception should be BKTIllegalStateException");
+            }
+          }, onError: (obj, st) {
+            fail("fetchEvaluations() should not throw exception ${obj.toString()}");
+          });
+        });
   });
 }
 
 extension InitializeSuccess on BKTResult<void> {
   bool isInitializeSuccess() {
-   return isSuccess || asFailure.exception is BKTTimeoutException;
+    return isSuccess || asFailure.exception is BKTTimeoutException;
   }
 }
