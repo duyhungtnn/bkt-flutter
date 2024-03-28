@@ -63,5 +63,5 @@ class Failure {
   final String message;
 
   @override
-  String toString() => 'message ($message) - exception ${exception.toString()}';
+  String toString() => '[message ($message) - exception ${exception.toString()}]';
 }
