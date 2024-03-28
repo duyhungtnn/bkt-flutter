@@ -475,9 +475,10 @@ void main() async {
             fail("initialize() should not throw exception");
           });
 
-          await BKTClient.instance.fetchEvaluations().then((instanceResult) {
-            expect(instanceResult.isSuccess, true,
-                reason: "fetchEvaluations() should success ${instanceResult.toString()}");
+          await BKTClient.instance.fetchEvaluations().then((fetchEvaluationsRs) {
+            expect(fetchEvaluationsRs.asFailure.exception,
+                isA<BKTForbiddenException>(),
+                reason: "exception should be BKTIllegalStateException");
           }, onError: (obj, st) {
             fail("fetchEvaluations() should not throw exception ${obj.toString()}");
           });

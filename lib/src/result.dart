@@ -61,4 +61,7 @@ class Failure {
   const Failure(this.message, {this.exception});
   final BKTException? exception;
   final String message;
+
+  @override
+  String toString() => 'message ($message) - exception ${exception.toString()}';
 }
