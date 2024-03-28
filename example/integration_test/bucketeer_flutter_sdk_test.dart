@@ -72,6 +72,8 @@ void main() async {
     tearDown(() async {});
 
     tearDownAll(() async {
+      await BKTClient.instance.flush().onError((error, stackTrace) => fail(
+          "BKTClient.instance.flush should succeed and should not throw an exception. Error: $error"));
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
           "BKTClient.instance.destroy should success and should not throw exception"));
       debugPrint("Bucketeer tests passed");
@@ -333,6 +335,8 @@ void main() async {
     tearDown(() async {});
 
     tearDownAll(() async {
+      await BKTClient.instance.flush().onError((error, stackTrace) => fail(
+          "BKTClient.instance.flush should succeed and should not throw an exception. Error: $error"));
       await BKTClient.instance.destroy().onError((error, stackTrace) => fail(
           "BKTClient.instance.destroy should success and should not throw exception ${error.toString()}"));
       debugPrint("Bucketeer Listener Tests passed");

@@ -284,7 +284,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
         }
         rs.fold(
           onSuccess = {
-            return@withContext null
+            return@withContext it
           },
           onFailure = {
             if (it is Exception) {
