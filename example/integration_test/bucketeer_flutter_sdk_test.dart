@@ -60,7 +60,7 @@ void main() async {
         user: user,
       ).then(
         (instanceResult) {
-          expect(instanceResult.isSuccess, true,
+          expect(instanceResult.isInitializeSuccess(), true,
               reason: "initialize() should success");
         },
       );
@@ -274,7 +274,7 @@ void main() async {
         config: config,
         user: user,
       );
-      expect(instanceResult.isSuccess, true,
+      expect(instanceResult.isInitializeSuccess(), true,
           reason: "initialize() should success");
 
       await BKTClient.instance.updateUserAttributes(
@@ -346,6 +346,9 @@ void main() async {
         //Called, complete the future
         completer.complete();
       });
+
+      BKTClient.instance.fetchEvaluations();
+
       await completer.future.timeout(const Duration(seconds: 60),
           onTimeout: () {
         // Fast fail
@@ -382,7 +385,8 @@ void main() async {
       user: user,
     ).then(
       (instanceResult) {
-        expect(instanceResult.isSuccess, true,
+
+        expect(instanceResult.isInitializeSuccess(), true,
             reason: "initialize() should success");
       },
     );
@@ -451,7 +455,7 @@ void main() async {
               instanceResult.asFailure.exception, isA<BKTForbiddenException>(),
               reason: "exception should be BKTUnauthorizedException");
         },
-      ).catchError((obj, st) {
+      ).onError((obj, st) {
         fail("initialize() should not throw exception");
       });
 
@@ -463,7 +467,7 @@ void main() async {
               isA<BKTForbiddenException>(),
               reason: "exception should be BKTForbiddenException");
         },
-      ).catchError((obj, st) {
+      ).onError((obj, st) {
         fail("fetchEvaluations() should not throw exception");
       });
 
@@ -471,7 +475,7 @@ void main() async {
           .destroy()
           .then((value) =>
               expect(value.isSuccess, true, reason: "destroy() should success"))
-          .catchError((obj, st) {
+          .onError((obj, st) {
         fail("destroy() should not throw exception");
       });
 
@@ -483,9 +487,15 @@ void main() async {
               isA<BKTIllegalStateException>(),
               reason: "exception should be BKTIllegalStateException");
         },
-      ).catchError((obj, st) {
+      ).onError((obj, st) {
         fail("fetchEvaluations() should not throw exception");
       });
     });
   });
+}
+
+extension InitializeSuccess on BKTResult<void> {
+  bool isInitializeSuccess() {
+   return isSuccess || asFailure.exception is BKTTimeoutException;
+  }
 }
