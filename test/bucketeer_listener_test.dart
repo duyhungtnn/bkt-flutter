@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
   final eventController = StreamController<bool>.broadcast();
 
   test('ProxyEvaluationUpdateListenToken tests', () async {

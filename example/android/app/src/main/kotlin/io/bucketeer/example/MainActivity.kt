@@ -1,4 +1,4 @@
-package jp.bucketeer.example
+package io.bucketeer.example
 
 import io.flutter.embedding.android.FlutterActivity
 
