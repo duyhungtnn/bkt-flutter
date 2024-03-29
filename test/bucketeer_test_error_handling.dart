@@ -155,7 +155,6 @@ void main() {
       expect(currentUserRs.asFailure.exception,
           isA<BKTForbiddenException>());
 
-      /// Void method should not throw exception
       final updateUserAttributesRs = await BKTClient.instance.updateUserAttributes(
         {'app_version': '1.0.0'},
       ).onError((error, stackTrace) => fail(
@@ -163,13 +162,11 @@ void main() {
       expect(updateUserAttributesRs.asFailure.exception,
           isA<BKTForbiddenException>());
 
-      /// Void method should not throw exception
       final trackRs = await BKTClient.instance.track('goal-id').onError((error, stackTrace) =>
           fail("BKTClient.instance.track should not throw an exception"));
       expect(trackRs.asFailure.exception,
           isA<BKTForbiddenException>());
 
-      /// Void method should not throw exception
       var evaluationDetails =
           await BKTClient.instance.evaluationDetails("not_found_featureId");
       expect(evaluationDetails == null, equals(true),
