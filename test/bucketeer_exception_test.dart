@@ -47,6 +47,6 @@ void main() {
       expect(exception1.hashCode == exception2.hashCode, true, reason: ' Hash codes should match for equal objects');
       expect(exception1.hashCode == exception3.hashCode, false, reason: ' Hash codes should not match');
     });
-    // Add more tests for other exception classes as needed
+    /// Add more tests for other exception classes as needed
   });
 }

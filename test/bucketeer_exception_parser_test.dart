@@ -1,4 +1,4 @@
-// Write test cases
+/// Write test cases
 import 'package:bucketeer_flutter_client_sdk/src/exception.dart';
 import 'package:bucketeer_flutter_client_sdk/src/exception_parser.dart';
 import 'package:flutter_test/flutter_test.dart';

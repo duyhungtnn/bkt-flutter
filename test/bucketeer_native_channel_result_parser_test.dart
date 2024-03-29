@@ -16,7 +16,7 @@ void main() {
       expect(result.asFailure.exception, isA<BKTUnknownException>());
     });
 
-    // Add more test cases as needed
+    /// Add more test cases as needed
     test('should return Failure if status is a redirect', () async {
       final result = await statusGuard<void>({'status': false, 'errorCode': 1});
       expect(result.isSuccess, false);
@@ -145,7 +145,7 @@ void main() {
     test('valueGuard function should throw BKTUnknownException when result response is missing', () {
       final result = {
         'status': true,
-        // 'response': 'some_data', // Commented out to simulate missing response
+        /// 'response': 'some_data', /// Commented out to simulate missing response
       };
 
       expect(() async {
@@ -177,6 +177,6 @@ void main() {
       }, throwsA(isA<BKTBadRequestException>()));
     });
 
-    // Add more tests as needed for different scenarios
+    /// Add more tests as needed for different scenarios
   });
 }

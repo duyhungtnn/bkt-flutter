@@ -54,7 +54,7 @@ class BKTClient {
         'userAttributes': user.attributes,
       },
     );
-    // The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
+    /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
     return statusGuard(rs);
   }
 
@@ -224,7 +224,7 @@ class BKTClient {
     return await statusGuard(
       await _invokeMethod(CallMethods.destroy.name).then(
         (value) async {
-          // Remove all listener for the current client
+          /// Remove all listener for the current client
           ProxyEvaluationUpdateListenToken.clearToken();
           clearEvaluationUpdateListeners();
           return value;
@@ -254,7 +254,7 @@ class BKTClient {
         );
       },
     ).onError((error, stackTrace) {
-      // Feature flag not found.
+      /// Feature flag not found.
       debugPrint("get evaluationDetails fail ${error?.toString()}");
       return null;
     });
@@ -273,7 +273,7 @@ class BKTClient {
   }
 
   Future<void> _checkProxyListenerReady() async {
-    // If not ready, register new one
+    /// If not ready, register new one
     if (ProxyEvaluationUpdateListenToken.getToken() == null) {
       await _addProxyEvaluationUpdateListener().then((value) {
         if (value != null) {
@@ -306,7 +306,7 @@ class BKTClient {
         await _channel.invokeMapMethod(method, argument) ?? {},
       );
     } catch (ex) {
-      // default runtime error catching
+      /// default runtime error catching
       return {
         "status": false,
         "errorMessage": ex.toString(),

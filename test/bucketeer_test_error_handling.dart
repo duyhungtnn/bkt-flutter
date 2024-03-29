@@ -26,7 +26,7 @@ void main() {
     });
 
     test('Initialize fail with timeout error', () async {
-      mockErrorCode = 11; // time out error code
+      mockErrorCode = 11; /// time out error code
       final config = BKTConfigBuilder()
           .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
           .apiEndpoint("demo.bucketeer.jp")
@@ -53,7 +53,7 @@ void main() {
     });
 
     test('Initialize fail with other error - unauthorized', () async {
-      mockErrorCode = 3; // Unauthorized code ~ invalid API key
+      mockErrorCode = 3; /// Unauthorized code ~ invalid API key
       final config = BKTConfigBuilder()
           .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
           .apiEndpoint("demo.bucketeer.jp")
