@@ -1,7 +1,7 @@
 PODS:
-  - Bucketeer (2.1.3)
+  - Bucketeer (2.1.4)
   - bucketeer_flutter_client_sdk (2.0.0):
-    - Bucketeer (= 2.1.3)
+    - Bucketeer (= 2.1.4)
     - Flutter
   - Flutter (1.0.0)
   - integration_test (0.0.1):
@@ -36,8 +36,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/ua_client_hints/ios"
 
 SPEC CHECKSUMS:
-  Bucketeer: 860a0d5ffe6bd7c0b005b4533f0f12b261e4f127
-  bucketeer_flutter_client_sdk: b62f8b4fdcea7e6ecd7138890896879dab27b7b7
+  Bucketeer: 46c9b73442da08438c8cc28934de5e474e05181c
+  bucketeer_flutter_client_sdk: 17b3ac94e91675aaaf55783355b71a07d5624654
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   integration_test: 13825b8a9334a850581300559b8839134b124670
   shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
