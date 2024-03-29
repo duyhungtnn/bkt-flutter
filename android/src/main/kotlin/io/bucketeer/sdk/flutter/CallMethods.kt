@@ -1,5 +1,8 @@
 package io.bucketeer.sdk.flutter
 
+import androidx.annotation.VisibleForTesting
+
+@VisibleForTesting
 internal enum class CallMethods {
   Initialize,
   StringVariation,
@@ -15,5 +18,16 @@ internal enum class CallMethods {
   EvaluationDetails,
   AddProxyEvaluationUpdateListener,
   Destroy,
-  Unknown
+  Unknown;
+
+  companion object {
+    private val avoidInitializationAssertions = listOf(
+      Initialize,
+      Destroy
+    )
+
+    fun shouldAssertInitialize(methods: CallMethods): Boolean {
+      return !avoidInitializationAssertions.contains(methods);
+    }
+  }
 }

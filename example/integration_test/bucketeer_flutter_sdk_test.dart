@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:bucketeer_flutter_client_sdk/bucketeer_flutter_client_sdk.dart';
 import 'package:mocktail/mocktail.dart';
-import 'dart:io' show Platform;
 
 class MockEvaluationUpdateListener extends Mock
     implements BKTEvaluationUpdateListener {}
@@ -448,20 +447,10 @@ void main() async {
       expect(fetchEvaluationsRs.isFailure, true,
           reason:
               "fetchEvaluations() should fail ${fetchEvaluationsRs.toString()}");
-      if (Platform.isAndroid) {
-        // Its an issues of the Android SDK 2.0.5
-        // It throw BKTIllegalArgumentException instead of BKTIllegalStateException
-        // It should fix on the next version 2.0.6
-        expect(fetchEvaluationsRs.asFailure.exception,
-            isA<BKTIllegalArgumentException>(),
-            reason:
-                "exception should be BKTIllegalArgumentException but got ${fetchEvaluationsRs.toString()}");
-      } else {
-        expect(fetchEvaluationsRs.asFailure.exception,
-            isA<BKTIllegalStateException>(),
-            reason:
-                "exception should be BKTIllegalStateException but got ${fetchEvaluationsRs.toString()}");
-      }
+      expect(fetchEvaluationsRs.asFailure.exception,
+          isA<BKTIllegalStateException>(),
+          reason:
+          "exception should be BKTIllegalStateException but got ${fetchEvaluationsRs.toString()}");
 
       BKTResult<void> flushRs = await BKTClient.instance.flush().then((value) {
         return value;
@@ -469,18 +458,10 @@ void main() async {
         fail("flushRs() should not throw exception");
       });
       expect(flushRs.isFailure, true, reason: "flushRs() should fail");
-      if (Platform.isAndroid) {
-        /// Its an issues of the Android SDK 2.0.5
-        /// It throw BKTIllegalArgumentException instead of BKTIllegalStateException
-        /// It should fix on the next version 2.0.6
-        expect(flushRs.asFailure.exception, isA<BKTIllegalArgumentException>(),
-            reason:
-                "exception should be BKTIllegalArgumentException but got ${flushRs.toString()}");
-      } else {
-        expect(flushRs.asFailure.exception, isA<BKTIllegalStateException>(),
-            reason:
-                "exception should be BKTIllegalStateException but got ${flushRs.toString()}");
-      }
+      expect(fetchEvaluationsRs.asFailure.exception,
+          isA<BKTIllegalStateException>(),
+          reason:
+          "exception should be BKTIllegalStateException but got ${fetchEvaluationsRs.toString()}");
 
       // Expect the completion of both fulfillment's with a timeout
       expect(completer.isCompleted, true,
@@ -544,19 +525,10 @@ void main() async {
       await BKTClient.instance.fetchEvaluations().then((fetchEvaluationsRs) {
         expect(fetchEvaluationsRs.isFailure, true,
             reason: "fetchEvaluations() should fail");
-        if (Platform.isAndroid) {
-          // Its an issues of the Android SDK 2.0.5
-          // It throw BKTIllegalArgumentException instead of BKTIllegalStateException
-          // It should fix on the next version 2.0.6
-          expect(fetchEvaluationsRs.asFailure.exception,
-              isA<BKTIllegalArgumentException>(),
-              reason:
-                  "exception should be BKTIllegalArgumentException but got ${fetchEvaluationsRs.toString()}");
-        } else {
-          expect(fetchEvaluationsRs.asFailure.exception,
-              isA<BKTIllegalStateException>(),
-              reason: "exception should be BKTIllegalStateException");
-        }
+        expect(fetchEvaluationsRs.asFailure.exception,
+            isA<BKTIllegalStateException>(),
+            reason:
+            "exception should be BKTIllegalStateException but got ${fetchEvaluationsRs.toString()}");
       }, onError: (obj, st) {
         fail("fetchEvaluations() should not throw exception ${obj.toString()}");
       });

@@ -163,7 +163,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun currentUser(result: MethodChannel.Result) {
-    assertInitialize()
     val user = BKTClient.getInstance().currentUser()
     val map: MutableMap<String, Any> = HashMap()
     map["id"] = user.id
@@ -172,7 +171,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun evaluationDetails(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
       ?: return failWithIllegalArgumentException(result, "featureId is required")
@@ -195,7 +193,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun stringVariation(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
       ?: return failWithIllegalArgumentException(result, "featureId is required")
@@ -206,7 +203,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun intVariation(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
       ?: return failWithIllegalArgumentException(result, "featureId is required")
@@ -217,7 +213,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun doubleVariation(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
       ?: return failWithIllegalArgumentException(result, "featureId is required")
@@ -228,7 +223,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun boolVariation(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val featureId = args["featureId"] as? String
       ?: return failWithIllegalArgumentException(result, "featureId is required")
@@ -239,7 +233,6 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
   }
 
   private fun track(call: MethodCall, result: MethodChannel.Result) {
-    assertInitialize()
     val args = call.arguments<Map<String, Any>>()!!
     val goalId = args["goalId"] as? String
       ?: return failWithIllegalArgumentException(result, "goalId is required")
@@ -312,8 +305,15 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     try {
-      when (CallMethods.values().firstOrNull { call.method.lowercase() == it.name.lowercase() }
-        ?: CallMethods.Unknown) {
+      val callMethod = CallMethods.values().firstOrNull { call.method.lowercase() == it.name.lowercase() }
+        ?: CallMethods.Unknown
+
+      if (CallMethods.shouldAssertInitialize(callMethod)) {
+        // make sure the client has been initialize
+        assertInitialize()
+      }
+
+      when (callMethod) {
         CallMethods.Initialize -> {
           initialize(call, result)
         }
@@ -395,13 +395,13 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     }
   }
 
-  @Throws(Exception::class)
+  @Throws(BKTException.IllegalStateException::class)
   private fun assertInitialize() {
     try {
       BKTClient.getInstance()
     } catch (ex: BKTException.IllegalStateException) {
       throw  ex
-    } catch (ex: IllegalStateException) {
+    } catch (ex: Exception) {
       throw  BKTException.IllegalStateException(message =  ex.message ?: "")
     }
   }
