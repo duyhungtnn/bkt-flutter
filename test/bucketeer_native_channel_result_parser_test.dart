@@ -43,10 +43,7 @@ void main() {
     });
 
     test('returns failure when status is false', () {
-      final result = {
-        'status': false,
-        'error': 'Some error message'
-      };
+      final result = {'status': false, 'error': 'Some error message'};
       final actualResult = resultGuard<String>(result);
       expect(actualResult.isFailure, true);
       expect(actualResult.asFailure.exception, isA<BKTUnknownException>());
@@ -86,12 +83,13 @@ void main() {
       expect(actualResult.asSuccess.data, {'custom_key': 'value'});
     });
 
-    test('returns failure with unknown exception if custom mapping throws an error', () {
+    test(
+        'returns failure with unknown exception if custom mapping throws an error',
+        () {
       final result = {
         'status': true,
         'response': {'key': 'value'}
       };
-
 
       final actualResult = resultGuard<String>(
         result,
@@ -104,7 +102,9 @@ void main() {
       expect(actualResult.asFailure.exception, isA<BKTUnknownException>());
     });
 
-    test('resultGuard function should throw BKTUnknownException when error data is correct', () {
+    test(
+        'resultGuard function should throw BKTUnknownException when error data is correct',
+        () {
       final result = {'status': false, 'errorCode': '2', 'errorMessage': 2};
 
       final actualResult = resultGuard<String>(result);
@@ -114,7 +114,8 @@ void main() {
   });
 
   group('valueGuard function tests', () {
-    test('valueGuard function should return correct result when status is true', () {
+    test('valueGuard function should return correct result when status is true',
+        () {
       final result = {
         'status': true,
         'response': 'some_data',
@@ -126,7 +127,9 @@ void main() {
       }, returnsNormally);
     });
 
-    test('valueGuard function should throw BKTUnknownException when custom mapping throws exception', () {
+    test(
+        'valueGuard function should throw BKTUnknownException when custom mapping throws exception',
+        () {
       final result = {
         'status': true,
         'response': 'some_data',
@@ -142,10 +145,13 @@ void main() {
       }, throwsA(isA<BKTUnknownException>()));
     });
 
-    test('valueGuard function should throw BKTUnknownException when result response is missing', () {
+    test(
+        'valueGuard function should throw BKTUnknownException when result response is missing',
+        () {
       final result = {
         'status': true,
-        /// 'response': 'some_data', /// Commented out to simulate missing response
+
+        /// 'response': 'some_data', /// Commented out to simulate a missing response
       };
 
       expect(() async {
@@ -153,7 +159,9 @@ void main() {
       }, throwsA(isA<BKTUnknownException>()));
     });
 
-    test('valueGuard function should throw BKTUnknownException when error data is correct', () {
+    test(
+        'valueGuard function should throw BKTUnknownException when error data is correct',
+        () {
       final result = {
         'status': false,
         'errorCode': 'Forbidden',
@@ -165,7 +173,8 @@ void main() {
       }, throwsA(isA<BKTUnknownException>()));
     });
 
-    test('valueGuard function should throw BKTException when status is false', () {
+    test('valueGuard function should throw BKTException when status is false',
+        () {
       final result = {
         'status': false,
         'errorCode': 2,

@@ -1,4 +1,3 @@
-
 class ProxyEvaluationUpdateListenToken {
   ProxyEvaluationUpdateListenToken._();
 

@@ -1,5 +1,5 @@
 group 'io.bucketeer.sdk.plugin'
-version '2.0.0'
+version '0.0.1' // x-release-please-version
 
 buildscript {
   ext.kotlin_version = '1.8.22'
@@ -25,7 +25,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-  // Conditional for compatibility with AGP <4.2, also support APG 8.x
+  // Condition for compatibility with AGP <4.2, also support APG 8.x
   if (project.android.hasProperty("namespace")) {
     namespace "io.bucketeer.sdk.flutter"
   }
@@ -37,13 +37,17 @@ android {
     targetSdkVersion 34
   }
 
-  lintOptions {
-    disable 'InvalidPackage'
-  }
-
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
+
+  lintOptions {
+    disable 'InvalidPackage'
   }
 }
 

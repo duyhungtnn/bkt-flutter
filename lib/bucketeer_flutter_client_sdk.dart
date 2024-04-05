@@ -17,7 +17,6 @@ import 'src/call_methods.dart';
 import 'src/constants.dart';
 import 'src/evaluation_update_listener_dispatcher.dart';
 
-
 /// Bucketeer Flutter SDK
 class BKTClient {
   const BKTClient._();
@@ -54,7 +53,8 @@ class BKTClient {
         'userAttributes': user.attributes,
       },
     );
-    /// The native code may emit `BKTException`, so we must use `BKTResult` for handle exception
+    // The native code might emit a `BKTException`,
+    // so we must use `BKTResult` to handle the exceptions
     return statusGuard(rs);
   }
 
@@ -71,7 +71,7 @@ class BKTClient {
         },
       ),
     ).onError((error, stackTrace) {
-      debugPrint("get stringVariation fail ${error?.toString()}");
+      debugPrint("get stringVariation fail: ${error?.toString()}");
       return defaultValue;
     });
   }
@@ -89,7 +89,7 @@ class BKTClient {
         },
       ),
     ).onError((error, stackTrace) {
-      debugPrint("get intVariation fail ${error?.toString()}");
+      debugPrint("get intVariation fail: ${error?.toString()}");
       return defaultValue;
     });
   }
@@ -107,7 +107,7 @@ class BKTClient {
         },
       ),
     ).onError((error, stackTrace) {
-      debugPrint("get doubleVariation fail ${error?.toString()}");
+      debugPrint("get doubleVariation fail: ${error?.toString()}");
       return defaultValue;
     });
   }
@@ -125,7 +125,7 @@ class BKTClient {
         },
       ),
     ).onError((error, stackTrace) {
-      debugPrint("get boolVariation fail ${error?.toString()}");
+      debugPrint("get boolVariation fail: ${error?.toString()}");
       return defaultValue;
     });
   }
@@ -146,7 +146,7 @@ class BKTClient {
         return response;
       },
     ).onError((error, stackTrace) {
-      debugPrint("get jsonVariation fail ${error?.toString()}");
+      debugPrint("get jsonVariation fail: ${error?.toString()}");
       return defaultValue;
     });
   }
@@ -164,7 +164,7 @@ class BKTClient {
         },
       ),
     ).onError((Object error, stackTrace) {
-      debugPrint("track fail ${error.toString()}");
+      debugPrint("track fail: ${error.toString()}");
       return error.toBKTResultFailure();
     });
   }
@@ -183,7 +183,7 @@ class BKTClient {
     )
         .then((value) => BKTResult.success(data: value))
         .onError((Object error, stackTrace) {
-      debugPrint("get currentUser fail ${error.toString()}");
+      debugPrint("get currentUser fail: ${error.toString()}");
       return error.toBKTResultFailure();
     });
   }
@@ -196,7 +196,7 @@ class BKTClient {
         argument: userAttributes,
       ),
     ).onError((Object error, stackTrace) {
-      debugPrint("updateUserAttributes fail ${error.toString()}");
+      debugPrint("updateUserAttributes fail: ${error.toString()}");
       return error.toBKTResultFailure();
     });
   }
@@ -231,7 +231,7 @@ class BKTClient {
         },
       ),
     ).onError((Object error, stackTrace) {
-      debugPrint("destroy fail ${error.toString()}");
+      debugPrint("destroy fail: ${error.toString()}");
       return error.toBKTResultFailure();
     });
   }
@@ -255,7 +255,7 @@ class BKTClient {
       },
     ).onError((error, stackTrace) {
       /// Feature flag not found.
-      debugPrint("get evaluationDetails fail ${error?.toString()}");
+      debugPrint("get evaluationDetails fail: ${error?.toString()}");
       return null;
     });
   }
@@ -267,13 +267,14 @@ class BKTClient {
         argument: {},
       ),
     ).onError((error, stackTrace) {
-      debugPrint("_addProxyEvaluationUpdateListener fail ${error?.toString()}");
+      debugPrint(
+          "_addProxyEvaluationUpdateListener fail: ${error?.toString()}");
       return null;
     });
   }
 
   Future<void> _checkProxyListenerReady() async {
-    /// If not ready, register new one
+    /// Create a new listener if needed
     if (ProxyEvaluationUpdateListenToken.getToken() == null) {
       await _addProxyEvaluationUpdateListener().then((value) {
         if (value != null) {
@@ -306,7 +307,7 @@ class BKTClient {
         await _channel.invokeMapMethod(method, argument) ?? {},
       );
     } catch (ex) {
-      /// default runtime error catching
+      /// Default runtime error catching
       return {
         "status": false,
         "errorMessage": ex.toString(),

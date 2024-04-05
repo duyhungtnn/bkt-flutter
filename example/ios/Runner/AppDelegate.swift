@@ -1,6 +1,5 @@
 import UIKit
 import Flutter
-// 1.Import the SDK
 import Bucketeer
 
 @UIApplicationMain
@@ -9,7 +8,7 @@ import Bucketeer
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    // 2.Add the code to enable background tasks
+    // Add the code to enable background tasks
     if #available(iOS 13.0, tvOS 13.0, *) {
         BKTBackgroundTask.enable()
     }

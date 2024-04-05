@@ -1,11 +1,10 @@
-/// Write test cases
 import 'package:bucketeer_flutter_client_sdk/src/exception.dart';
 import 'package:bucketeer_flutter_client_sdk/src/exception_parser.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   group('IntToBKTException tests', () {
-    final testCases =  [
+    final testCases = [
       {'input': 1, 'exceptionType': RedirectRequestException},
       {'input': 2, 'exceptionType': BKTBadRequestException},
       {'input': 3, 'exceptionType': BKTUnauthorizedException},
@@ -26,7 +25,8 @@ void main() {
 
     for (var testCase in testCases) {
       test('Converts ${testCase['input']} to ${testCase['exceptionType']}', () {
-        final exception = (testCase['input'] as int).toBKTException('Test message');
+        final exception =
+            (testCase['input'] as int).toBKTException('Test message');
         expect(exception.runtimeType, testCase['exceptionType']);
         expect(exception.message, 'Test message');
       });
@@ -89,14 +89,18 @@ void main() {
     });
 
     test('Map does not contain errorCode and errorMessage', () {
-      final map = <String, dynamic> {}; // Neither errorCode nor errorMessage provided
+      final map =
+          <String, dynamic>{}; // Neither errorCode nor errorMessage provided
       final exception = map.parseBKTException();
       expect(exception, const TypeMatcher<BKTUnknownException>());
       expect(exception.message, 'unknown');
     });
 
     test('Map contains errorCode and errorMessage is null', () {
-      final map = {'errorCode': 1, 'errorMessage': null}; // errorMessage is null
+      final map = {
+        'errorCode': 1,
+        'errorMessage': null
+      }; // errorMessage is null
       final exception = map.parseBKTException();
       expect(exception, const TypeMatcher<RedirectRequestException>());
       expect(exception.message, 'unknown');

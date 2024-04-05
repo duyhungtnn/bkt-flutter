@@ -37,9 +37,9 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             failWithIllegalArgumentException(result: result, message: "appVersion is required")
             return
         }
-        
+
         let featureTag = (arguments?["featureTag"] as? String) ?? ""
-        
+
         do {
             var builder = BKTConfig.Builder()
                 .with(apiKey: apiKey)
@@ -69,8 +69,11 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
 
             let bkConfig = try builder.build()
             let userAttributes = arguments?["userAttributes"] as? [String: String] ?? [:]
-            let user = try BKTUser.Builder().with(id: userId).with( attributes: userAttributes).build()
-            
+            let user = try BKTUser.Builder()
+                .with(id: userId)
+                .with( attributes: userAttributes)
+                .build()
+
             let completion : ((BKTError?) -> Void) = { [self] err in
                 if let er = err {
                     if case .timeout(_, _, _) = err {
@@ -83,9 +86,10 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
                     success(result: result)
                 }
             }
-                        
+
             if let timeoutMillis = arguments?["timeoutMillis"] as? Int64 {
-                try BKTClient.initialize(config: bkConfig, user: user, timeoutMillis: timeoutMillis, completion: completion)
+                try BKTClient.initialize(
+                    config: bkConfig, user: user, timeoutMillis: timeoutMillis, completion: completion)
             } else {
                 try BKTClient.initialize(config: bkConfig, user: user, completion: completion)
             }
@@ -208,7 +212,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         }
 
         guard let user = client.currentUser() else {
-            let message = "Failed to fetch the user."
+            let message = "Failed to fetch the user"
             let err = BKTError.illegalState(message: message)
             fail(result: result, message: message, error: err)
             return
@@ -273,7 +277,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         }
 
         guard let response = client?.evaluationDetails(featureId: featureId) else {
-            let message = "Feature flag not found."
+            let message = "Feature flag not found"
             let err = BKTError.notFound(message: message)
             fail(result: result, message: message, error: err)
             return
@@ -305,7 +309,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             fail(result: result, message: error.localizedDescription, error: error)
         }
     }
-    
+
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 
         let arguments = call.arguments as? [String: Any]
@@ -348,8 +352,8 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
             evaluationDetails(arguments, result)
 
         case .addProxyEvaluationUpdateListener:
-            // note: will handle in Flutter only. We don't implement native code for these methods
-            // see: BucketeerPluginEvaluationUpdateListener.swift
+            // Note: It will only handle in the Flutter side. We don't implement native code for these methods
+            // See: BucketeerPluginEvaluationUpdateListener.swift
             addProxyEvaluationUpdateListener(result)
 
         case .destroy:
@@ -386,7 +390,7 @@ public class BucketeerFlutterClientSdkPlugin: NSObject, FlutterPlugin {
         ] as [String: Any]
         result(dic)
     }
-    
+
     func failWithIllegalArgumentException(result: @escaping FlutterResult, message: String = "") {
         let err = BKTError.illegalArgument(message: message)
         fail(result: result, message: err.errorDescription ?? "", error: err)

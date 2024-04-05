@@ -150,7 +150,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       }
     } catch (ex: Exception) {
       logger.log(Log.ERROR, {
-        "BKTClient.initialize failed with error ${ex}}"
+        "Failed to initialize the BKTClient. Error: ${ex}}"
       }, ex)
       fail(methodChannelResult, ex.message, exception = ex)
     }
@@ -176,7 +176,7 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
       ?: return failWithIllegalArgumentException(result, "featureId is required")
     val evaluation = BKTClient.getInstance().evaluationDetails(featureId)
     if (evaluation == null) {
-      val ex = BKTException.FeatureNotFoundException(message = "Feature flag not found.");
+      val ex = BKTException.FeatureNotFoundException(message = "Feature flag not found");
       fail(result, ex.message, exception = ex)
     } else {
       val map: MutableMap<String, Any> = HashMap()
@@ -362,11 +362,11 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
           flush(result)
         }
 
-        // note: we will forward all `evaluation update` event to Flutter using
-        // event_channel : https://api.flutter.dev/flutter/services/EventChannel-class.html
-        // We will create an default listener for Flutter. See > BucketeerPluginEvaluationUpdateListener.kt
+        // The SDK creates a default listener. See > BucketeerPluginEvaluationUpdateListener.kt
+        // Note: The SDK will forward all the `evaluation update` events to Flutter using `event_channel`
+        // https://api.flutter.dev/flutter/services/EventChannel-class.html
         CallMethods.AddProxyEvaluationUpdateListener -> {
-          // Register proxy listener if we have not register before
+          // Register the proxy listener if needed
           var listenToken = evaluationUpdateListenToken
           if (listenToken == null) {
             listenToken = registerProxyEvaluationUpdateListener(logger)
@@ -426,4 +426,3 @@ class BucketeerFlutterClientSdkPlugin : MethodCallHandler, FlutterPlugin {
     result?.success(map)
   }
 }
-

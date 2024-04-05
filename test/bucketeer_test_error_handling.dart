@@ -4,7 +4,6 @@ import 'package:bucketeer_flutter_client_sdk/src/call_methods.dart';
 import 'package:bucketeer_flutter_client_sdk/src/constants.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -26,7 +25,9 @@ void main() {
     });
 
     test('Initialize fail with timeout error', () async {
-      mockErrorCode = 11; /// time out error code
+      mockErrorCode = 11;
+
+      /// time out error code
       final config = BKTConfigBuilder()
           .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
           .apiEndpoint("demo.bucketeer.jp")
@@ -53,7 +54,9 @@ void main() {
     });
 
     test('Initialize fail with other error - unauthorized', () async {
-      mockErrorCode = 3; /// Unauthorized code ~ invalid API key
+      mockErrorCode = 3;
+
+      /// Unauthorized code ~ invalid API key
       final config = BKTConfigBuilder()
           .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
           .apiEndpoint("demo.bucketeer.jp")
@@ -146,26 +149,25 @@ void main() {
 
       final flushFailRs = await BKTClient.instance.flush();
       expect(flushFailRs.isFailure, equals(true));
-      expect(flushFailRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      expect(flushFailRs.asFailure.exception, isA<BKTForbiddenException>());
 
       final currentUserRs = await BKTClient.instance.currentUser();
       expect(currentUserRs.isFailure, equals(true),
           reason: "BKTClient.instance.currentUser().isFailure should be true");
-      expect(currentUserRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      expect(currentUserRs.asFailure.exception, isA<BKTForbiddenException>());
 
-      final updateUserAttributesRs = await BKTClient.instance.updateUserAttributes(
+      final updateUserAttributesRs = await BKTClient.instance
+          .updateUserAttributes(
         {'app_version': '1.0.0'},
       ).onError((error, stackTrace) => fail(
-          "BKTClient.instance.updateUserAttributes should not throw an exception"));
+              "BKTClient.instance.updateUserAttributes should not throw an exception"));
       expect(updateUserAttributesRs.asFailure.exception,
           isA<BKTForbiddenException>());
 
-      final trackRs = await BKTClient.instance.track('goal-id').onError((error, stackTrace) =>
-          fail("BKTClient.instance.track should not throw an exception"));
-      expect(trackRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      final trackRs = await BKTClient.instance.track('goal-id').onError(
+          (error, stackTrace) =>
+              fail("BKTClient.instance.track should not throw an exception"));
+      expect(trackRs.asFailure.exception, isA<BKTForbiddenException>());
 
       var evaluationDetails =
           await BKTClient.instance.evaluationDetails("not_found_featureId");
@@ -212,32 +214,32 @@ void main() {
       final flushRs = await BKTClient.instance.flush();
       expect(flushRs.isFailure, true,
           reason: "BKTClient.instance.flush should return BKTResult.failure");
-      expect(flushRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      expect(flushRs.asFailure.exception, isA<BKTForbiddenException>());
 
       final fetchEvaluationsRs =
           await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
       expect(fetchEvaluationsRs.isFailure, true,
           reason:
               "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
-      expect(fetchEvaluationsRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      expect(
+          fetchEvaluationsRs.asFailure.exception, isA<BKTForbiddenException>());
 
       /// Void method should not throw exception
-      final destroyRs =
-      await BKTClient.instance.destroy().onError((error, stackTrace) =>
+      final destroyRs = await BKTClient.instance.destroy().onError((error,
+              stackTrace) =>
           fail("BKTClient.instance.destroy() should not throw an exception"));
-      expect(destroyRs.asFailure.exception,
-          isA<BKTForbiddenException>());
+      expect(destroyRs.asFailure.exception, isA<BKTForbiddenException>());
     });
   });
 
-  group('Initialize success but fail when call function because unknown exception', () {
+  group(
+      'Initialize success but fail when call function because unknown exception',
+      () {
     setUp(() async {
       TestWidgetsFlutterBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (methodCall) async {
         var callMethod = CallMethods.values.firstWhere(
-                (element) => element.name == methodCall.method,
+            (element) => element.name == methodCall.method,
             orElse: () => CallMethods.unknown);
         switch (callMethod) {
           case CallMethods.initialize:
@@ -281,41 +283,40 @@ void main() {
 
       /// Should return the null when catching an error
       var evaluationDetailsRs =
-      await BKTClient.instance.evaluationDetails("not_found_featureId");
+          await BKTClient.instance.evaluationDetails("not_found_featureId");
       expect(evaluationDetailsRs == null, equals(true),
           reason: "BKTClient.instance.evaluationDetails should return null");
 
       final fetchEvaluationsFailRs =
-      await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+          await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
       expect(fetchEvaluationsFailRs.isFailure, equals(true));
       expect(fetchEvaluationsFailRs.asFailure.exception,
           isA<BKTUnknownException>());
 
       final flushFailRs = await BKTClient.instance.flush();
       expect(flushFailRs.isFailure, equals(true));
-      expect(flushFailRs.asFailure.exception,
-          isA<BKTUnknownException>());
+      expect(flushFailRs.asFailure.exception, isA<BKTUnknownException>());
 
       final currentUserRs = await BKTClient.instance.currentUser();
       expect(currentUserRs.isFailure, equals(true),
           reason: "BKTClient.instance.currentUser().isFailure should be true");
-      expect(currentUserRs.asFailure.exception,
-          isA<BKTUnknownException>());
+      expect(currentUserRs.asFailure.exception, isA<BKTUnknownException>());
 
-      final updateUserAttributesRs = await BKTClient.instance.updateUserAttributes(
+      final updateUserAttributesRs = await BKTClient.instance
+          .updateUserAttributes(
         {'app_version': '1.0.0'},
       ).onError((error, stackTrace) => fail(
-          "BKTClient.instance.updateUserAttributes should not throw an exception"));
+              "BKTClient.instance.updateUserAttributes should not throw an exception"));
       expect(updateUserAttributesRs.asFailure.exception,
           isA<BKTUnknownException>());
 
-      final trackRs = await BKTClient.instance.track('goal-id').onError((error, stackTrace) =>
-          fail("BKTClient.instance.track should not throw an exception"));
-      expect(trackRs.asFailure.exception,
-          isA<BKTUnknownException>());
+      final trackRs = await BKTClient.instance.track('goal-id').onError(
+          (error, stackTrace) =>
+              fail("BKTClient.instance.track should not throw an exception"));
+      expect(trackRs.asFailure.exception, isA<BKTUnknownException>());
 
       var evaluationDetails =
-      await BKTClient.instance.evaluationDetails("not_found_featureId");
+          await BKTClient.instance.evaluationDetails("not_found_featureId");
       expect(evaluationDetails == null, equals(true),
           reason: "BKTClient.instance.evaluationDetails should return null");
 
@@ -359,23 +360,21 @@ void main() {
       final flushRs = await BKTClient.instance.flush();
       expect(flushRs.isFailure, true,
           reason: "BKTClient.instance.flush should return BKTResult.failure");
-      expect(flushRs.asFailure.exception,
-          isA<BKTUnknownException>());
+      expect(flushRs.asFailure.exception, isA<BKTUnknownException>());
 
       final fetchEvaluationsRs =
-      await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
+          await BKTClient.instance.fetchEvaluations(timeoutMillis: 10000);
       expect(fetchEvaluationsRs.isFailure, true,
           reason:
-          "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
-      expect(fetchEvaluationsRs.asFailure.exception,
-          isA<BKTUnknownException>());
+              "BKTClient.instance.fetchEvaluations should return BKTResult.failure");
+      expect(
+          fetchEvaluationsRs.asFailure.exception, isA<BKTUnknownException>());
 
       /// Void method should not throw exception
-      final destroyRs =
-      await BKTClient.instance.destroy().onError((error, stackTrace) =>
+      final destroyRs = await BKTClient.instance.destroy().onError((error,
+              stackTrace) =>
           fail("BKTClient.instance.destroy() should not throw an exception"));
-      expect(destroyRs.asFailure.exception,
-          isA<BKTUnknownException>());
+      expect(destroyRs.asFailure.exception, isA<BKTUnknownException>());
     });
   });
 }

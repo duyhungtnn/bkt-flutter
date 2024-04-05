@@ -1,13 +1,13 @@
 name: bucketeer_flutter_client_sdk
 description: Bucketeer
-version: 1.4.0
+version: 0.0.1 # x-release-please-version
 homepage: https://bucketeer.io/
-repository: https://github.com/ca-dp/bucketeer-flutter-sdk
-documentation: https://github.com/ca-dp/bucketeer-flutter-sdk
-issue_tracker: https://github.com/ca-dp/bucketeer-flutter-sdk/issues
+repository: https://github.com/bucketeer-io/flutter-client-sdk
+documentation: https://docs.bucketeer.io/sdk/client-side/flutter
+issue_tracker: https://github.com/bucketeer-io/flutter-client-sdk/issues
 
 environment:
-  sdk: '>=2.17.0 <4.0.0'
+  sdk: ">=2.17.0 <4.0.0"
   flutter: ">=2.5.0"
 
 dependencies:
@@ -17,6 +17,8 @@ dependencies:
 
 dev_dependencies:
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   flutter_lints: ^2.0.2
   mocktail: ^0.3.0

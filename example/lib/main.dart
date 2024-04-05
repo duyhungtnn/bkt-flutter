@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ua_client_hints/ua_client_hints.dart';
 
 import 'constant.dart';
+import 'snack_bar.dart';
 
 const keyUserId = 'key_user_id';
 
@@ -74,11 +75,13 @@ class _AppState extends State<MyApp>
           .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
           .appVersion("1.0.0")
           .build();
-      final user =
-          BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
+      final user = BKTUserBuilder()
+          .id(userId)
+          .customAttributes({'app_version': "1.2.3"}).build();
       final result = await BKTClient.initialize(config: config, user: user);
       if (result.isSuccess) {
-        _listenToken = await BKTClient.instance.addEvaluationUpdateListener(this);
+        _listenToken =
+            await BKTClient.instance.addEvaluationUpdateListener(this);
       } else if (result.isFailure) {
         final errorMessage = result.asFailure.message;
         debugPrint(errorMessage);
@@ -166,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _switchUser(String userId) async {
-    // note: please initialize the Bucketeer again when switching the user
+    // Note: Please initialize the Bucketeer again when switching the user
     final config = BKTConfigBuilder()
         .apiKey(Constants.apiKey)
         .apiEndpoint(Constants.apiEndpoint)
@@ -178,8 +181,9 @@ class _MyHomePageState extends State<MyHomePage> {
         .backgroundPollingInterval(Constants.exampleBackgroundPollingInterval)
         .appVersion("1.0.0")
         .build();
-    final user =
-        BKTUserBuilder().id(userId).customAttributes({'app_version': "1.2.3"}).build();
+    final user = BKTUserBuilder()
+        .id(userId)
+        .customAttributes({'app_version': "1.2.3"}).build();
 
     await BKTClient.instance.destroy();
 
@@ -197,14 +201,17 @@ class _MyHomePageState extends State<MyHomePage> {
       showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
     } else {
       /// Print the error
-      showSnackbar(title: 'initialize', message: 'Failed with error ${result.asFailure.message}');
+      showSnackbar(
+          title: 'initialize',
+          message: 'Failed with error ${result.asFailure.message}');
     }
   }
 
   Future<void> _getCurrentUser() async {
     final userRs = await BKTClient.instance.currentUser();
     userRs.ifSuccess((user) {
-      showSnackbar(title: 'getUser(${user.id})', message: user.attributes.toString());
+      showSnackbar(
+          title: 'getUser(${user.id})', message: user.attributes.toString());
     });
     userRs.ifFailure((message, exception) {
       showSnackbar(title: 'currentUser', message: 'Failed with error $message');

@@ -30,20 +30,20 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     namespace "io.bucketeer.example"
     compileSdk 34
-    ndkVersion "25.1.8937393"//flutter.ndkVersion
+    ndkVersion "25.1.8937393" // flutter.ndkVersion
 
     compileOptions {
-      sourceCompatibility JavaVersion.VERSION_1_8
-      targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-      jvmTarget = "1.8"
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
-    kotlin {
-      jvmToolchain(8)
-    }
+    // kotlin {
+    //     jvmToolchain(8)
+    // }
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'

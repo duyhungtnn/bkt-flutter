@@ -81,8 +81,8 @@ void main() {
 
   test('Bucketeer Success Cases Tests', () async {
     final config = BKTConfigBuilder()
-        .apiKey("apikeyapikeyapikeyapikeyapikeyapikeyapikey")
-        .apiEndpoint("demo.bucketeer.jp")
+        .apiKey("apikey")
+        .apiEndpoint("api.bucketeer.io")
         .featureTag('Flutter')
         .debugging(true)
         .eventsMaxQueueSize(10000)
@@ -223,7 +223,6 @@ void main() {
       ),
     );
 
-
     /// Void method should not throw exception
     expectLater(
       BKTClient.instance.destroy().onError((error, stackTrace) =>
@@ -232,6 +231,5 @@ void main() {
         equals(const BKTResult.success()),
       ),
     );
-
   });
 }

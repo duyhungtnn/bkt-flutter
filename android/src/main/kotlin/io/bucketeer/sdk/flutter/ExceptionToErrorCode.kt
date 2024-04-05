@@ -6,7 +6,7 @@ fun Exception.toErrorCode(): Int {
   return when (this) {
     is BKTException -> {
       when (this) {
-        // Should not change the error code value
+        // Do NOT change the error code
         is BKTException.RedirectRequestException -> 1
         is BKTException.BadRequestException -> 2
         is BKTException.UnauthorizedException -> 3
