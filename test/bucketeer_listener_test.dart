@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 class MockEvaluationUpdateListener extends Mock implements BKTEvaluationUpdateListener {}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
   final eventController = StreamController<bool>.broadcast();
 
   test('ProxyEvaluationUpdateListenToken tests', () async {
@@ -29,11 +28,11 @@ void main() {
     final listenToken = dispatcher.addEvaluationUpdateListener(mockListener);
     expect(listenToken.isNotEmpty, true);
     expect(dispatcher.listenerCount(), 1);
-    // sent event 3 times
+    /// sent event 3 times
     eventController.add(true);
     eventController.add(true);
     eventController.add(true);
-    // wait 50ms because Stream is async
+    /// wait 50ms because Stream is async
     await Future.delayed(const Duration(milliseconds: 50));
     verify(() => mockListener.onUpdate()).called(3);
 
@@ -47,17 +46,17 @@ void main() {
     dispatcher.clearEvaluationUpdateListeners();
     expect(dispatcher.listenerCount(), 0);
 
-    // the new event sent. But no one listen to it
+    /// the new event sent. But no one listen to it
     eventController.add(true);
     eventController.add(true);
     eventController.add(true);
     eventController.add(true);
-    // wait 50ms because Stream is async
+    /// wait 50ms because Stream is async
     await Future.delayed(const Duration(milliseconds: 50));
-    // neverCalledMockListener is removed before any update sent
-    // so that, it will never get an update anymore
+    /// neverCalledMockListener is removed before any update sent
+    /// so that, it will never get an update anymore
     verifyNever(() => neverCalledMockListener.onUpdate());
-    // the same with mockListener
+    /// the same with mockListener
     verifyNever(() => mockListener.onUpdate());
   });
 }

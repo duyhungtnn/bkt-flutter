@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart';
 
+import 'exception.dart';
+
 @immutable
 class BKTResult<T> {
   const BKTResult._(this._result);
 
   const BKTResult.success({T? data}) : this._(data);
 
-  BKTResult.failure(String message) : this._(Failure(message));
+  BKTResult.failure(
+    String message, {
+    BKTException? exception,
+  }) : this._(Failure(message, exception: exception));
 
   final Object? _result;
 
@@ -24,10 +29,12 @@ class BKTResult<T> {
     }
   }
 
-  void ifFailure(void Function(String message) action) {
+  void ifFailure(void Function(String message, Exception? exception) action) {
     if (isFailure) {
-      final message = (_result as Failure).message;
-      action(message);
+      final failure = _result as Failure;
+      final message = failure.message;
+      final exception = failure.exception;
+      action(message, exception);
     }
   }
 
@@ -38,7 +45,8 @@ class BKTResult<T> {
   int get hashCode => runtimeType.hashCode ^ _result.hashCode;
 
   @override
-  bool operator ==(Object other) => other is BKTResult && other._result == _result;
+  bool operator ==(Object other) =>
+      other is BKTResult && other._result == _result;
 }
 
 @immutable
@@ -50,7 +58,10 @@ class Success<T> {
 
 @immutable
 class Failure {
-  const Failure(this.message);
-
+  const Failure(this.message, {this.exception});
+  final BKTException? exception;
   final String message;
+
+  @override
+  String toString() => '[message ($message) - ${exception.toString()}]';
 }

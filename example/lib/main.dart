@@ -187,8 +187,11 @@ class _MyHomePageState extends State<MyHomePage> {
       config: config,
       user: user,
     );
-    if (result.isSuccess) {
-      await BKTClient.instance.updateUserAttributes(
+
+    if (result.isSuccess || result.asFailure.exception is BKTTimeoutException) {
+      /// BKTClient.initialize success
+      const client = BKTClient.instance;
+      await client.updateUserAttributes(
         {'app_version': "1.2.4"},
       );
       showSnackbar(title: 'setUser', message: 'Successful the switchUser.');
@@ -199,10 +202,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _getCurrentUser() async {
-    final user = await BKTClient.instance.currentUser();
-    if (user != null) {
+    final userRs = await BKTClient.instance.currentUser();
+    userRs.ifSuccess((user) {
       showSnackbar(title: 'getUser(${user.id})', message: user.attributes.toString());
-    }
+    });
+    userRs.ifFailure((message, exception) {
+      showSnackbar(title: 'currentUser', message: 'Failed with error $message');
+    });
   }
 
   @override
